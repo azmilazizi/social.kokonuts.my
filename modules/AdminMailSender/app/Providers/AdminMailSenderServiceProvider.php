@@ -3,12 +3,10 @@
 namespace Modules\AdminMailSender\Providers;
 
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Throwable;
 
 class AdminMailSenderServiceProvider extends ServiceProvider
 {
@@ -46,26 +44,20 @@ class AdminMailSenderServiceProvider extends ServiceProvider
 
     public static function applyMailConfigFromOptions()
     {
-        try {
-            // Protocol
-            $protocol = get_option('mail_protocol', 'mail');
-            $driver = $protocol == 'smtp' ? 'smtp' : 'sendmail';
+        // Protocol
+        $protocol = get_option('mail_protocol', 'mail');
+        $driver = $protocol == 'smtp' ? 'smtp' : 'sendmail';
 
-            config([
-                'mail.default'                  => $driver,
-                'mail.mailers.smtp.host'        => get_option('smtp_server'),
-                'mail.mailers.smtp.port'        => get_option('smtp_port', 587),
-                'mail.mailers.smtp.username'    => get_option('smtp_username'),
-                'mail.mailers.smtp.password'    => get_option('smtp_password'),
-                'mail.mailers.smtp.encryption'  => strtolower(get_option('smtp_encryption', 'tls')) == 'none' ? null : strtolower(get_option('smtp_encryption', 'tls')),
-                'mail.from.address'             => get_option('mail_sender_email', 'example@gmail.com'),
-                'mail.from.name'                => get_option('mail_sender_name', 'Admin'),
-            ]);
-        } catch (Throwable $exception) {
-            Log::warning('Mail config options could not be loaded during boot.', [
-                'exception' => $exception,
-            ]);
-        }
+        config([
+            'mail.default'                  => $driver,
+            'mail.mailers.smtp.host'        => get_option('smtp_server'),
+            'mail.mailers.smtp.port'        => get_option('smtp_port', 587),
+            'mail.mailers.smtp.username'    => get_option('smtp_username'),
+            'mail.mailers.smtp.password'    => get_option('smtp_password'),
+            'mail.mailers.smtp.encryption'  => strtolower(get_option('smtp_encryption', 'tls')) == 'none' ? null : strtolower(get_option('smtp_encryption', 'tls')),
+            'mail.from.address'             => get_option('mail_sender_email', 'example@gmail.com'),
+            'mail.from.name'                => get_option('mail_sender_name', 'Admin'),
+        ]);
     }
 
     /**
