@@ -48,7 +48,7 @@
                 {{-- Logo --}}
                 <div class="w-auto p-4">
                     <a href="{{ url('/') }}">
-                        <img class="h-9" src="{{ url(get_option("website_logo_brand_dark", asset('public/img/logo-brand-dark.png'))) }}" alt="">
+                        <img class="h-9" src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" alt="">
                     </a>
                 </div>
                 {{-- Main Menu --}}
