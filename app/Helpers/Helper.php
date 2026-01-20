@@ -48,7 +48,19 @@ if (!function_exists('theme_public_asset')) {
     function theme_public_asset($path)
     {
         $theme = app()->bound('theme') ? app('theme') : '';
-        return asset("themes/{$theme}/{$path}");
+        $baseUrl = app_asset_base_url();
+        $assetPath = ltrim("themes/{$theme}/{$path}", '/');
+
+        return $baseUrl . '/' . $assetPath;
+    }
+}
+
+if (!function_exists('app_asset_base_url')) {
+    function app_asset_base_url(): string
+    {
+        $baseUrl = config('app.asset_url') ?: config('app.url') ?: env('APP_URL', '');
+
+        return rtrim($baseUrl, '/');
     }
 }
 
@@ -336,7 +348,9 @@ if (!function_exists("option_image_url")) {
             return $value;
         }
 
-        return asset(ltrim($value, '/'));
+        $baseUrl = app_asset_base_url();
+
+        return $baseUrl . '/' . ltrim($value, '/');
     }
 }
 
