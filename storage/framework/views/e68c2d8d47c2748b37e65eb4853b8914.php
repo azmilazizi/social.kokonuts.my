@@ -11,7 +11,7 @@
     <meta name="keywords" content="<?php echo e(get_option("website_keyword", config('site.keywords'))); ?>">
     <meta name="description" content="<?php echo e(get_option("website_description", config('site.description'))); ?>">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <link rel="icon" type="image/x-icon" href="<?php echo e(url( get_option("website_favicon", asset('public/img/favicon.png')) )); ?>">
+    <link rel="icon" type="image/x-icon" href="<?php echo e(option_image_url('website_favicon', 'public/img/favicon.png')); ?>">
     <title>
         <?php if (! empty(trim($__env->yieldContent('pagetitle')))): ?>
             <?php echo $__env->yieldContent('pagetitle'); ?>
@@ -134,4 +134,5 @@
     <?php echo Script::renderRaw(); ?>
 
 </body>
-</html><?php /**PATH /var/www/social.kokonuts.my/resources/themes/app/pico/resources/views/layouts/app.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH /var/www/social.kokonuts.my/resources/themes/app/pico/resources/views/layouts/app.blade.php ENDPATH**/ ?>
