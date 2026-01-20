@@ -23,7 +23,7 @@
                 <div class="msg-error mb-2"></div>
 
                 <button type="submit"
-                    class="py-3.5 px-6 w-full text-white font-semibold rounded-xl shadow-sm focus:ring focus:ring-gray-300 bg-slate-900 hover:bg-black transition ease-in-out duration-200">
+                    class="py-3.5 px-6 w-full text-white font-semibold rounded-xl shadow-sm focus:ring focus:ring-gray-300 bg-black hover:bg-gray-800 border border-black transition ease-in-out duration-200">
                     {{ __("Confirm") }}
                 </button>
             </form>
