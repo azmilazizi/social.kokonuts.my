@@ -194,6 +194,7 @@ class Authentication
         \Script::define('VARIABLES', [
             'csrf' => csrf_token(),
             'url' => rtrim(url('/'), '/') . '/',
+            'asset_url' => app_asset_base_url() . '/',
             'theme_asset' => theme_public_asset(''),
             'lang' => strtolower(app()->getLocale()),
             'format_date' => dateFormatJs(),

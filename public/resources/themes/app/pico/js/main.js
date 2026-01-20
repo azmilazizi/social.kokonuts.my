@@ -127,10 +127,11 @@ var Main = new (function ()
             var src = $img.attr('src');
 
             if ($img.hasClass('lazy') && src) {
+                var emptyImage = (typeof VARIABLES !== 'undefined' && VARIABLES.asset_url ? VARIABLES.asset_url : '/') + 'images/empty.png';
                 $img.attr('data-src', src);
-                $img.attr('src', '/images/empty.png');
+                $img.attr('src', emptyImage);
                 $img.addClass('lazyload');
-                $img.attr('onerror', "this.src='/images/empty.png'");
+                $img.attr('onerror', "this.src='" + emptyImage + "'");
             }
         });
     },
