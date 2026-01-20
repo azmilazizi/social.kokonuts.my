@@ -1,7 +1,7 @@
 <section class="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-16">
     <div class="w-full max-w-md text-center">
         <a class="inline-flex justify-center mb-6" href="<?php echo e(url('')); ?>">
-            <img class="h-12" src="<?php echo e(url( get_option("website_logo_brand_dark", asset('public/img/logo-brand-dark.png')) )); ?>" alt="">
+            <img class="h-12" src="<?php echo e(option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png')); ?>" alt="">
         </a>
         <h1 class="text-3xl font-semibold text-gray-900 mb-2">
             <?php echo e(__("Login")); ?>
@@ -39,7 +39,7 @@
 
                 <div class="msg-error mb-2"></div>
 
-                <button type="submit" class="mb-6 py-3.5 px-6 w-full text-white font-semibold rounded-xl shadow-sm focus:ring focus:ring-gray-300 bg-slate-900 hover:bg-black transition ease-in-out duration-200">
+                <button type="submit" class="mb-6 py-3.5 px-6 w-full text-white font-semibold rounded-xl shadow-sm focus:ring focus:ring-gray-300 bg-black hover:bg-gray-800 border border-black transition ease-in-out duration-200">
                     <?php echo e(__("Login")); ?>
 
                 </button>
