@@ -6,7 +6,7 @@
         <form class="actionForm max-w-md mx-auto w-full space-y-5" action="{{ module_url('do_signup') }}" method="POST">
         	<div class="show-on-mobile">
                 <a class="mb-4 inline-block" href="{{ url('') }}">
-                    <img class="h-10" src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" alt="">
+                    <img class="h-10" src="{{ asset('img/logo-brand-dark.png') }}" alt="">
                 </a>
                 <h2 class="mb-16 text-4xl md:text-4xl font-bold font-heading tracking-px-n leading-tight">
                     {{ __("Create an account & get started.") }}

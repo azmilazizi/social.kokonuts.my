@@ -5,7 +5,7 @@
                 <div class="flex flex-wrap items-center">
                     <div class="w-auto mr-14">
                         <a href="{{ url("") }}">
-                            <img class="h-9" src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" alt="">
+                            <img class="h-9" src="{{ asset('img/logo-brand-dark.png') }}" alt="">
                         </a>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                         <div class="flex items-center justify-between -m-2">
                             <div class="w-auto p-2">
                                 <a class="inline-block" href="{{ url("") }}">
-                                    <img class="h-9" src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" alt="">
+                                    <img class="h-9" src="{{ asset('img/logo-brand-dark.png') }}" alt="">
                                 </a>
                             </div>
                             <div class="w-auto p-2">
