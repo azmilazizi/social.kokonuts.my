@@ -11,7 +11,7 @@
     <meta name="keywords" content="{{ get_option("website_keyword", config('site.keywords')) }}">
     <meta name="description" content="{{ get_option("website_description", config('site.description')) }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/x-icon" href="{{ option_image_url('website_favicon', 'public/img/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.png') }}">
     <title>
         @hasSection('pagetitle')
             @yield('pagetitle')
