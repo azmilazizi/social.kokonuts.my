@@ -324,6 +324,22 @@ if (!function_exists("update_option")) {
     }
 }
 
+if (!function_exists("option_image_url")) {
+    function option_image_url($name, $fallback = "")
+    {
+        $value = get_option($name, $fallback);
+        if (empty($value)) {
+            return "";
+        }
+
+        if (preg_match('#^https?://#', $value) || str_starts_with($value, '//')) {
+            return $value;
+        }
+
+        return asset(ltrim($value, '/'));
+    }
+}
+
 
 if (!function_exists('ms')) {
     function ms($array, $type = false)
