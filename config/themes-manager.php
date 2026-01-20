@@ -11,7 +11,7 @@ return [
     | The root path contains themes collections.
     |
     */
-    'directory' => env('THEMES_DIR', 'themes'),
+    'directory' => env('THEMES_DIR', resource_path('themes')),
 
     /*
     |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ return [
     | you can change the public themes path used for assets.
     |
     */
-    'symlink_path' => env('THEMES_DIR', 'themes'),
+    'symlink_path' => env('THEMES_SYMLINK_PATH', 'public/themes'),
 
     /*
     |--------------------------------------------------------------------------

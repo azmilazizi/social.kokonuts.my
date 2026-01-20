@@ -1,4 +1,9 @@
 {
+  "resources/themes/guest/nova/assets/css/app.css": {
+    "file": "css/app.css",
+    "src": "resources/themes/guest/nova/assets/css/app.css",
+    "isEntry": true
+  },
   "resources/themes/guest/nova/assets/js/app.js": {
     "file": "js/app.js",
     "name": "app",

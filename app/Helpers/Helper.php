@@ -48,7 +48,7 @@ if (!function_exists('theme_public_asset')) {
     function theme_public_asset($path)
     {
         $theme = app()->bound('theme') ? app('theme') : '';
-        return asset("resources/themes/{$theme}/public/{$path}");
+        return asset("themes/{$theme}/{$path}");
     }
 }
 
@@ -92,51 +92,46 @@ if (!function_exists('menu_active')) {
 }
 
 if (!function_exists('theme_vite')) {
-    function theme_vite(string $theme, string $file = 'assets/js/app.js')
+    function theme_vite(string $theme, string $file = 'assets/js/app.js'): string
     {
-        static $isDevServer = null;
-        static $devServerUrl = null;
-
-        if (is_null($isDevServer)) {
-            $devServerUrl = env('VITE_DEV_URL', 'http://localhost:5173');
-            try {
-                $context = stream_context_create(['http' => ['timeout' => 0.3]]);
-                $headers = @get_headers($devServerUrl, 1, $context);
-                $isDevServer = $headers !== false;
-            } catch (\Exception $e) {
-                $isDevServer = false;
-            }
-        }
-
-        $filePath = "resources/themes/{$theme}/{$file}";
-
-        if ($isDevServer) {
-            $viteClient = '<script type="module" src="' . $devServerUrl . '/@vite/client"></script>';
-            $themeAsset = '<script type="module" src="' . $devServerUrl . '/' . $filePath . '"></script>';
-            return new HtmlString($viteClient . "\n" . $themeAsset);
-        }
-
         $manifestPath = base_path("resources/themes/{$theme}/public/.vite/manifest.json");
-        if (!file_exists($manifestPath)) {
-            return new HtmlString("<!-- Vite manifest not found for theme {$theme} -->");
-        }
+        if (!file_exists($manifestPath)) return '';
+
         $manifest = json_decode(file_get_contents($manifestPath), true);
-        if (!isset($manifest[$filePath])) {
-            return new HtmlString("<!-- Asset {$filePath} not found in manifest for theme {$theme} -->");
+        if (!is_array($manifest)) return '';
+
+        // Build the manifest key exactly like your manifest uses
+        // Example: resources/themes/guest/nova/assets/js/app.js
+        $key = "resources/themes/{$theme}/" . ltrim($file, '/');
+
+        if (!isset($manifest[$key])) {
+            // fallback: try css entry if js not found
+            $cssKey = "resources/themes/{$theme}/assets/css/app.css";
+            if (isset($manifest[$cssKey])) {
+                return '<link rel="stylesheet" href="' . e(theme_public_asset($manifest[$cssKey]['file'])) . '">';
+            }
+            return '';
         }
 
-        $html = '';
-        if (!empty($manifest[$filePath]['css'])) {
-            foreach ($manifest[$filePath]['css'] as $css) {
-                $cssPath = "/resources/themes/{$theme}/public/" . $css;
-                $html .= '<link rel="stylesheet" href="' . asset($cssPath) . '">' . PHP_EOL;
+        $entry = $manifest[$key];
+        $tags = [];
+
+        // CSS (from entry)
+        if (!empty($entry['css']) && is_array($entry['css'])) {
+            foreach ($entry['css'] as $css) {
+                $tags[] = '<link rel="stylesheet" href="' . e(theme_public_asset($css)) . '">';
             }
         }
-        $jsPath = "/resources/themes/{$theme}/public/" . $manifest[$filePath]['file'];
-        $html .= '<script type="module" src="' . asset($jsPath) . '"></script>';
-        return new HtmlString($html);
+
+        // JS
+        if (!empty($entry['file'])) {
+            $tags[] = '<script type="module" src="' . e(theme_public_asset($entry['file'])) . '" defer></script>';
+        }
+
+        return implode("\n", $tags);
     }
 }
+
 
 function watermark($media= "", $team = 1, $account = 1){
     return $media;
