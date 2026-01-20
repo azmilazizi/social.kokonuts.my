@@ -14,7 +14,7 @@
     <meta name="keywords" content="<?php echo e(get_option("website_keyword", config('site.keywords'))); ?>">
     <meta name="description" content="<?php echo e(get_option("website_description", config('site.description'))); ?>">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <link rel="icon" type="image/x-icon" href="<?php echo e(url( get_option("website_favicon", asset('public/img/favicon.png')) )); ?>">
+    <link rel="icon" type="image/x-icon" href="<?php echo e(option_image_url('website_favicon', 'public/img/favicon.png')); ?>">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.cdnfonts.com/css/general-sans?styles=135312,135310,135313,135303" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -67,4 +67,5 @@
     <script type="text/javascript" src="<?php echo e(theme_public_asset('js/jquery.min.js')); ?>"></script>
     <script type="text/javascript" src="<?php echo e(theme_public_asset('js/main.js')); ?>"></script>
 </body>
-</html><?php /**PATH /var/www/social.kokonuts.my/resources/themes/guest/nova/resources/views/layouts/app.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH /var/www/social.kokonuts.my/resources/themes/guest/nova/resources/views/layouts/app.blade.php ENDPATH**/ ?>

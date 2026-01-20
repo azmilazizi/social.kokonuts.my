@@ -1,7 +1,7 @@
 <section class="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-16">
     <div class="w-full max-w-md text-center">
         <a class="inline-flex justify-center mb-6" href="<?php echo e(url('')); ?>">
-            <img class="h-12" src="<?php echo e(url( get_option("website_logo_brand_dark", asset('public/img/logo-brand-dark.png')) )); ?>" alt="">
+            <img class="h-12" src="<?php echo e(option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png')); ?>" alt="">
         </a>
         <h1 class="text-3xl font-semibold text-gray-900 mb-2">
             <?php echo e(__("Login")); ?>
