@@ -4,10 +4,10 @@
         <div class="min-h-22px overflow-hidden">
             <a href="{{ session('login_as') == "admin" ? route("admin.dashboard") : route("app.dashboard") }}">
                 <div class="logo-small">
-                    <img src="{{ option_image_url('website_logo_dark', 'public/img/logo-dark.png') }}" class="max-w-180 max-h-35">
+                    <img src="{{ asset('img/logo-dark.png') }}" class="max-w-180 max-h-35">
                 </div>
                 <div class="logo-large">
-                    <img src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" class="max-w-180 max-h-35">
+                    <img src="{{ asset('img/logo-brand-dark.png') }}" class="max-w-180 max-h-35">
                 </div>
             </a>
         </div>

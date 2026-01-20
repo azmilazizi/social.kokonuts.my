@@ -2,7 +2,7 @@
     <img class="absolute left-0 z-20 bottom-0 pointer-events-none hide-on-mobile" src="{{ theme_public_asset('images/sign-up/gradient.svg') }}" alt="" />
     <div class="max-w-lg mx-auto">
         <a class="mb-28 inline-block" href="{{ url('') }}">
-            <img class="h-10" src="{{ option_image_url('website_logo_brand_dark', 'public/img/logo-brand-dark.png') }}" alt="">
+            <img class="h-10" src="{{ asset('img/logo-brand-dark.png') }}" alt="">
         </a>
         <h2 class="mb-32 text-6xl md:text-7xl font-bold font-heading tracking-px-n leading-tight">
             {{ $name ?? __("Welcome Back") }}
