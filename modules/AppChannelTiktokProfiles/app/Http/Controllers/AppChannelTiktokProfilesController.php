@@ -17,6 +17,8 @@ class AppChannelTiktokProfilesController extends Controller
     public function __construct()
     {
         \Access::check('appchannels.' . module('key'));
+
+        $this->ensureNativeSession();
         
         $this->app_id = get_option("tiktok_app_id", "");
         $this->app_secret = get_option("tiktok_app_secret", "");
@@ -32,6 +34,13 @@ class AppChannelTiktokProfilesController extends Controller
         } catch (\Exception $e) {
             \Log::error('TikTok SDK init error', ['error' => $e->getMessage()]);
             \Access::deny(__('Could not connect to TikTok API: ') . $e->getMessage());
+        }
+    }
+
+    protected function ensureNativeSession(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
         }
     }
 
