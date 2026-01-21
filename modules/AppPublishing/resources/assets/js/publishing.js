@@ -175,25 +175,49 @@ var AppPubishing = new (function ()
     AppPubishing.preview = function () {
         var profileFound = false;
         $(".cpv").addClass("d-none");
-        $(".am-list-account .am-choice-body .am-choice-item").each(function () {
-            var $item = $(this);
-            if ($item.find("input").is(':checked')) {
-                var network = $item.data("social-network");
-                var avatar = $item.data("avatar");
-                var name = $item.data("name");
-                var username = $item.data("username");
-                $(".cpv").each(function () {
-                    var $cpv = $(this);
-                    var previewNetwork = $cpv.data("social-network");
-                    if (network == previewNetwork) {
-                        $cpv.removeClass("d-none");
-                        $cpv.find(".cpv-avatar").attr("src", avatar);
-                        $cpv.find(".cpv-name").text(name);
-                        $cpv.find(".cpv-username").text(username);
-                        profileFound = true;
+
+        function collectSelectedAccounts() {
+            var selections = [];
+            $(".am-list-account .am-choice-body .am-choice-item input:checked").each(function () {
+                var $item = $(this).closest(".am-choice-item");
+                if ($item.length) {
+                    selections.push($item);
+                }
+            });
+
+            if (selections.length === 0) {
+                $(".am-selected-list .am-selected-item").each(function () {
+                    var id = $(this).data("id");
+                    if (!id) {
+                        return;
+                    }
+                    var $item = $(".am-list-account .am-choice-body .am-choice-item input[value='" + id + "']").closest(".am-choice-item");
+                    if ($item.length) {
+                        selections.push($item);
                     }
                 });
             }
+
+            return selections;
+        }
+
+        var selectedAccounts = collectSelectedAccounts();
+        selectedAccounts.forEach(function ($item) {
+            var network = $item.data("social-network");
+            var avatar = $item.data("avatar");
+            var name = $item.data("name");
+            var username = $item.data("username");
+            $(".cpv").each(function () {
+                var $cpv = $(this);
+                var previewNetwork = $cpv.data("social-network");
+                if (network == previewNetwork) {
+                    $cpv.removeClass("d-none");
+                    $cpv.find(".cpv-avatar").attr("src", avatar);
+                    $cpv.find(".cpv-name").text(name);
+                    $cpv.find(".cpv-username").text(username);
+                    profileFound = true;
+                }
+            });
         });
 
         if (!profileFound) {
