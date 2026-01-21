@@ -237,6 +237,7 @@
                                         'facebook' => 'fa-brands fa-facebook text-primary',
                                         'instagram' => 'fa-brands fa-instagram text-danger',
                                         'tiktok' => 'fa-brands fa-tiktok text-dark',
+                                        'youtube' => 'fa-brands fa-youtube text-danger',
                                         default => 'fa-regular fa-share-nodes text-gray-500',
                                     };
                                 @endphp
