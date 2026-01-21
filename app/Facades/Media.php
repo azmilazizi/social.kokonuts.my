@@ -37,7 +37,7 @@ class Media extends Facade
     protected static function url($path = '')
     {
         if (empty($path)) {
-            return url(Storage::url('app/public/'));
+            return url('storage/');
         }
         
         // If already a valid URL, return it
@@ -50,7 +50,7 @@ class Media extends Facade
             return Storage::disk($disk)->url($path);
         }
         
-        return url(Storage::url('app/public/' . $path));
+        return url('storage/' . ltrim($path, '/'));
     }
 
     /**
@@ -58,7 +58,7 @@ class Media extends Facade
      */
     protected static function getPathFromUrl($path = '')
     { 
-        $baseUrl = url(Storage::url('app/public/'));
+        $baseUrl = url('storage/');
         return str_replace($baseUrl . "/", "", $path);
     }
 
