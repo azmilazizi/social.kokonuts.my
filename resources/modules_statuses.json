@@ -65,7 +65,6 @@
     "AppChannelLinkedinPages": true,
     "AppChannelLinkedinProfiles": true,
     "AppChannelTiktokProfiles": true,
-    "AppChannelThreadsUnofficial": true,
     "AppChannelXProfiles": true,
     "AppChannelXUnofficial": true,
     "AppChannels": true,
@@ -94,5 +93,6 @@
     "PaymentStripe": true,
     "PaymentStripeRecurring": true,
     "AppSlimu": true,
-    "Payment.zip": true
+    "Payment.zip": true,
+    "AppChannelThreadsUnofficial": true
 }
