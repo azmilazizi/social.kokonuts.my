@@ -303,12 +303,13 @@ var Files = new (function ()
         $(document).on('change', upload_id, function() {
             var folder_id = $('[name="folder_id"]:checked').val();
             var form_data = new FormData();
-            form_data.append("name", upload_id_name);
+            var inputId = this.id || upload_id_name;
+            form_data.append("name", inputId);
             form_data.append("folder_id", folder_id == undefined ? "0" : folder_id);
 
-            var totalfiles = document.getElementById(upload_id_name).files.length;
+            var totalfiles = this.files ? this.files.length : 0;
             for (var index = 0; index < totalfiles; index++) {
-                form_data.append("files[]", document.getElementById(upload_id_name).files[index]);
+                form_data.append("files[]", this.files[index]);
             }
 
             $(this).val('');
