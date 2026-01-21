@@ -65,6 +65,7 @@
     "AppChannelLinkedinPages": true,
     "AppChannelLinkedinProfiles": true,
     "AppChannelTiktokProfiles": true,
+    "AppChannelThreadsUnofficial": true,
     "AppChannelXProfiles": true,
     "AppChannelXUnofficial": true,
     "AppChannels": true,

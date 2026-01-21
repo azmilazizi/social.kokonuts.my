@@ -1,0 +1,23 @@
+{
+    "name": "AppChannelThreadsUnofficial",
+    "alias": "appchannelthreadsunoofficial",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AppChannelThreadsUnofficial\\Providers\\AppChannelThreadsUnofficialServiceProvider"
+    ],
+    "files": [],
+    "permission": false,
+    "menu": {
+        "uri": "app/threads/profile",
+        "role": "client",
+        "platform": 1,
+        "section": "",
+        "tab_id": 1,
+        "position": 1500,
+        "name": "Threads profiles",
+        "color": "#101010",
+        "icon": "fa-brands fa-threads"
+    }
+}
