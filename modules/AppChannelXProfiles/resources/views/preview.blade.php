@@ -123,10 +123,10 @@ function renderXMediaGrid(elements) {
 }
 
 function onXMediaItemsChange() {
-    var x_elements = document.querySelectorAll('.cpv-x-img > img, .cpv-x-img > div');
+    var x_elements = document.querySelectorAll('.cpv-x-img > img, .cpv-x-img > div, .cpv-x-img > video');
     if (x_elements.length > 0) {
         var x_mediaList = Array.from(x_elements).filter(el =>
-            el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+            ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
         );
 
         var x_rendered = renderXMediaGrid(x_mediaList);
