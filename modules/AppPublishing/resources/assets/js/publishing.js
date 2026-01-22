@@ -281,7 +281,7 @@ var AppPubishing = new (function ()
                 if (type == "image") {
                     return `<img src="${file}"/>`;
                 } else if (type == "video") {
-                    return `<div class="bg-gray-400 hp-100 d-flex align-items-center justify-content-center fs-60 text-white"><i class="fa-solid fa-play"></i></div>`;
+                    return `<video class="cpv-video" src="${file}" controls playsinline></video>`;
                 }
             }).join('');
             if (allMedias.length === 0) {
