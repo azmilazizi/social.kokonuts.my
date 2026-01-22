@@ -150,6 +150,7 @@ class Post extends Facade
         $videoId = $uploadSession['video_id'];
         $uploadResponse = $FB->post("/$videoId", [
             'file_url' => $mediaUrl,
+            'description' => $caption,
         ], $post->account->token)->getDecodedBody();
 
         if (empty($uploadResponse['success']) || $uploadResponse['success'] != 1) {
