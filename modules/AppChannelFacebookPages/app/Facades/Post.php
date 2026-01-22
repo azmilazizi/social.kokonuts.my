@@ -205,6 +205,21 @@ class Post extends Facade
             'description' => $caption,
         ], $post->account->token)->getDecodedBody();
 
+        if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
+            return [
+                "status" => 0,
+                "message" => __("Could not transfer Reels upload."),
+                "type" => $post->type,
+            ];
+        }
+
+        $finishResponse = $FB->post($endpoint . 'video_reels', [
+            'upload_phase' => 'finish',
+            'upload_session_id' => $uploadSessionId,
+            'video_id' => $videoId,
+            'description' => $caption,
+        ], $post->account->token)->getDecodedBody();
+
         if (empty($finishResponse['success']) || $finishResponse['success'] != 1) {
             return [
                 "status" => 0,
@@ -213,13 +228,46 @@ class Post extends Facade
             ];
         }
 
-        // (Implement polling if needed, left as an exercise)
+        $maxAttempts = 10;
+        $pollDelaySeconds = 3;
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $statusResponse = $FB->get("/$videoId?fields=status", $post->account->token)->getDecodedBody();
+            $status = $statusResponse['status'] ?? [];
+            $error = $status['error'] ?? null;
+
+            if ($error) {
+                $errorMessage = is_array($error) ? ($error['message'] ?? __("Reels processing failed.")) : $error;
+                return [
+                    "status" => 0,
+                    "message" => $errorMessage,
+                    "type" => $post->type,
+                ];
+            }
+
+            $processingPhase = strtolower($status['processing_phase'] ?? '');
+            $publishPhase = strtolower($status['publish_phase'] ?? '');
+            $videoStatus = strtolower($status['video_status'] ?? '');
+
+            $isProcessed = in_array($processingPhase, ['complete', 'finished'], true) || $processingPhase === '';
+            $isPublished = in_array($publishPhase, ['complete', 'published'], true);
+            $isReady = in_array($videoStatus, ['ready', 'published'], true);
+
+            if ($isProcessed && ($isPublished || $isReady)) {
+                return [
+                    "status" => 1,
+                    "message" => __("Success"),
+                    "id" => $videoId,
+                    "url" => "https://www.facebook.com/reel/",
+                    "type" => "reels",
+                ];
+            }
+
+            sleep($pollDelaySeconds);
+        }
 
         return [
-            "status" => 1,
-            "message" => __("Success"),
-            "id" => $videoId,
-            "url" => "https://www.facebook.com/reel/",
+            "status" => 0,
+            "message" => __("Reels processing timed out."),
             "type" => "reels",
         ];
     }

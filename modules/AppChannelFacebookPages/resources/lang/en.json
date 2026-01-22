@@ -40,6 +40,8 @@
     "Could not create upload session for Reels.": "Could not create upload session for Reels.",
     "Could not transfer Reels upload.": "Could not transfer Reels upload.",
     "Could not finish Reels upload.": "Could not finish Reels upload.",
+    "Reels processing failed.": "Reels processing failed.",
+    "Reels processing timed out.": "Reels processing timed out.",
     "Facebook Reels do not support link posts.": "Facebook Reels do not support link posts.",
     "Facebook Reels do not support text-only posts.": "Facebook Reels do not support text-only posts.",
     "Unknown Reels post type.": "Unknown Reels post type.",
