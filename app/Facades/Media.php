@@ -58,6 +58,58 @@ class Media extends Facade
     }
 
     /**
+     * Generate (or reuse) a thumbnail image for a local video file using FFmpeg.
+     */
+    protected static function videoThumbnail($path, $second = 1)
+    {
+        if (empty($path)) {
+            return '';
+        }
+
+        $sourceUrl = self::url($path);
+        $relativePath = self::getPathFromUrl($sourceUrl);
+
+        if (empty($relativePath)) {
+            return '';
+        }
+
+        $storageDisk = Storage::disk('public');
+        if (!$storageDisk->exists($relativePath)) {
+            return '';
+        }
+
+        $thumbnailDir = 'thumbnails/videos';
+        $thumbnailName = md5($relativePath) . '.jpg';
+        $thumbnailPath = $thumbnailDir . '/' . $thumbnailName;
+
+        if ($storageDisk->exists($thumbnailPath)) {
+            return self::url($thumbnailPath);
+        }
+
+        $storageDisk->makeDirectory($thumbnailDir);
+
+        $inputPath = $storageDisk->path($relativePath);
+        $outputPath = $storageDisk->path($thumbnailPath);
+
+        $second = max(0, (int) $second);
+        $timeStamp = sprintf('00:00:%02d', $second);
+        $command = sprintf(
+            'ffmpeg -y -ss %s -i %s -frames:v 1 -q:v 2 %s 2>/dev/null',
+            escapeshellarg($timeStamp),
+            escapeshellarg($inputPath),
+            escapeshellarg($outputPath)
+        );
+
+        exec($command, $output, $status);
+
+        if ($status === 0 && $storageDisk->exists($thumbnailPath)) {
+            return self::url($thumbnailPath);
+        }
+
+        return '';
+    }
+
+    /**
      * Extract the relative file path from a full URL.
      */
     protected static function getPathFromUrl($path = '')
