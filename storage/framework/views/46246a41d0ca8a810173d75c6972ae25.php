@@ -11,6 +11,9 @@
 
                 <?php
                     $detectType = Media::detectFileIcon($value->detect);
+                    $previewUrl = $value->detect === 'video'
+                        ? (Media::videoThumbnail($value->file) ?: Media::url($value->file))
+                        : Media::url($value->file);
                 ?>
 
                 <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected text-<?php echo e($detectType['color']); ?> bg-<?php echo e($detectType['color']); ?>-100" data-id="file_<?php echo e($value->id_secure); ?>" data-file="<?php echo e(Media::url($value->file)); ?>" data-type="<?php echo e($value->detect); ?>">
@@ -20,7 +23,7 @@
                                 <input class="form-check-input" name="medias[]" type="text" value="<?php echo e($value->file); ?>" id="file_<?php echo e($value->id_secure); ?>" style="display: none;">
                             </div>
                         </div>
-                        <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" <?php echo $value->detect=="image"?'style="background-image: url(\''.Media::url($value->file).'\');"':''; ?>>
+                        <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" <?php echo in_array($value->detect, ['image', 'video'], true) && $previewUrl ? 'style="background-image: url(\'' . $previewUrl . '\');"' : ''; ?>>
                             <?php if($value->detect != "image"): ?>
                             <div class="fs-30">
                                 <i class="<?php echo e($detectType['icon']); ?>"></i>
@@ -43,5 +46,4 @@
 </div>
 
 <button type="button" class="btn btn-dark btn-lg d-lg-none d-md-none d-sm-block mt-3 w-100 showMedia"><?php echo e(__("Select media")); ?></button>
-
 <?php /**PATH /var/www/social.kokonuts.my/modules/AppFiles/resources/views/block_selected_files.blade.php ENDPATH**/ ?>
