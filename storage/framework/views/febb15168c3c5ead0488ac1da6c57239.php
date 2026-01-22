@@ -51,7 +51,7 @@
     }
 
     function tiktok_onMediaItemsChange() {
-        var elements = document.querySelectorAll('.cpv-tiktok-img > img, .cpv-tiktok-img > div');
+        var elements = document.querySelectorAll('.cpv-tiktok-img > img, .cpv-tiktok-img > div, .cpv-tiktok-img > video');
         if (elements.length > 0) {
             var rendered = tiktok_renderFirstMedia(Array.from(elements));
             view.innerHTML = rendered;
