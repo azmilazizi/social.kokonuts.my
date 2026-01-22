@@ -113,9 +113,9 @@ function instagram_renderStoryImage(elements) {
 }
 
 function updateInstagramPreviews() {
-    var elements = document.querySelectorAll('.cpv-instagram-img > img, .cpv-instagram-img > div');
+    var elements = document.querySelectorAll('.cpv-instagram-img > img, .cpv-instagram-img > div, .cpv-instagram-img > video');
     var mediaList = Array.from(elements).filter(el =>
-        el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+        ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
     );
 
     if (mediaList.length > 0) {

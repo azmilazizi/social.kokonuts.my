@@ -69,6 +69,15 @@
     display: block;
 }
 
+.img-wrap video,
+.img-wrap-4x3 video,
+.img-wrap-16x9 video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 .cpv-video::-webkit-media-controls-timeline,
 .cpv-video::-webkit-media-controls-time-remaining-display,
 .cpv-video::-webkit-media-controls-current-time-display {
