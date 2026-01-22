@@ -4,6 +4,7 @@ namespace Modules\AppFiles\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use Modules\AppFiles\Models\Files;
 use Intervention\Image\ImageManager;
 use Illuminate\Http\File;
@@ -256,6 +257,22 @@ class UploadFileService
         $fileContent = @file_get_contents($url);
 
         if ($fileContent === false) {
+            try {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (compatible; KokonutsSocial/1.0)',
+                ])->timeout(20)->get($url);
+
+                if ($response->successful()) {
+                    $fileContent = $response->body();
+                } else {
+                    throw new \Exception("Remote request failed with status {$response->status()}");
+                }
+            } catch (\Exception $e) {
+                throw new \Exception("Unable to download file from URL: $url");
+            }
+        }
+
+        if ($fileContent === false || $fileContent === '') {
             throw new \Exception("Unable to download file from URL: $url");
         }
 
