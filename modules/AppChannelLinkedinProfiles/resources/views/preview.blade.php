@@ -133,10 +133,10 @@ function linkedin_renderMediaGrid(elements) {
 }
 
 function linkedin_onMediaItemsChange() {
-    var linkedin_elements = document.querySelectorAll('.cpv-linkedin-img > img, .cpv-linkedin-img > div');
+    var linkedin_elements = document.querySelectorAll('.cpv-linkedin-img > img, .cpv-linkedin-img > div, .cpv-linkedin-img > video');
     if (linkedin_elements.length > 0) {
         var linkedin_mediaList = Array.from(linkedin_elements).filter(el =>
-            el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+            ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
         );
 
         var linkedin_rendered = linkedin_renderMediaGrid(linkedin_mediaList);

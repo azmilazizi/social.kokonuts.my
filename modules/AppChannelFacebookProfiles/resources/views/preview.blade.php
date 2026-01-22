@@ -130,10 +130,10 @@ function fb_renderMediaGrid(elements) {
 }
 
 function fb_onMediaItemsChange() {
-    var fb_elements = document.querySelectorAll('.cpv-fb-img > img, .cpv-fb-img > div');
+    var fb_elements = document.querySelectorAll('.cpv-fb-img > img, .cpv-fb-img > div, .cpv-fb-img > video');
     if (fb_elements.length > 0) {
         var fb_mediaList = Array.from(fb_elements).filter(el =>
-            el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+            ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
         );
 
         var fb_rendered = fb_renderMediaGrid(fb_mediaList);
