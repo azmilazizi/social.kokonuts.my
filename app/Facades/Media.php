@@ -44,6 +44,10 @@ class Media extends Facade
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
+
+        if (str_starts_with($path, 'storage/') || str_starts_with($path, '/storage/')) {
+            return url(ltrim($path, '/'));
+        }
         
         $disk = config('filesystems.default');
         if (in_array($disk, ['aws', 's3'])) {
