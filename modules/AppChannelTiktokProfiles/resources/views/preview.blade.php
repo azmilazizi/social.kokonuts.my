@@ -16,8 +16,8 @@
     <div class="mb-0">
         <div class="cpv-media">
             <div class="cpv-img w-100 cpv-tiktok-img d-none"></div>
-            <div class="cpv-tiktok-img-view w-100 bg-gray-900 text-white d-flex align-items-center justify-content-center" style="height: 520px;">
-                <i class="fa-solid fa-play fs-50"></i>
+            <div class="cpv-tiktok-img-view w-100">
+                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
             </div>
         </div>
 
@@ -62,12 +62,8 @@
         if (elements.length > 0) {
             var rendered = tiktok_renderFirstMedia(Array.from(elements));
             view.innerHTML = rendered;
-            view.classList.remove('bg-gray-900', 'text-white', 'align-items-center', 'justify-content-center');
-            view.style.height = '';
         } else {
             view.innerHTML = defaultHtml;
-            view.classList.add('bg-gray-900', 'text-white', 'align-items-center', 'justify-content-center');
-            view.style.height = '520px';
         }
     }
 
