@@ -69,8 +69,57 @@
     display: block;
 }
 
+.cpv-video-frame {
+    position: relative;
+    width: 100%;
+}
+
+.cpv-video-cell {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.cpv-video-toggle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    border: 0;
+    font-size: 32px;
+    transition: opacity 0.25s ease;
+    opacity: 1;
+    cursor: pointer;
+}
+
+.cpv-video-frame.is-playing .cpv-video-toggle {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cpv-video::-webkit-media-controls,
+.cpv-video::-webkit-media-controls-enclosure,
+.cpv-video::-webkit-media-controls-panel,
+.cpv-video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+}
+
+.cpv-video::-moz-media-controls {
+    display: none;
+}
+
 .cpv-video::-webkit-media-controls-timeline,
 .cpv-video::-webkit-media-controls-time-remaining-display,
 .cpv-video::-webkit-media-controls-current-time-display {
     display: none;
+}
+
+.cpv-video-cell .cpv-video,
+.cpv-video-frame .cpv-video {
+    width: 100%;
+    height: auto;
+    display: block;
 }

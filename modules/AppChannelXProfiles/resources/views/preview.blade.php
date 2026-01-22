@@ -77,27 +77,32 @@ function renderXMediaGrid(elements) {
 
     let x_html = '';
 
+    function x_renderMediaItem(element, className = '', overlayHtml = '', style = '') {
+        var tagName = element.tagName.toLowerCase();
+        var isVideo = tagName === 'video' || (tagName === 'div' && element.dataset.mediaType === 'video');
+        var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+        return `<div class="${wrapperClass} ${className}"${style}>${element.outerHTML}${overlayHtml}</div>`;
+    }
+
     if (x_total === 1) {
         x_html += `
             <div class="cpv-grid" style="grid-template-columns: 1fr;">
-                <div class="img-wrap b-r-10" style="aspect-ratio: 16 / 9;">
-                    ${elements[0].outerHTML}
-                </div>
+                ${x_renderMediaItem(elements[0], 'b-r-10', '', ' style="aspect-ratio: 16 / 9;"')}
             </div>
         `;
     } else if (x_total === 2) {
         x_html += `
             <div class="cpv-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="img-wrap btl-r-10 bbl-r-10">${elements[0].outerHTML}</div>
-                <div class="img-wrap btr-r-10 bbr-r-10">${elements[1].outerHTML}</div>
+                ${x_renderMediaItem(elements[0], 'btl-r-10 bbl-r-10')}
+                ${x_renderMediaItem(elements[1], 'btr-r-10 bbr-r-10')}
             </div>
         `;
     } else if (x_total === 3) {
         x_html += `
             <div class="cpv-grid" style="grid-template-columns: 2fr 1fr; grid-template-rows: repeat(2, 1fr);">
-                <div class="img-wrap btl-r-10 bbl-r-10" style="grid-row: span 2;">${elements[0].outerHTML}</div>
-                <div class="img-wrap btr-r-10">${elements[1].outerHTML}</div>
-                <div class="img-wrap bbr-r-10">${elements[2].outerHTML}</div>
+                ${x_renderMediaItem(elements[0], 'btl-r-10 bbl-r-10', '', ' style="grid-row: span 2;"')}
+                ${x_renderMediaItem(elements[1], 'btr-r-10')}
+                ${x_renderMediaItem(elements[2], 'bbr-r-10')}
             </div>
         `;
     } else {
@@ -113,7 +118,7 @@ function renderXMediaGrid(elements) {
             else if (idx === 2) radiusClass = 'bbl-r-10';
             else if (idx === 3) radiusClass = 'bbr-r-10';
 
-            x_html += `<div class="img-wrap ${radiusClass}">${el.outerHTML}${overlay}</div>`;
+            x_html += x_renderMediaItem(el, radiusClass, overlay);
         });
 
         x_html += `</div>`;
@@ -123,10 +128,10 @@ function renderXMediaGrid(elements) {
 }
 
 function onXMediaItemsChange() {
-    var x_elements = document.querySelectorAll('.cpv-x-img > img, .cpv-x-img > div');
+    var x_elements = document.querySelectorAll('.cpv-x-img > img, .cpv-x-img > div, .cpv-x-img > video');
     if (x_elements.length > 0) {
         var x_mediaList = Array.from(x_elements).filter(el =>
-            el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+            ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
         );
 
         var x_rendered = renderXMediaGrid(x_mediaList);
