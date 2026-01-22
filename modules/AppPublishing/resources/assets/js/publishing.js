@@ -281,7 +281,14 @@ var AppPubishing = new (function ()
                 if (type == "image") {
                     return `<img src="${file}"/>`;
                 } else if (type == "video") {
-                    return `<video class="cpv-video" src="${file}" controls playsinline></video>`;
+                    return `
+                        <div class="cpv-video-frame" data-media-type="video">
+                            <video class="cpv-video" src="${file}" playsinline></video>
+                            <button type="button" class="cpv-video-toggle" aria-label="Play video">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                        </div>
+                    `;
                 }
             }).join('');
             if (allMedias.length === 0) {
@@ -312,6 +319,72 @@ var AppPubishing = new (function ()
             onMediaItemsChange();
         } else {
             onMediaItemsChange();
+        }
+
+        if (!window.cpvVideoPreviewBound) {
+            window.cpvVideoPreviewBound = true;
+
+            document.addEventListener('click', function (event) {
+                var toggle = event.target.closest('.cpv-video-toggle');
+                var video = event.target.closest('.cpv-video');
+                var frame = event.target.closest('.cpv-video-frame');
+
+                if (toggle) {
+                    frame = toggle.closest('.cpv-video-frame');
+                    video = frame ? frame.querySelector('.cpv-video') : null;
+                }
+
+                if (!frame || !video) {
+                    return;
+                }
+
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            document.addEventListener('play', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                var toggle = frame ? frame.querySelector('.cpv-video-toggle') : null;
+                if (toggle) {
+                    toggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                }
+                if (frame) {
+                    frame.classList.add('is-playing');
+                }
+            }, true);
+
+            document.addEventListener('pause', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                var toggle = frame ? frame.querySelector('.cpv-video-toggle') : null;
+                if (toggle) {
+                    toggle.innerHTML = '<i class="fa-solid fa-play"></i>';
+                }
+                if (frame) {
+                    frame.classList.remove('is-playing');
+                }
+            }, true);
+
+            document.addEventListener('ended', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                if (frame) {
+                    frame.classList.remove('is-playing');
+                }
+            }, true);
         }
     },
 

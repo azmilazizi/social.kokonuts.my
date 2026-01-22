@@ -79,13 +79,19 @@ function instagram_renderMediaCarousel(elements) {
     if (elements.length === 0) return '';
 
     var id = 'instagram-carousel-' + Math.random().toString(36).substr(2, 8);
+    function instagram_renderMediaItem(element) {
+        var tagName = element.tagName.toLowerCase();
+        var isVideo = tagName === 'video' || (tagName === 'div' && element.dataset.mediaType === 'video');
+        var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+        return `<div class="${wrapperClass}">${element.outerHTML}</div>`;
+    }
 
     let items = '';
     elements.forEach((el, idx) => {
         var isActive = idx === 0 ? 'active' : '';
         items += `
             <div class="carousel-item ${isActive}">
-                <div class="img-wrap">${el.outerHTML}</div>
+                ${instagram_renderMediaItem(el)}
             </div>
         `;
     });
@@ -109,13 +115,16 @@ function instagram_renderMediaCarousel(elements) {
 function instagram_renderStoryImage(elements) {
     if (elements.length === 0) return '';
     var first = elements[0];
-    return `<div class="img-wrap hp-100 wp-100">${first.outerHTML}</div>`;
+    var tagName = first.tagName.toLowerCase();
+    var isVideo = tagName === 'video' || (tagName === 'div' && first.dataset.mediaType === 'video');
+    var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+    return `<div class="${wrapperClass} hp-100 wp-100">${first.outerHTML}</div>`;
 }
 
 function updateInstagramPreviews() {
-    var elements = document.querySelectorAll('.cpv-instagram-img > img, .cpv-instagram-img > div');
+    var elements = document.querySelectorAll('.cpv-instagram-img > img, .cpv-instagram-img > div, .cpv-instagram-img > video');
     var mediaList = Array.from(elements).filter(el =>
-        el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+        ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
     );
 
     if (mediaList.length > 0) {
