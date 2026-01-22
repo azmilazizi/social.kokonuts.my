@@ -173,6 +173,7 @@ class Post extends Facade
             'upload_phase' => 'transfer',
             'upload_session_id' => $uploadSessionId,
             'file_url' => $mediaUrl,
+            'description' => $caption,
         ], $post->account->token)->getDecodedBody();
 
         if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
@@ -186,6 +187,20 @@ class Post extends Facade
         $finishResponse = $FB->post($endpoint . 'video_reels', [
             'upload_phase' => 'finish',
             'upload_session_id' => $uploadSessionId,
+            'video_id' => $videoId,
+            'description' => $caption,
+        ], $post->account->token)->getDecodedBody();
+
+        if (empty($finishResponse['success']) || $finishResponse['success'] != 1) {
+            return [
+                "status" => 0,
+                "message" => __("Could not finish Reels upload."),
+                "type" => $post->type,
+            ];
+        }
+
+        $finishResponse = $FB->post($endpoint . 'video_reels', [
+            'upload_phase' => 'finish',
             'video_id' => $videoId,
             'description' => $caption,
         ], $post->account->token)->getDecodedBody();
