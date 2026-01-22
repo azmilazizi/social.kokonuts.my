@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\DB;
 use JanuSoftware\Facebook\Facebook;
 use Media;
+use getID3;
 
 class Post extends Facade
 {
@@ -27,6 +28,16 @@ class Post extends Facade
         if ($options && ($options->fb_type ?? null) === 'reels') {
             if (empty($medias) || !Media::isVideo($medias[0])) {
                 $errors[] = __("Facebook Reels only supports posting videos (3–90 seconds).");
+            } else {
+                $videoPath = Media::path($medias[0]);
+                if (file_exists($videoPath)) {
+                    $getID3 = new getID3;
+                    $fileInfo = $getID3->analyze($videoPath);
+                    $duration = $fileInfo['playtime_seconds'] ?? 0;
+                    if ($duration < 3 || $duration > 90) {
+                        $errors[] = __("Facebook Reels only supports posting videos (3–90 seconds).");
+                    }
+                }
             }
         }
 
@@ -148,14 +159,41 @@ class Post extends Facade
     protected static function completeReelsUpload($FB, $post, $uploadSession, $caption, $mediaUrl, $endpoint)
     {
         $videoId = $uploadSession['video_id'];
-        $uploadResponse = $FB->post("/$videoId", [
+        $uploadSessionId = $uploadSession['upload_session_id'] ?? null;
+
+        if (empty($uploadSessionId)) {
+            return [
+                "status" => 0,
+                "message" => __("Could not create upload session for Reels."),
+                "type" => $post->type,
+            ];
+        }
+
+        $transferResponse = $FB->post($endpoint . 'video_reels', [
+            'upload_phase' => 'transfer',
+            'upload_session_id' => $uploadSessionId,
             'file_url' => $mediaUrl,
         ], $post->account->token)->getDecodedBody();
 
-        if (empty($uploadResponse['success']) || $uploadResponse['success'] != 1) {
+        if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
             return [
                 "status" => 0,
-                "message" => __("File upload failed."),
+                "message" => __("Could not transfer Reels upload."),
+                "type" => $post->type,
+            ];
+        }
+
+        $finishResponse = $FB->post($endpoint . 'video_reels', [
+            'upload_phase' => 'finish',
+            'upload_session_id' => $uploadSessionId,
+            'video_id' => $videoId,
+            'description' => $caption,
+        ], $post->account->token)->getDecodedBody();
+
+        if (empty($finishResponse['success']) || $finishResponse['success'] != 1) {
+            return [
+                "status" => 0,
+                "message" => __("Could not finish Reels upload."),
                 "type" => $post->type,
             ];
         }
