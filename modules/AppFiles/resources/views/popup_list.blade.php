@@ -81,6 +81,9 @@ $file_id_slug = request("file_id") ? "-". request("file_id") : "";
 
     @php
     $detectType = Media::detectFileIcon($value->detect);
+    $previewUrl = $value->detect === 'video'
+        ? (Media::videoThumbnail($value->file) ?: Media::url($value->file))
+        : Media::url($value->file);
     @endphp
     
     <div class="col-4 col-md-3 px-2">
@@ -92,7 +95,7 @@ $file_id_slug = request("file_id") ? "-". request("file_id") : "";
                     </div>
                 </div>
 
-                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media text-{{ $detectType['color'] }} bg-{{ $detectType['color'] }}-100" style="background-image: url( {{ Media::url($value->file)  }} );">
+                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media text-{{ $detectType['color'] }} bg-{{ $detectType['color'] }}-100" style="background-image: url( {{ $previewUrl }} );">
                     @if($value->detect != "image")
                     <div class="fs-30">
                         <i class="{{ $detectType['icon'] }}"></i>
