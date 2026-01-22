@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\DB;
 use JanuSoftware\Facebook\Facebook;
 use Media;
+use getID3;
 
 class Post extends Facade
 {
@@ -27,6 +28,16 @@ class Post extends Facade
         if ($options && ($options->fb_type ?? null) === 'reels') {
             if (empty($medias) || !Media::isVideo($medias[0])) {
                 $errors[] = __("Facebook Reels only supports posting videos (3–90 seconds).");
+            } else {
+                $videoPath = Media::path($medias[0]);
+                if (file_exists($videoPath)) {
+                    $getID3 = new getID3;
+                    $fileInfo = $getID3->analyze($videoPath);
+                    $duration = $fileInfo['playtime_seconds'] ?? 0;
+                    if ($duration < 3 || $duration > 90) {
+                        $errors[] = __("Facebook Reels only supports posting videos (3–90 seconds).");
+                    }
+                }
             }
         }
 
