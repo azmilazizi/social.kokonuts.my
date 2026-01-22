@@ -175,25 +175,79 @@ var AppPubishing = new (function ()
     AppPubishing.preview = function () {
         var profileFound = false;
         $(".cpv").addClass("d-none");
-        $(".am-list-account .am-choice-body .am-choice-item").each(function () {
-            var $item = $(this);
-            if ($item.find("input").is(':checked')) {
-                var network = $item.data("social-network");
-                var avatar = $item.data("avatar");
-                var name = $item.data("name");
-                var username = $item.data("username");
-                $(".cpv").each(function () {
-                    var $cpv = $(this);
-                    var previewNetwork = $cpv.data("social-network");
-                    if (network == previewNetwork) {
-                        $cpv.removeClass("d-none");
-                        $cpv.find(".cpv-avatar").attr("src", avatar);
-                        $cpv.find(".cpv-name").text(name);
-                        $cpv.find(".cpv-username").text(username);
-                        profileFound = true;
+
+        function collectSelectedAccounts() {
+            var selections = [];
+            var selectedItems = $(".am-selected-list .am-selected-item");
+
+            if (selectedItems.length > 0) {
+                selectedItems.each(function () {
+                    var $selected = $(this);
+                    var id = $selected.data("id");
+                    var $choice = null;
+                    if (id) {
+                        $choice = $(".am-list-account .am-choice-body .am-choice-item input[value='" + id + "']").closest(".am-choice-item");
+                    }
+                    if ($choice && $choice.length) {
+                        selections.push($choice);
+                        return;
+                    }
+
+                    selections.push({
+                        network: $selected.data("network"),
+                        avatar: $selected.find("img").attr("src") || "",
+                        name: $selected.find(".text-truncate").first().text().trim(),
+                        username: ""
+                    });
+                });
+            }
+
+            if (selections.length === 0) {
+                $(".am-list-account .am-choice-body .am-choice-item input:checked").each(function () {
+                    var $item = $(this).closest(".am-choice-item");
+                    if ($item.length) {
+                        selections.push($item);
                     }
                 });
             }
+
+            return selections;
+        }
+
+        var selectedAccounts = collectSelectedAccounts();
+        var usedNetworks = new Set();
+        selectedAccounts.forEach(function (entry) {
+            var network;
+            var avatar;
+            var name;
+            var username;
+            if (entry && entry.jquery) {
+                network = entry.data("social-network");
+                avatar = entry.data("avatar");
+                name = entry.data("name");
+                username = entry.data("username");
+            } else {
+                network = entry.network;
+                avatar = entry.avatar;
+                name = entry.name;
+                username = entry.username;
+            }
+
+            if (!network || usedNetworks.has(network)) {
+                return;
+            }
+            usedNetworks.add(network);
+            $(".cpv").each(function () {
+                var $cpv = $(this);
+                var previewNetwork = $cpv.data("social-network");
+                if (network == previewNetwork) {
+                    $cpv.removeClass("d-none");
+                    $cpv.find(".cpv-avatar").attr("src", avatar);
+                    $cpv.find(".cpv-name").text(name);
+                    $cpv.find(".cpv-username").text(username);
+                    profileFound = true;
+                }
+            });
         });
 
         if (!profileFound) {
