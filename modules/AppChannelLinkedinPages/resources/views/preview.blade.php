@@ -99,24 +99,31 @@ function linkedin_renderMediaGrid(elements) {
 
     let linkedin_html = '';
 
+    function linkedin_renderMediaItem(element, className = '', overlayHtml = '', style = '') {
+        var tagName = element.tagName.toLowerCase();
+        var isVideo = tagName === 'video' || (tagName === 'div' && element.dataset.mediaType === 'video');
+        var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+        return `<div class="${wrapperClass} ${className}"${style}>${element.outerHTML}${overlayHtml}</div>`;
+    }
+
     if (linkedin_total === 1) {
         linkedin_html += `
             <div class="cpv-grid" style="grid-template-columns: 1fr;">
-                <div class="img-wrap">${elements[0].outerHTML}</div>
+                ${linkedin_renderMediaItem(elements[0])}
             </div>
         `;
     } else if (linkedin_total === 2) {
         linkedin_html += `
             <div class="cpv-grid" style="grid-template-columns: repeat(2, 1fr);">
-                ${linkedin_visible.map(el => `<div class="img-wrap">${el.outerHTML}</div>`).join('')}
+                ${linkedin_visible.map(el => linkedin_renderMediaItem(el)).join('')}
             </div>
         `;
     } else if (linkedin_total === 3) {
         linkedin_html += `
             <div class="cpv-grid" style="grid-template-columns: 2fr 1fr; grid-template-rows: repeat(2, 1fr);">
-                <div class="img-wrap" style="grid-row: span 2;">${elements[0].outerHTML}</div>
-                <div class="img-wrap">${elements[1].outerHTML}</div>
-                <div class="img-wrap">${elements[2].outerHTML}</div>
+                ${linkedin_renderMediaItem(elements[0], '', '', ' style="grid-row: span 2;"')}
+                ${linkedin_renderMediaItem(elements[1])}
+                ${linkedin_renderMediaItem(elements[2])}
             </div>
         `;
     } else {
@@ -124,7 +131,7 @@ function linkedin_renderMediaGrid(elements) {
         linkedin_visible.forEach((el, idx) => {
             var linkedin_isLast = idx === 3 && linkedin_moreCount > 0;
             var linkedin_overlay = linkedin_isLast ? `<div class="overlay">+${linkedin_moreCount}</div>` : '';
-            linkedin_html += `<div class="img-wrap">${el.outerHTML}${linkedin_overlay}</div>`;
+            linkedin_html += linkedin_renderMediaItem(el, '', linkedin_overlay);
         });
         linkedin_html += `</div>`;
     }

@@ -42,12 +42,19 @@
     }
     var defaultHtml = view.innerHTML;
 
+    function tiktok_renderMediaItem(element) {
+        var tagName = element.tagName.toLowerCase();
+        var isVideo = tagName === 'video' || (tagName === 'div' && element.dataset.mediaType === 'video');
+        var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+        return `<div class="${wrapperClass}">${element.outerHTML}</div>`;
+    }
+
     function tiktok_renderFirstMedia(elements) {
         if (elements.length === 0) {
             return '';
         }
         var first = elements[0];
-        return `<div class="img-wrap">${first.outerHTML}</div>`;
+        return tiktok_renderMediaItem(first);
     }
 
     function tiktok_onMediaItemsChange() {
