@@ -96,24 +96,31 @@ function fb_renderMediaGrid(elements) {
 
     let fb_html = '';
 
+    function fb_renderMediaItem(element, className = '', overlayHtml = '', style = '') {
+        var tagName = element.tagName.toLowerCase();
+        var isVideo = tagName === 'video' || (tagName === 'div' && element.dataset.mediaType === 'video');
+        var wrapperClass = isVideo ? 'cpv-video-cell' : 'img-wrap';
+        return `<div class="${wrapperClass} ${className}"${style}>${element.outerHTML}${overlayHtml}</div>`;
+    }
+
     if (fb_total === 1) {
         fb_html += `
             <div class="cpv-grid" style="grid-template-columns: 1fr;">
-                <div class="img-wrap">${elements[0].outerHTML}</div>
+                ${fb_renderMediaItem(elements[0])}
             </div>
         `;
     } else if (fb_total === 2) {
         fb_html += `
             <div class="cpv-grid" style="grid-template-columns: repeat(2, 1fr);">
-                ${fb_visible.map(el => `<div class="img-wrap">${el.outerHTML}</div>`).join('')}
+                ${fb_visible.map(el => fb_renderMediaItem(el)).join('')}
             </div>
         `;
     } else if (fb_total === 3) {
         fb_html += `
             <div class="cpv-grid" style="grid-template-columns: 2fr 1fr; grid-template-rows: repeat(2, 1fr);">
-                <div class="img-wrap" style="grid-row: span 2;">${elements[0].outerHTML}</div>
-                <div class="img-wrap">${elements[1].outerHTML}</div>
-                <div class="img-wrap">${elements[2].outerHTML}</div>
+                ${fb_renderMediaItem(elements[0], '', '', ' style="grid-row: span 2;"')}
+                ${fb_renderMediaItem(elements[1])}
+                ${fb_renderMediaItem(elements[2])}
             </div>
         `;
     } else {
@@ -121,7 +128,7 @@ function fb_renderMediaGrid(elements) {
         fb_visible.forEach((el, idx) => {
             var fb_isLast = idx === 3 && fb_moreCount > 0;
             var fb_overlay = fb_isLast ? `<div class="overlay">+${fb_moreCount}</div>` : '';
-            fb_html += `<div class="img-wrap">${el.outerHTML}${fb_overlay}</div>`;
+            fb_html += fb_renderMediaItem(el, '', fb_overlay);
         });
         fb_html += `</div>`;
     }
@@ -130,10 +137,10 @@ function fb_renderMediaGrid(elements) {
 }
 
 function fb_onMediaItemsChange() {
-    var fb_elements = document.querySelectorAll('.cpv-fb-img > img, .cpv-fb-img > div');
+    var fb_elements = document.querySelectorAll('.cpv-fb-img > img, .cpv-fb-img > div, .cpv-fb-img > video');
     if (fb_elements.length > 0) {
         var fb_mediaList = Array.from(fb_elements).filter(el =>
-            el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'div'
+            ['img', 'div', 'video'].includes(el.tagName.toLowerCase())
         );
 
         var fb_rendered = fb_renderMediaGrid(fb_mediaList);
