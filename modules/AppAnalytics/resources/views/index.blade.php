@@ -26,13 +26,13 @@
                 </a>
             </div>
         @else
-            @foreach($channelsByNetwork as $network => $accounts)
+            @foreach($channelsByNetwork as $group)
                 <div class="mb-5">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h4 class="fw-semibold mb-0">{{ __(ucfirst($network)) }}</h4>
+                        <h4 class="fw-semibold mb-0">{{ __($group['label']) }}</h4>
                     </div>
                     <div class="row g-4">
-                        @foreach($accounts as $account)
+                        @foreach($group['accounts'] as $account)
                             <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
                                 <div class="card shadow-none border-gray-300 h-100">
                                     <div class="card-body d-flex align-items-center gap-12">
@@ -57,7 +57,7 @@
                                         </div>
                                     </div>
                                     <div class="card-footer fs-12 d-flex justify-content-center">
-                                        <a class="btn btn-outline btn-light btn-sm" href="{{ route('app.analytics.show', ['platform' => $account->social_network, 'id' => $account->id_secure]) }}">
+                                        <a class="btn btn-outline btn-light btn-sm" href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}">
                                             <i class="fa-light fa-chart-simple me-1"></i> {{ __('View') }}
                                         </a>
                                     </div>
