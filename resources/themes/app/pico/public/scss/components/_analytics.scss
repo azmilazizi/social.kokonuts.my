@@ -6,3 +6,44 @@
         min-width: 0;
     }
 }
+
+.analytics-channel-card {
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+
+    .card-body {
+        padding: 20px 22px;
+    }
+
+    .card-footer {
+        padding: 14px 22px 18px;
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+        background: #fff;
+    }
+}
+
+.analytics-channel-avatar {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+}
+
+.analytics-channel-badge {
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+}
+
+.analytics-channel-link {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    background: transparent;
+    border: none;
+    padding: 6px 10px;
+
+    &:hover,
+    &:focus {
+        color: #4f46e5;
+        background: transparent;
+    }
+}
