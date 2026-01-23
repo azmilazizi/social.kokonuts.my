@@ -36,36 +36,36 @@
                             <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
                                 <div class="card shadow-none border-gray-300 h-100 analytics-card analytics-channel-card">
                                     <div class="card-body">
-                                        <div class="d-flex align-items-center gap-8">
-                                            <div class="position-relative analytics-channel-avatar d-flex align-items-center justify-content-center">
+                                        <div class="d-flex flex-grow-1 align-items-top gap-8">
+                                            <div class="text-gray-600 size-40 min-w-40 d-flex align-items-center justify-content-between position-relative">
                                                 <a href="{{ $account->url ?? '#' }}" target="_blank" class="text-gray-900 text-hover-primary">
                                                     <img
                                                         data-src="{{ Media::url($account->avatar) }}"
                                                         src="{{ theme_public_asset('img/default.png') }}"
-                                                        class="w-full h-full lazyload"
+                                                        class="b-r-100 w-full h-full border-1 lazyload"
                                                         onerror="this.src='{{ theme_public_asset('img/default.png') }}'"
                                                     >
                                                 </a>
                                                 @if($account->module_item)
-                                                    <span class="analytics-channel-badge position-absolute d-flex align-items-center justify-content-center text-center text-white border-1 b-0 r-0" style="background-color: {{ $account->module_item['color'] ?? '#6f58ff' }};">
-                                                        <i class="{{ $account->module_item['icon'] ?? 'fa-light fa-chart-line' }}"></i>
+                                                    <span class="size-17 border-1 b-r-100 position-absolute fs-9 d-flex align-items-center justify-content-between text-center text-white b-0 r-0" style="background-color: {{ $account->module_item['color'] ?? '#6f58ff' }};">
+                                                        <div class="w-100"><i class="{{ $account->module_item['icon'] ?? 'fa-light fa-chart-line' }}"></i></div>
                                                     </span>
                                                 @endif
                                             </div>
-                                            <div class="flex-grow-1 min-w-0">
-                                                <div class="analytics-channel-title text-truncate">
+                                            <div class="flex-grow-1 fs-14 fw-5 text-truncate">
+                                                <div class="text-truncate">
                                                     <a href="{{ $account->url ?? '#' }}" target="_blank" class="text-gray-900 text-hover-primary">
                                                         {{ $account->name }}
                                                     </a>
                                                 </div>
-                                                <div class="analytics-channel-subtitle text-truncate">
+                                                <div class="fs-12 text-gray-600 text-truncate">
                                                     {{ __(ucfirst($account->social_network.' '.$account->category)) }}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-footer fs-12">
-                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="analytics-channel-link d-flex w-100 gap-8 align-items-center justify-content-center text-hover-primary">
+                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="d-flex w-100 gap-8 align-items-center justify-content-center text-gray-900 text-hover-primary fw-5 py-2">
                                             <i class="fa-light fa-chart-simple"></i>
                                             <span>{{ __('View') }}</span>
                                         </a>
