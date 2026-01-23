@@ -1,14 +1,24 @@
+.analytics-panel-wrap {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 18px;
+    padding: 1px;
+}
+
 .analytics-panel {
     height: 100%;
     overflow: hidden;
-    border-radius: 18px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
     background: #fff;
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
 }
 
 .analytics-panel-body {
     min-width: 0;
     padding: 20px 22px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .analytics-panel-footer {

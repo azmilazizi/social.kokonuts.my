@@ -33,7 +33,7 @@
                     </div>
                     <div class="row g-4">
                         @foreach($group['accounts'] as $account)
-                            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
+                            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3 analytics-panel-wrap">
                                 <div class="analytics-panel h-100">
                                     <div class="analytics-panel-body">
                                         <div class="d-flex flex-grow-1 align-items-top gap-8">
