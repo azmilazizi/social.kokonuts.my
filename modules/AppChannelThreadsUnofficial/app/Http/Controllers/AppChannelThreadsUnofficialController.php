@@ -45,7 +45,8 @@ class AppChannelThreadsUnofficialController extends Controller
         $request->session()->forget('Threads_AccessToken');
         $helper = $this->fb->getRedirectLoginHelper();
         $permissions = [$this->scopes];
-        $loginUrl = $helper->getLoginUrl(module_url(), $permissions);
+        $callbackUrl = rtrim(module_url(), '/');
+        $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
 
         return redirect($loginUrl);
     }
@@ -68,7 +69,7 @@ class AppChannelThreadsUnofficialController extends Controller
                     return redirect(module_url('oauth'));
                 }
 
-                $callbackUrl = module_url();
+                $callbackUrl = rtrim(module_url(), '/');
                 $helper = $this->fb->getRedirectLoginHelper();
                 if ($request->state) {
                     $helper->getPersistentDataHandler()->set('state', $request->state);
