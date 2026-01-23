@@ -18,6 +18,6 @@
         "position": 520,
         "name": "Analytics",
         "color": "#6f58ff",
-        "icon": "fa-light fa-chart-line"
+        "icon": "fa-light fa-chart-simple"
     }
 }
