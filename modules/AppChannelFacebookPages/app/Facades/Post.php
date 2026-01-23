@@ -116,17 +116,23 @@ class Post extends Facade
                         "type" => $post->type,
                     ];
                 }
+                $videoPath = Media::path($medias[0]);
+                $fileSize = (is_string($videoPath) && file_exists($videoPath)) ? filesize($videoPath) : null;
                 $uploadParams = [
                     "upload_phase" => "start",
                     "access_token" => $post->account->token,
                 ];
+                if (!empty($fileSize)) {
+                    $uploadParams["file_size"] = $fileSize;
+                }
                 $uploadSession = $FB->post($endpoint . 'video_reels', $uploadParams, $post->account->token)
                     ->getDecodedBody();
 
-                if (empty($uploadSession['video_id'])) {
+                if (empty($uploadSession['video_id']) || empty($uploadSession['upload_session_id'])) {
+                    $errorMessage = $uploadSession['error']['message'] ?? __("Could not create upload session for Reels.");
                     return [
                         "status" => 0,
-                        "message" => __("Could not create upload session for Reels."),
+                        "message" => $errorMessage,
                         "type" => $post->type,
                     ];
                 }
@@ -169,41 +175,21 @@ class Post extends Facade
             ];
         }
 
-        $transferResponse = $FB->post($endpoint . 'video_reels', [
+        $transferParams = [
             'upload_phase' => 'transfer',
             'upload_session_id' => $uploadSessionId,
             'file_url' => $mediaUrl,
             'description' => $caption,
-        ], $post->account->token)->getDecodedBody();
-
-        if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
-            return [
-                "status" => 0,
-                "message" => __("Could not transfer Reels upload."),
-                "type" => $post->type,
-            ];
+        ];
+        $startOffset = $uploadSession['start_offset'] ?? null;
+        $endOffset = $uploadSession['end_offset'] ?? null;
+        if (!empty($startOffset)) {
+            $transferParams['start_offset'] = $startOffset;
         }
-
-        $finishResponse = $FB->post($endpoint . 'video_reels', [
-            'upload_phase' => 'finish',
-            'upload_session_id' => $uploadSessionId,
-            'video_id' => $videoId,
-            'description' => $caption,
-        ], $post->account->token)->getDecodedBody();
-
-        if (empty($finishResponse['success']) || $finishResponse['success'] != 1) {
-            return [
-                "status" => 0,
-                "message" => __("Could not finish Reels upload."),
-                "type" => $post->type,
-            ];
+        if (!empty($endOffset)) {
+            $transferParams['end_offset'] = $endOffset;
         }
-
-        $finishResponse = $FB->post($endpoint . 'video_reels', [
-            'upload_phase' => 'finish',
-            'video_id' => $videoId,
-            'description' => $caption,
-        ], $post->account->token)->getDecodedBody();
+        $transferResponse = $FB->post($endpoint . 'video_reels', $transferParams, $post->account->token)->getDecodedBody();
 
         if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
             return [
