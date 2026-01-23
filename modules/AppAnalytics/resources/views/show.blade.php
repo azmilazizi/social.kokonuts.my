@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="container pb-4">
-        <div class="analytics-panel-wrap mb-4">
-            <div class="analytics-panel">
-                <div class="analytics-panel-body py-5 text-center">
+        <div class="card shadow-none mb-4">
+            <div class="card-body py-5 text-center d-flex align-items-center justify-content-center">
+                <div class="w-100">
                     <div class="position-relative d-inline-flex align-items-center justify-content-center mb-3">
                         <img
                             data-src="{{ Media::url($account->avatar) }}"
@@ -46,18 +46,20 @@
 
         <div class="row g-4 mb-4">
             @foreach($stats as $stat)
-                <div class="col-12 col-md-6 col-xl-4 analytics-panel-wrap">
-                    <div class="analytics-panel h-100">
-                        <div class="analytics-panel-body">
-                            <div class="d-flex align-items-center gap-12">
-                                <span class="size-40 d-flex align-items-center justify-content-center b-r-100 bg-{{ $stat['tone'] }}-100 text-{{ $stat['tone'] }}">
-                                    <i class="{{ $stat['icon'] }}"></i>
-                                </span>
-                                <div>
-                                    <div class="text-gray-600 fw-semibold">{{ $stat['label'] }}</div>
-                                    <div class="fs-3 fw-semibold text-gray-900">{{ $stat['value'] }}</div>
-                                    <div class="text-success fs-12">
-                                        <i class="fa-light fa-arrow-trend-up me-1"></i>{{ $stat['trend'] }}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="card shadow-none h-100">
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <div class="w-100">
+                                <div class="d-flex align-items-center gap-12">
+                                    <span class="size-40 d-flex align-items-center justify-content-center b-r-100 bg-{{ $stat['tone'] }}-100 text-{{ $stat['tone'] }}">
+                                        <i class="{{ $stat['icon'] }}"></i>
+                                    </span>
+                                    <div>
+                                        <div class="text-gray-600 fw-semibold">{{ $stat['label'] }}</div>
+                                        <div class="fs-3 fw-semibold text-gray-900">{{ $stat['value'] }}</div>
+                                        <div class="text-success fs-12">
+                                            <i class="fa-light fa-arrow-trend-up me-1"></i>{{ $stat['trend'] }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -68,22 +70,26 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <div class="col-12 col-lg-6 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Overview Trends') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Overview Trends') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-6 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Fans History') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Fans History') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,36 +97,38 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <div class="col-12 col-lg-8 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Gained & Lost Fans') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 240px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Gained & Lost Fans') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 240px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-lg-4">
-                <div class="analytics-panel-wrap mb-4">
-                    <div class="analytics-panel">
-                        <div class="analytics-panel-body">
+                <div class="card shadow-none mb-4">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
                             <div class="text-gray-600">{{ __('Gained Fans') }}</div>
                             <div class="fs-3 fw-semibold">70,635</div>
                         </div>
                     </div>
                 </div>
-                <div class="analytics-panel-wrap mb-4">
-                    <div class="analytics-panel">
-                        <div class="analytics-panel-body">
+                <div class="card shadow-none mb-4">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
                             <div class="text-gray-600">{{ __('Lost Fans') }}</div>
                             <div class="fs-3 fw-semibold">79,783</div>
                         </div>
                     </div>
                 </div>
-                <div class="analytics-panel-wrap">
-                    <div class="analytics-panel">
-                        <div class="analytics-panel-body">
+                <div class="card shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
                             <div class="text-gray-600">{{ __('Net Fans') }}</div>
                             <div class="fs-3 fw-semibold">-9,148</div>
                         </div>
@@ -130,12 +138,14 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <div class="col-12 analytics-panel-wrap">
-                <div class="analytics-panel">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Post Reach') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12">
+                <div class="card shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Post Reach') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -143,12 +153,14 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <div class="col-12 analytics-panel-wrap">
-                <div class="analytics-panel">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Post Impressions') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12">
+                <div class="card shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Post Impressions') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,22 +168,26 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <div class="col-12 col-lg-6 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Page Views') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Page Views') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-6 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Post Engagements') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Post Engagements') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 220px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -179,22 +195,26 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-12 col-lg-7 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Fans Location') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-7">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Fans Location') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-5 analytics-panel-wrap">
-                <div class="analytics-panel h-100">
-                    <div class="analytics-panel-body">
-                        <div class="fw-semibold mb-3">{{ __('Top Countries') }}</div>
-                        <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
-                            <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+            <div class="col-12 col-lg-5">
+                <div class="card shadow-none h-100">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="w-100">
+                            <div class="fw-semibold mb-3">{{ __('Top Countries') }}</div>
+                            <div class="bg-light b-r-10 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <span class="text-gray-600">{{ __('Analytics data is not yet available for this section. Please check back later.') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
