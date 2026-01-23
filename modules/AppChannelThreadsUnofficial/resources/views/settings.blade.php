@@ -54,7 +54,7 @@
                     <div class="col-md-12">
                         <div class="alert alert-primary fs-14">
                             {{ __('Callback URL: ') }}
-                            <a href="{{ url_app('threads/profile') }}" target="_blank">{{ url_app('threads/profile') }}</a>
+                            <a href="{{ url_app('threads/profile') }}/" target="_blank">{{ url_app('threads/profile') }}/</a>
                         </div>
                     </div>
                 </div>
