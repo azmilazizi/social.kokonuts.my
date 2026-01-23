@@ -64,8 +64,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card-footer fs-12 d-flex justify-content-center gap-8">
-                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="d-flex flex-fill gap-8 align-items-center justify-content-center text-gray-900 text-hover-primary fw-5">
+                                    <div class="card-footer fs-12">
+                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="d-flex w-100 gap-8 align-items-center justify-content-center text-gray-900 text-hover-primary fw-5 py-2">
                                             <i class="fa-light fa-chart-simple"></i>
                                             <span>{{ __('View') }}</span>
                                         </a>
