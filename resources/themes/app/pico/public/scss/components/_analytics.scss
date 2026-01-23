@@ -1,26 +1,18 @@
-.analytics-card {
+.analytics-panel {
     height: 100%;
     overflow: hidden;
-
-    .card-body {
-        min-width: 0;
-    }
-}
-
-.analytics-channel-card {
     border-radius: 18px;
     border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    background: #fff;
+}
 
-    .card-body {
-        padding: 20px 22px;
-    }
+.analytics-panel-body {
+    min-width: 0;
+    padding: 20px 22px;
+}
 
-    .card-footer {
-        padding: 14px 22px 18px;
-        border-top: 1px solid rgba(15, 23, 42, 0.08);
-        background: #fff;
-    }
+.analytics-panel-footer {
+    padding: 14px 22px 18px;
 }
 
 .analytics-channel-avatar {
