@@ -34,7 +34,7 @@
                     <div class="row g-4">
                         @foreach($group['accounts'] as $account)
                             <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
-                                <div class="card shadow-none border-gray-300 h-100">
+                                <div class="card shadow-none border-gray-300 h-100 analytics-card">
                                     <div class="card-body d-flex align-items-center gap-12">
                                         <div class="text-gray-600 size-46 min-w-46 d-flex align-items-center justify-content-between position-relative">
                                             <img
