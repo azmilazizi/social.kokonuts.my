@@ -25,6 +25,10 @@ class AppDashboardServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        \AppDashboard::registerDashboardItem(function () {
+            return view('appdashboard::partials.social-analytics')->render();
+        }, 12000, fn() => 1);
     }
 
     /**
