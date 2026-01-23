@@ -1,0 +1,23 @@
+{
+    "name": "AppAnalytics",
+    "alias": "appanalytics",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AppAnalytics\\Providers\\AppAnalyticsServiceProvider"
+    ],
+    "files": [],
+    "permission": true,
+    "menu": {
+        "uri": "app/analytics",
+        "role": "client",
+        "platform": 1,
+        "section": "top",
+        "tab_id": 12,
+        "position": 520,
+        "name": "Analytics",
+        "color": "#6f58ff",
+        "icon": "fa-light fa-chart-line"
+    }
+}
