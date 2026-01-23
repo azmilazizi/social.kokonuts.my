@@ -28,8 +28,17 @@ class AppAnalyticsController extends Controller
             $account->module_item = $moduleData[$account->social_network] ?? null;
         }
 
+        $channelsByNetwork = $accounts->groupBy('social_network')->map(function ($items, $network) {
+            $moduleItem = $items->first()->module_item ?? null;
+
+            return [
+                'label' => $moduleItem['name'] ?? ucfirst($network),
+                'accounts' => $items,
+            ];
+        });
+
         return view('appanalytics::index', [
-            'channelsByNetwork' => $accounts->groupBy('social_network'),
+            'channelsByNetwork' => $channelsByNetwork,
         ]);
     }
 
