@@ -34,9 +34,9 @@
                     <div class="row g-4">
                         @foreach($group['accounts'] as $account)
                             <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
-                                <div class="card shadow-none border-gray-300 h-100 analytics-card">
-                                    <div class="card-body d-flex align-items-center gap-12">
-                                        <div class="text-gray-600 size-46 min-w-46 d-flex align-items-center justify-content-between position-relative">
+                                <div class="card shadow-none border-gray-300 h-100 analytics-card analytics-channel-card">
+                                    <div class="card-body d-flex align-items-center gap-16">
+                                        <div class="text-gray-600 analytics-channel-avatar d-flex align-items-center justify-content-between position-relative">
                                             <img
                                                 data-src="{{ Media::url($account->avatar) }}"
                                                 src="{{ theme_public_asset('img/default.png') }}"
@@ -44,7 +44,7 @@
                                                 onerror="this.src='{{ theme_public_asset('img/default.png') }}'"
                                             >
                                             @if($account->module_item)
-                                                <span class="size-16 border-1 b-r-100 position-absolute fs-9 d-flex align-items-center justify-content-between text-center text-white b-0 r-0" style="background-color: {{ $account->module_item['color'] ?? '#6f58ff' }};">
+                                                <span class="size-16 border-1 b-r-100 position-absolute fs-9 d-flex align-items-center justify-content-between text-center text-white b-0 r-0 analytics-channel-badge" style="background-color: {{ $account->module_item['color'] ?? '#6f58ff' }};">
                                                     <div class="w-100"><i class="{{ $account->module_item['icon'] ?? 'fa-light fa-chart-line' }}"></i></div>
                                                 </span>
                                             @endif
@@ -57,7 +57,7 @@
                                         </div>
                                     </div>
                                     <div class="card-footer fs-12 d-flex justify-content-center">
-                                        <a class="btn btn-outline btn-light btn-sm" href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}">
+                                        <a class="btn btn-sm analytics-channel-link" href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}">
                                             <i class="fa-light fa-chart-simple me-1"></i> {{ __('View') }}
                                         </a>
                                     </div>
