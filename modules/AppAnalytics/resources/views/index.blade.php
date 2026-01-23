@@ -34,9 +34,9 @@
                     <div class="row g-4">
                         @foreach($group['accounts'] as $account)
                             <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 col-xxl-3 mb-4">
-                                <div class="card shadow-none h-100">
+                                <div class="card shadow-none analytics-card">
                                     <div class="card-body px-3 d-flex align-items-center justify-content-center">
-                                        <div class="d-flex flex-grow-1 align-items-top gap-8">
+                                        <div class="d-flex align-items-top gap-8">
                                             <div class="text-gray-600 size-40 min-w-40 d-flex align-items-center justify-content-between position-relative">
                                                 <a href="{{ $account->url ?? '#' }}" target="_blank" class="text-gray-900 text-hover-primary">
                                                     <img
