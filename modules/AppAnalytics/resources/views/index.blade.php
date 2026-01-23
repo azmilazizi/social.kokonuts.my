@@ -33,9 +33,9 @@
                     </div>
                     <div class="row g-4">
                         @foreach($group['accounts'] as $account)
-                            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3 analytics-panel-wrap">
-                                <div class="analytics-panel h-100">
-                                    <div class="analytics-panel-body">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 col-xxl-3 mb-4">
+                                <div class="card shadow-none h-100">
+                                    <div class="card-body px-3 d-flex align-items-center justify-content-center">
                                         <div class="d-flex flex-grow-1 align-items-top gap-8">
                                             <div class="text-gray-600 size-40 min-w-40 d-flex align-items-center justify-content-between position-relative">
                                                 <a href="{{ $account->url ?? '#' }}" target="_blank" class="text-gray-900 text-hover-primary">
@@ -64,8 +64,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="analytics-panel-footer fs-12">
-                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="d-flex w-100 gap-8 align-items-center justify-content-center text-gray-900 text-hover-primary fw-5 py-2">
+                                    <div class="card-footer fs-12 d-flex justify-content-center">
+                                        <a href="{{ route('app.analytics.show', ['platform' => strtolower($account->social_network), 'id' => $account->id_secure]) }}" class="d-flex flex-fill gap-8 align-items-center justify-content-center text-gray-900 text-hover-primary fw-5 py-2">
                                             <i class="fa-light fa-chart-simple"></i>
                                             <span>{{ __('View') }}</span>
                                         </a>
