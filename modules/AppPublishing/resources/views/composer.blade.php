@@ -1,6 +1,7 @@
 @php
 $postType = Access::permission("appfiles") ? "media" : "link";
 $caption = "";
+$title = "";
 $medias = [];
 $link = "";
     
@@ -22,6 +23,7 @@ if($post){
 
     $postData = json_decode($post->data, 0);
 
+    $title = $postData->title ?? '';
     $caption = $postData->caption;
     $medias = $postData->medias;
     $link = $postData->link;
@@ -47,6 +49,11 @@ if($post){
                             'permission' => 'apppublishing',
                             'accounts' => isset($post->account_id)?[$post->account_id]:[]
                         ])
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-5" for="post-title">{{ __("Title") }}</label>
+                        <input id="post-title" class="form-control post-title fw-4 border" name="title" type="text" placeholder="{{ __("Enter title") }}" value="{{ $title }}">
                     </div>
 
                     <div class="mb-3">
