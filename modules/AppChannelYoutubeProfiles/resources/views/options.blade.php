@@ -23,6 +23,13 @@
                     </div>
                 </div>
             </div>
+            @php
+                $disclaimerValue = $options['yt_disclaimer'] ?? data_get($postData, 'caption', '');
+            @endphp
+            <div class="mt-3">
+                <label class="form-label fw-5" for="youtube-disclaimer">{{ __("Disclaimer") }}</label>
+                <textarea id="youtube-disclaimer" class="form-control input-emoji post-youtube-disclaimer fw-4 border" name="options[yt_disclaimer]" placeholder="{{ __("Enter disclaimer") }}">{{ $disclaimerValue }}</textarea>
+            </div>
         </div>
     </div>
 </div>
