@@ -178,21 +178,28 @@ class PublishingService
                                         "message" => __("Unknown error")
                                     ];
 
-                                    if ($response["status"] == 1 || $response["status"] == 5) {
+                                    $responseStatus = $response["status"] ?? 0;
+                                    $responseMessage = $response["message"] ?? __("Unknown error");
+                                    $isSuccess = in_array((string)$responseStatus, ['1', '4', '5'], true)
+                                        || $responseStatus === true
+                                        || $responseStatus === 'success'
+                                        || (!empty($response["id"]) || !empty($response["url"]));
+
+                                    if ($isSuccess) {
                                         $countSuccess++;
-                                        $message = $response["message"];
-                                        $post->status = $response["status"] == 1 ? 4 : 5;
+                                        $message = $responseMessage;
+                                        $post->status = ((string)$responseStatus === '5') ? 5 : 4;
                                         $post->result = json_encode([
                                             "id"      => $response["id"] ?? null,
                                             "url"     => $response["url"] ?? null,
-                                            "message" => $response["message"],
-                                            "type"    => $response["status"] == 5 ? $response["type"] ?? null : null,
+                                            "message" => $responseMessage,
+                                            "type"    => ((string)$responseStatus === '5') ? $response["type"] ?? null : null,
                                         ], JSON_UNESCAPED_UNICODE);
                                     } else {
                                         $countError++;
-                                        $message = $response["message"];
+                                        $message = $responseMessage;
                                         $post->status = 5;
-                                        $post->result = json_encode(["message" => $response["message"]], JSON_UNESCAPED_UNICODE);
+                                        $post->result = json_encode(["message" => $responseMessage], JSON_UNESCAPED_UNICODE);
                                     }
 
                                     // Handle repost
