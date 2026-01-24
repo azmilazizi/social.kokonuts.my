@@ -4,14 +4,13 @@ namespace Modules\AppChannelThreadsUnofficial\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use JanuSoftware\Facebook\Facebook;
 
 class AppChannelThreadsUnofficialController extends Controller
 {
     public $fb;
     public $scopes;
-    public $metaFb;
-
     public function __construct()
     {
         \Access::check('appchannels.' . module('key'));
@@ -37,13 +36,6 @@ class AppChannelThreadsUnofficialController extends Controller
                 'default_graph_version' => $appVersion,
             ]);
 
-            if ($metaAppId && $metaAppSecret) {
-                $this->metaFb = new Facebook([
-                    'app_id' => $metaAppId,
-                    'app_secret' => $metaAppSecret,
-                    'default_graph_version' => $appVersion,
-                ]);
-            }
         } catch (\Exception $e) {
             \Access::deny(__('Could not connect to Threads API: ') . $e->getMessage());
         }
@@ -118,16 +110,17 @@ class AppChannelThreadsUnofficialController extends Controller
             }
 
             $accessToken = session('Threads_AccessToken');
+            $graphVersion = get_option('threads_graph_version', 'v21.0');
+            $profileResponse = Http::get('https://graph.facebook.com/' . $graphVersion . '/me', [
+                'fields' => 'id,name,username,profile_picture_url',
+                'access_token' => $accessToken,
+            ]);
 
-            if ($this->metaFb) {
-                try {
-                    $profile = $this->metaFb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
-                } catch (\Exception $e) {
-                    $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
-                }
-            } else {
-                $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+            if (!$profileResponse->successful()) {
+                throw new \Exception($profileResponse->body() ?: __('Threads profile request failed.'));
             }
+
+            $profile = $profileResponse->json() ?? [];
 
             if (!empty($profile['id'])) {
                 $username = $profile['username'] ?? $profile['name'] ?? 'threads';
