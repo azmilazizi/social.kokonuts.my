@@ -48,6 +48,26 @@ class AppChannelThreadsUnofficialController extends Controller
         $callbackUrl = rtrim(module_url(), '/');
         $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
 
+        $parsedUrl = parse_url($loginUrl);
+        $queryParams = [];
+
+        if (!empty($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $queryParams);
+        }
+
+        $queryParams['client_id'] = $queryParams['client_id'] ?? get_option('threads_app_id', '');
+        $queryParams['redirect_uri'] = $queryParams['redirect_uri'] ?? $callbackUrl;
+        $queryParams['response_type'] = $queryParams['response_type'] ?? 'code';
+        $queryParams['scope'] = $queryParams['scope'] ?? $this->scopes;
+
+        if (empty($queryParams['client_id'])) {
+            \Access::deny(__('Threads app ID is missing. Please configure your app ID in the Threads settings.'));
+        }
+
+        $authorizeParams = array_merge($queryParams, ['__coig_login' => '1']);
+        $authorizeUrl = 'https://www.threads.com/oauth/authorize?' . http_build_query($authorizeParams, '', '&', PHP_QUERY_RFC3986);
+        $loginUrl = 'https://www.threads.com/login?next=' . urlencode($authorizeUrl);
+
         return redirect($loginUrl);
     }
 
