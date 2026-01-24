@@ -31,7 +31,7 @@ class AppChannelThreadsUnofficialController extends Controller
         }
 
         try {
-            $this->fb = new Facebook([
+            $this->oauthClient = new Facebook([
                 'app_id' => $appId,
                 'app_secret' => $appSecret,
                 'default_graph_version' => $appVersion,
@@ -54,7 +54,7 @@ class AppChannelThreadsUnofficialController extends Controller
     public function oauth(Request $request)
     {
         $request->session()->forget('Threads_AccessToken');
-        $helper = $this->fb->getRedirectLoginHelper();
+        $helper = $this->oauthClient->getRedirectLoginHelper();
         $permissions = [$this->scopes];
         $callbackUrl = rtrim(module_url(), '/');
         $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
@@ -95,13 +95,17 @@ class AppChannelThreadsUnofficialController extends Controller
         $result = [];
 
         try {
+            if (!$this->fb) {
+                \Access::deny(__('Meta app ID or app secret is missing. Please configure them in the Threads settings.'));
+            }
+
             if (!session('Threads_AccessToken')) {
                 if (!$request->code) {
                     return redirect(module_url('oauth'));
                 }
 
                 $callbackUrl = rtrim(module_url(), '/');
-                $helper = $this->fb->getRedirectLoginHelper();
+                $helper = $this->oauthClient->getRedirectLoginHelper();
                 if ($request->state) {
                     $helper->getPersistentDataHandler()->set('state', $request->state);
                 }
