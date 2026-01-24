@@ -17,8 +17,6 @@ class AppChannelThreadsUnofficialController extends Controller
 
         $appId = get_option('threads_app_id', '');
         $appSecret = get_option('threads_app_secret', '');
-        $metaAppId = get_option('meta_app_id', '');
-        $metaAppSecret = get_option('meta_app_secret', '');
         $appVersion = get_option('threads_graph_version', 'v21.0');
         $appPermissions = get_option(
             'threads_permissions',
@@ -87,10 +85,6 @@ class AppChannelThreadsUnofficialController extends Controller
         $result = [];
 
         try {
-            if (!$this->fb) {
-                \Access::deny(__('Meta app ID or app secret is missing. Please configure them in the Threads settings.'));
-            }
-
             if (!session('Threads_AccessToken')) {
                 if (!$request->code) {
                     return redirect(module_url('oauth'));
