@@ -36,10 +36,9 @@ class Post extends Facade
             }
         }
 
-        $options = (array) ($data->options ?? []);
-        $disclaimer = $options['yt_disclaimer'] ?? '';
-        if (trim($disclaimer) === '') {
-            $errors[] = __("YouTube: Please enter a disclaimer.");
+        $caption = $data->caption ?? '';
+        if (trim($caption) === '') {
+            $errors[] = __("YouTube: Please enter a title or description.");
         }
 
         return $errors;
@@ -79,10 +78,9 @@ class Post extends Facade
         $data = json_decode($post->data, false);
         $medias = $data->medias ?? [];
         $caption = spintax($data->caption ?? '');
-        $options = (array) ($data->options ?? []);
-        $disclaimer = spintax($options['yt_disclaimer'] ?? '');
         $title = $data->title ?? Str::limit(trim($caption), 95, '');
-        $description = $disclaimer;
+        $description = $caption;
+        $options = (array) ($data->options ?? []);
         $youtubeType = $options['yt_type'] ?? 'video';
 
         if ($youtubeType === 'shorts') {

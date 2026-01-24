@@ -146,7 +146,6 @@ var AppPubishing = new (function ()
                 }else{
                     $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
                 }
-                updateYoutubeDisclaimerPreview();
             });
 
             $(".post-caption")[0].emojioneArea.on("change", function(editor, event) {
@@ -158,7 +157,6 @@ var AppPubishing = new (function ()
                 }else{
                     $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
                 }
-                updateYoutubeDisclaimerPreview();
             });
 
             $(".post-caption")[0].emojioneArea.on("emojibtn.click", function(button, event) {
@@ -170,55 +168,7 @@ var AppPubishing = new (function ()
                 }else{
                     $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
                 }
-                updateYoutubeDisclaimerPreview();
             });
-        }
-
-        function updateYoutubeDisclaimerPreview() {
-            var $disclaimer = $(".post-youtube-disclaimer");
-            if ($disclaimer.length === 0) {
-                return;
-            }
-            var text = '';
-            var content = '';
-            if ($disclaimer[0].emojioneArea) {
-                text = $disclaimer[0].emojioneArea.getText();
-                content = $disclaimer[0].emojioneArea.editor.html();
-            } else {
-                text = $disclaimer.val();
-                content = text;
-            }
-            var $youtubeText = $('.cpv[data-social-network="youtube"] .cpv-text');
-            if ($youtubeText.length === 0) {
-                return;
-            }
-            if (text) {
-                $youtubeText.html(content);
-            } else {
-                $youtubeText.html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-            }
-        }
-
-        if ($(".post-youtube-disclaimer").length > 0) {
-            if ($(".post-youtube-disclaimer")[0].emojioneArea) {
-                $(".post-youtube-disclaimer")[0].emojioneArea.on("keyup", function(editor, event) {
-                    updateYoutubeDisclaimerPreview();
-                });
-
-                $(".post-youtube-disclaimer")[0].emojioneArea.on("change", function(editor, event) {
-                    updateYoutubeDisclaimerPreview();
-                });
-
-                $(".post-youtube-disclaimer")[0].emojioneArea.on("emojibtn.click", function(button, event) {
-                    updateYoutubeDisclaimerPreview();
-                });
-            } else {
-                $(".post-youtube-disclaimer").on("input", function() {
-                    updateYoutubeDisclaimerPreview();
-                });
-            }
-
-            updateYoutubeDisclaimerPreview();
         }
     },
 
@@ -314,16 +264,6 @@ var AppPubishing = new (function ()
         $cpvText.html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
         if (caption) {
             $cpvText.html(caption);
-        }
-
-        var disclaimer = $('[name="options[yt_disclaimer]"]').val();
-        var $youtubeText = $('.cpv[data-social-network="youtube"] .cpv-text');
-        if ($youtubeText.length) {
-            if (disclaimer) {
-                $youtubeText.html(disclaimer);
-            } else {
-                $youtubeText.html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-            }
         }
 
         function onMediaItemsChange() {
