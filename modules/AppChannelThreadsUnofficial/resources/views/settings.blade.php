@@ -47,6 +47,18 @@
                     </div>
                     <div class="col-md-12">
                         <div class="mb-4">
+                            <label for="meta_app_id" class="form-label">{{ __('Meta App ID') }}</label>
+                            <input class="form-control" name="meta_app_id" id="meta_app_id" type="text" value="{{ get_option('meta_app_id', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-4">
+                            <label for="meta_app_secret" class="form-label">{{ __('Meta App Secret') }}</label>
+                            <input class="form-control" name="meta_app_secret" id="meta_app_secret" type="text" value="{{ get_option('meta_app_secret', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-4">
                             <label for="threads_permissions" class="form-label">{{ __('Permissions') }}</label>
                             <input class="form-control" name="threads_permissions" id="threads_permissions" type="text" value="{{ get_option('threads_permissions', 'threads_basic,threads_content_publish,threads_manage_insights') }}">
                         </div>

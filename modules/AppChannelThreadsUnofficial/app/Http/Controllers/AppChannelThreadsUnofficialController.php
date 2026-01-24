@@ -4,13 +4,13 @@ namespace Modules\AppChannelThreadsUnofficial\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use JanuSoftware\Facebook\Facebook;
 
 class AppChannelThreadsUnofficialController extends Controller
 {
     public $fb;
     public $scopes;
-
     public function __construct()
     {
         \Access::check('appchannels.' . module('key'));
@@ -33,6 +33,7 @@ class AppChannelThreadsUnofficialController extends Controller
                 'app_secret' => $appSecret,
                 'default_graph_version' => $appVersion,
             ]);
+
         } catch (\Exception $e) {
             \Access::deny(__('Could not connect to Threads API: ') . $e->getMessage());
         }
@@ -103,7 +104,17 @@ class AppChannelThreadsUnofficialController extends Controller
             }
 
             $accessToken = session('Threads_AccessToken');
-            $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+            $graphVersion = get_option('threads_graph_version', 'v21.0');
+            $profileResponse = Http::get('https://graph.facebook.com/' . $graphVersion . '/me', [
+                'fields' => 'id,name,username,profile_picture_url',
+                'access_token' => $accessToken,
+            ]);
+
+            if (!$profileResponse->successful()) {
+                throw new \Exception($profileResponse->body() ?: __('Threads profile request failed.'));
+            }
+
+            $profile = $profileResponse->json() ?? [];
 
             if (!empty($profile['id'])) {
                 $username = $profile['username'] ?? $profile['name'] ?? 'threads';
