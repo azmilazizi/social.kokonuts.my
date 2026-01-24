@@ -48,6 +48,19 @@ class AppChannelThreadsUnofficialController extends Controller
         $callbackUrl = rtrim(module_url(), '/');
         $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
 
+        $parsedUrl = parse_url($loginUrl);
+        $queryParams = [];
+
+        if (!empty($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $queryParams);
+        }
+
+        $authorizeUrl = 'https://www.threads.com/oauth/authorize?' . http_build_query(array_merge(
+            $queryParams,
+            ['__coig_login' => '1']
+        ));
+        $loginUrl = 'https://www.threads.com/login?next=' . urlencode($authorizeUrl);
+
         return redirect($loginUrl);
     }
 
