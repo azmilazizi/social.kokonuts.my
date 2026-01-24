@@ -10,7 +10,7 @@ class AppChannelThreadsUnofficialController extends Controller
 {
     public $fb;
     public $scopes;
-    public $oauthClient;
+    public $metaFb;
 
     public function __construct()
     {
@@ -38,7 +38,7 @@ class AppChannelThreadsUnofficialController extends Controller
             ]);
 
             if ($metaAppId && $metaAppSecret) {
-                $this->fb = new Facebook([
+                $this->metaFb = new Facebook([
                     'app_id' => $metaAppId,
                     'app_secret' => $metaAppSecret,
                     'default_graph_version' => $appVersion,
@@ -118,7 +118,17 @@ class AppChannelThreadsUnofficialController extends Controller
             }
 
             $accessToken = session('Threads_AccessToken');
-            $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+            $graphClient = $this->metaFb ?? $this->fb;
+
+            try {
+                $profile = $graphClient->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+            } catch (\Exception $e) {
+                if ($this->metaFb && $this->fb !== $this->metaFb) {
+                    $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+                } else {
+                    throw $e;
+                }
+            }
 
             if (!empty($profile['id'])) {
                 $username = $profile['username'] ?? $profile['name'] ?? 'threads';
