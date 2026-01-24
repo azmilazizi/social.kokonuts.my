@@ -11,12 +11,14 @@
                 @php
                     $postType = 'media';
                     $caption = '';
+                    $title = '';
                     $medias = [];
                     $link = '';
 
                     if ($post) {
                         $postType = $post->type ?? 'media';
                         $postData = json_decode($post->data, false);
+                        $title = $postData->title ?? '';
                         $caption = $postData->caption ?? '';
                         $medias = $postData->medias ?? [];
                         $link = $postData->link ?? '';
@@ -41,6 +43,7 @@
                         @endforeach
                     </div>
 
+                    <input type="text" class="form-control fw-4 border" name="title" placeholder="{{ __("Enter title") }}" value="{{ $title }}">
                     <textarea class="form-control input-emoji fw-4 border" name="caption" placeholder="{{ __("Enter caption") }}">{{ $caption }}</textarea>
                 </div>
 
