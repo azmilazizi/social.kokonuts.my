@@ -123,3 +123,34 @@
     height: auto;
     display: block;
 }
+
+.youtube-preview .cpv-youtube-img-view,
+.youtube-preview .cpv-youtube-placeholder {
+    width: 100%;
+}
+
+.youtube-preview .cpv-youtube-placeholder {
+    aspect-ratio: 16 / 9;
+    background: #0f0f0f;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    padding: 12px;
+}
+
+.youtube-preview.is-shorts .cpv-youtube-img-view,
+.youtube-preview.is-shorts .cpv-youtube-placeholder {
+    max-width: 240px;
+    margin: 0 auto;
+    aspect-ratio: 9 / 16;
+}
+
+.youtube-preview .cpv-youtube-badge {
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
