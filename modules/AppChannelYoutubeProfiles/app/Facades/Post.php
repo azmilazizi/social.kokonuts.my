@@ -245,6 +245,10 @@ class Post extends Facade
             Storage::disk('local')->makeDirectory('tmp');
         }
 
+        if (!is_dir($tempDir) || !is_writable($tempDir)) {
+            $tempDir = sys_get_temp_dir();
+        }
+
         $path = tempnam($tempDir, 'yt_');
         return $path ?: null;
     }
