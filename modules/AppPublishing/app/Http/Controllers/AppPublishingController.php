@@ -329,6 +329,10 @@ class AppPublishingController extends Controller
             ->get();
         $labelIdsArray = $labels ? Arr::pluck($labels, 'id') : [];
 
+        if ($title === '') {
+            $title = $caption;
+        }
+
         $postData = [
             "title"   => $title,
             "caption" => $caption,
