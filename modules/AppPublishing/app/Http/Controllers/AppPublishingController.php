@@ -218,6 +218,7 @@ class AppPublishingController extends Controller
         $type            = (string) $request->type;
         $postBy          = (int) $request->post_by;
         $caption         = (string) $request->caption;
+        $title           = (string) $request->title;
         $timePosts       = (array) $request->time_posts;
         $link            = (string) $request->link;
         $medias          = (array) $request->medias;
@@ -329,6 +330,7 @@ class AppPublishingController extends Controller
         $labelIdsArray = $labels ? Arr::pluck($labels, 'id') : [];
 
         $postData = [
+            "title"   => $title,
             "caption" => $caption,
             "link"    => $link,
             "medias"  => $medias,
