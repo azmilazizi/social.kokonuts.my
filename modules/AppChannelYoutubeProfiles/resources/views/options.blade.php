@@ -6,6 +6,15 @@
             </div>
         </div>
         <div class="card-body px-3">
+            @php
+                $ytDisclaimer = isset($postData) && isset($postData->options)
+                    ? ($postData->options->yt_disclaimer ?? '')
+                    : '';
+            @endphp
+            <div class="mb-3">
+                <label class="form-label">{{ __('Disclaimer') }}</label>
+                <textarea class="form-control input-emoji bbr-r-6 bbl-r-6" name="options[yt_disclaimer]">{{ $ytDisclaimer }}</textarea>
+            </div>
             <div class="mb-0">
                 <label class="form-label">{{ __('Post To') }}</label>
                 <div class="d-flex gap-8 flex-column flex-lg-row flex-md-column">
