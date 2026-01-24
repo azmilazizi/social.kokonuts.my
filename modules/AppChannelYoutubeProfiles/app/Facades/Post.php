@@ -79,6 +79,19 @@ class Post extends Facade
         $caption = spintax($data->caption ?? '');
         $title = $data->title ?? Str::limit(trim($caption), 95, '');
         $description = $caption;
+        $options = (array) ($data->options ?? []);
+        $youtubeType = $options['yt_type'] ?? 'video';
+
+        if ($youtubeType === 'shorts') {
+            $shortsTag = '#shorts';
+            $normalizedDescription = Str::lower($description);
+
+            if ($description === '') {
+                $description = $shortsTag;
+            } elseif (!Str::contains($normalizedDescription, $shortsTag)) {
+                $description = trim($description . ' ' . $shortsTag);
+            }
+        }
 
         $filePath = Media::path($medias[0] ?? '');
         if (!$filePath || !file_exists($filePath)) {
