@@ -55,6 +55,11 @@ class AppChannelThreadsUnofficialController extends Controller
             parse_str($parsedUrl['query'], $queryParams);
         }
 
+        $queryParams['client_id'] = $queryParams['client_id'] ?? get_option('threads_app_id', '');
+        $queryParams['redirect_uri'] = $queryParams['redirect_uri'] ?? $callbackUrl;
+        $queryParams['response_type'] = $queryParams['response_type'] ?? 'code';
+        $queryParams['scope'] = $queryParams['scope'] ?? $this->scopes;
+
         $authorizeUrl = 'https://www.threads.com/oauth/authorize?' . http_build_query(array_merge(
             $queryParams,
             ['__coig_login' => '1']
