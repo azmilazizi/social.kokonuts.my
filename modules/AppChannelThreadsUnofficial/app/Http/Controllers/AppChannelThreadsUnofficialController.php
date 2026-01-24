@@ -118,16 +118,15 @@ class AppChannelThreadsUnofficialController extends Controller
             }
 
             $accessToken = session('Threads_AccessToken');
-            $graphClient = $this->metaFb ?? $this->fb;
 
-            try {
-                $profile = $graphClient->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
-            } catch (\Exception $e) {
-                if ($this->metaFb && $this->fb !== $this->metaFb) {
+            if ($this->metaFb) {
+                try {
+                    $profile = $this->metaFb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+                } catch (\Exception $e) {
                     $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
-                } else {
-                    throw $e;
                 }
+            } else {
+                $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
             }
 
             if (!empty($profile['id'])) {
