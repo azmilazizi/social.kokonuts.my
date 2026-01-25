@@ -4,7 +4,7 @@
 
         <div class="d-flex align-items-center gap-8">
             <div class="size-40 size-child">
-                <img src="{{ theme_public_asset( " img/default.png" ) }}"
+                <img src="{{ theme_public_asset( "img/default.png" ) }}"
                     class="align-self-center rounded-circle border cpv-avatar" alt="">
             </div>
             <div class="d-flex align-items-center flex-row-fluid flex-wrap">
