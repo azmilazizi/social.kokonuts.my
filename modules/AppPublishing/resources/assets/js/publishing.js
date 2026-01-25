@@ -272,7 +272,7 @@ var AppPubishing = new (function () {
                 if (images.length > 0) {
                     allMedias = Array.from(images);
                 } else {
-                    var previewMedias = document.querySelectorAll('.preview-list-medias img');
+                    var previewMedias = document.querySelectorAll('.preview-list-medias [data-preview-media]');
                     allMedias = Array.from(previewMedias);
                 }
                 const previewHtml = allMedias.map(media => {
