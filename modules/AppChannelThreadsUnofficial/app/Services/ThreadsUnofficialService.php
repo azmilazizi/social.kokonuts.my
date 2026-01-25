@@ -37,16 +37,19 @@ class ThreadsUnofficialService
             $caption = trim($caption . ' ' . $link);
         }
 
-        $medias    = $payload['medias'] ?? [];
-        $mediaUrls = array_map(static fn ($media) => Media::url($media), $medias);
+        $attachmentUrl = $payload['video_url'] ?? $payload['image_url'] ?? null;
+        $mediaType = 'TEXT';
+        if (!empty($attachmentUrl)) {
+            $mediaType = Media::isVideo($attachmentUrl) ? 'VIDEO' : 'IMAGE';
+        }
 
         \Log::info('[Threads] payload', [
             'type'      => $payload['type'] ?? null,
             'user_id'   => $userId,
             'username'  => $username,
             'caption'   => $caption,
-            'medias'    => $medias,
-            'mediaUrls' => $mediaUrls,
+            'media_type'    => $mediaType,
+            'attachment_url' => $attachmentUrl,
         ]);
 
         $graphVersion   = get_option('threads_graph_version', 'v21.0');
@@ -60,40 +63,48 @@ class ThreadsUnofficialService
         ]);
 
         $createPayload = [
-            'text'         => $caption,
             'access_token' => $accessToken,
         ];
 
-        if (!empty($mediaUrls)) {
-            $mediaUrl = $mediaUrls[0];
-
+        if (!empty($attachmentUrl)) {
             // Validate media URL is reachable (super helpful)
             try {
-                $head = Http::timeout(15)->head($mediaUrl);
+                $head = Http::timeout(15)->head($attachmentUrl);
                 if (!$head->successful()) {
                     return [
                         'status' => 0,
-                        'message' => "Media URL not reachable ({$head->status()}): {$mediaUrl}",
-                        'type' => $payload['type'] ?? 'text',
+                        'message' => "Media URL not reachable ({$head->status()}): {$attachmentUrl}",
+                        'media_type' => $mediaType,
                     ];
                 }
             } catch (\Throwable $e) {
                 return [
                     'status' => 0,
-                    'message' => "Media URL HEAD failed: {$mediaUrl} | " . $e->getMessage(),
-                    'type' => $payload['type'] ?? 'text',
+                    'message' => "Media URL HEAD failed: {$attachmentUrl} | " . $e->getMessage(),
+                    'media_type' => $mediaType,
                 ];
             }
 
-            if (Media::isVideo($mediaUrl)) {
-                $createPayload['media_type'] = 'VIDEO';
-                $createPayload['video_url']  = $mediaUrl;
+            $createPayload['media_type'] = $mediaType;
+            if ($mediaType === 'VIDEO') {
+                $createPayload['video_url'] = $attachmentUrl;
             } else {
-                $createPayload['media_type'] = 'IMAGE';
-                $createPayload['image_url']  = $mediaUrl;
+                $createPayload['image_url'] = $attachmentUrl;
+            }
+
+            if ($caption !== '') {
+                $createPayload['text'] = $caption;
             }
         } else {
+            if ($caption === '') {
+                return [
+                    'status' => 0,
+                    'message' => 'Threads create failed: text is required when media_type is TEXT.',
+                    'media_type' => $mediaType,
+                ];
+            }
             $createPayload['media_type'] = 'TEXT';
+            $createPayload['text'] = $caption;
         }
 
         $createResponse = Http::asForm()->timeout(90)->post($createEndpoint, $createPayload);
@@ -108,7 +119,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads create failed: ' . $createResponse->body(),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -118,7 +129,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads create returned no id: ' . $createResponse->body(),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -157,7 +168,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads publish failed: ' . ($publishResponse?->body() ?? 'No response'),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -169,7 +180,7 @@ class ThreadsUnofficialService
             'message' => 'Succeeded',
             'id'      => $postId,
             'url'     => $profileUrl,
-            'type'    => $payload['type'] ?? 'text',
+            'media_type'    => $mediaType,
         ];
     }
 }
