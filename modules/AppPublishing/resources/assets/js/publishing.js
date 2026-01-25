@@ -203,14 +203,14 @@ var AppPubishing = new (function ()
 
         var selectedAccounts = collectSelectedAccounts();
         selectedAccounts.forEach(function ($item) {
-            var network = $item.data("social-network");
+            var network = ($item.data("social-network") || $item.data("network") || '').toString().toLowerCase();
             var avatar = $item.data("avatar");
             var name = $item.data("name");
             var username = $item.data("username");
             $(".cpv").each(function () {
                 var $cpv = $(this);
-                var previewNetwork = $cpv.data("social-network");
-                if (network == previewNetwork) {
+                var previewNetwork = ($cpv.data("social-network") || '').toString().toLowerCase();
+                if (network && previewNetwork && network == previewNetwork) {
                     $cpv.removeClass("d-none");
                     $cpv.find(".cpv-avatar").attr("src", avatar);
                     $cpv.find(".cpv-name").text(name);
