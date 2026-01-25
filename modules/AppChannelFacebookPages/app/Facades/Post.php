@@ -7,6 +7,30 @@ use Illuminate\Support\Facades\DB;
 use JanuSoftware\Facebook\Facebook;
 use Media;
 use getID3;
+use Illuminate\Support\Facades\Http;
+
+$videoId = 'VIDEO_ID_FROM_UPLOAD_START'; // contoh: 1234567890
+$pageAccessToken = 'YOUR_PAGE_ACCESS_TOKEN';
+$fileUrl = 'https://some.cdn.url/video.mp4';
+
+$response = Http::withHeaders([
+    'Authorization' => 'OAuth ' . $pageAccessToken,
+    'file_url'      => $fileUrl,
+])->post("https://rupload.facebook.com/video-upload/v24.0/{$videoId}");
+
+if (!$response->successful()) {
+    \Log::error('[FB Reels] upload transfer failed', [
+        'status' => $response->status(),
+        'body'   => $response->body(),
+    ]);
+
+    throw new \Exception('Reels video transfer failed: ' . $response->body());
+}
+
+\Log::info('[FB Reels] upload transfer success', [
+    'body' => $response->body(),
+]);
+
 
 class Post extends Facade
 {
@@ -159,22 +183,40 @@ class Post extends Facade
     protected static function completeReelsUpload($FB, $post, $uploadSession, $caption, $mediaUrl, $endpoint)
     {
         $videoId = $uploadSession['video_id'];
-        $uploadSessionId = $uploadSession['upload_session_id'] ?? null;
+        // $uploadSessionId = $uploadSession['upload_session_id'] ?? null;
+        $uploadUrl = $uploadSession['upload_url'] ?? null;
 
-        if (empty($uploadSessionId)) {
+        // if (empty($uploadSessionId)) {
+        //     return [
+        //         "status" => 0,
+        //         "message" => __("Could not create upload session for Reels."),
+        //         "type" => $post->type,
+        //     ];
+        // }
+
+        if (empty($uploadUrl)) {
             return [
                 "status" => 0,
-                "message" => __("Could not create upload session for Reels."),
+                "message" => __("Could not create upload URL for Reels."),
                 "type" => $post->type,
             ];
         }
 
-        $transferResponse = $FB->post($endpoint . 'video_reels', [
-            'upload_phase' => 'transfer',
-            'upload_session_id' => $uploadSessionId,
-            'file_url' => $mediaUrl,
-            'description' => $caption,
-        ], $post->account->token)->getDecodedBody();
+        // $transferResponse = $FB->post($endpoint . 'video_reels', [
+        //     'upload_phase' => 'transfer',
+        //     'upload_session_id' => $uploadSessionId,
+        //     'file_url' => $mediaUrl,
+        //     'description' => $caption,
+        // ], $post->account->token)->getDecodedBody();
+
+        $transferResponse = Http::withHeaders(['file_url' => $mediaUrl])->post($uploadUrl);
+
+        // $transferResponse = $FB->post($endpoint . 'video_reels', [
+        //     'upload_phase' => 'transfer',
+        //     'upload_session_id' => $uploadSessionId,
+        //     'file_url' => $mediaUrl,
+        //     'description' => $caption,
+        // ], $post->account->token)->getDecodedBody();
 
         if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
             return [
@@ -186,7 +228,7 @@ class Post extends Facade
 
         $finishResponse = $FB->post($endpoint . 'video_reels', [
             'upload_phase' => 'finish',
-            'upload_session_id' => $uploadSessionId,
+            'video_state' => 'PUBLISHED',
             'video_id' => $videoId,
             'description' => $caption,
         ], $post->account->token)->getDecodedBody();
