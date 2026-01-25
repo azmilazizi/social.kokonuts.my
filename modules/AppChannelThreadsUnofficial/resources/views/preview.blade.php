@@ -2,8 +2,7 @@
     <div class="d-flex justify-content-between align-items-center pf-13">
         <div class="d-flex align-items-center gap-8">
             <div class="size-40 size-child">
-                <img src="{{ theme_public_asset("img/default.png" ) }}"
-                    class="align-self-center rounded-circle border cpv-avatar" alt="">
+                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="align-self-center rounded-circle border cpv-avatar" alt="">
             </div>
             <div class="d-flex flex-column">
                 <div class="d-flex align-items-center gap-6">
@@ -31,12 +30,10 @@
         </div>
 
         <div class="cpv-link d-flex justify-content-start w-100 d-none border b-r-10">
-            <div
-                class="cpv-link-img img-wrap w-100 size-120 size-child border-end btl-r-10 bbl-r-10 border-start border-top border-bottom">
+            <div class="cpv-link-img img-wrap w-100 size-120 size-child border-end btl-r-10 bbl-r-10 border-start border-top border-bottom">
                 <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
             </div>
-            <div
-                class="d-flex flex-column justify-content-center w-100 bg-gray-100 fs-12 pf-13 btr-r-10 bbr-r-10 border-end border-top border-bottom">
+            <div class="d-flex flex-column justify-content-center w-100 bg-gray-100 fs-12 pf-13 btr-r-10 bbr-r-10 border-end border-top border-bottom">
                 <div class="cpv-default">
                     <div class="h-12 bg-gray-300 mb-2"></div>
                     <div class="h-12 bg-gray-300 mb-2"></div>
@@ -75,7 +72,7 @@
 </div>
 
 <script>
-    function renderThreadsMedia(elements) {
+function renderThreadsMedia(elements) {
     if (elements.length === 0) {
         return '';
     }
