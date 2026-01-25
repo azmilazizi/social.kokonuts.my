@@ -371,7 +371,10 @@ if($post){
                 
                 <div class="max-w-450 wp-100 mx-auto ">
 
-                    @foreach(Channels::channels('apppublishing') as $value)
+                    @php
+                        $channels = Channels::channels('apppublishing');
+                    @endphp
+                    @foreach($channels as $value)
 
                         @php
                             $view = $value['key'].'::preview';
@@ -389,6 +392,16 @@ if($post){
                         @endif
                         
                     @endforeach
+                    @if(!isset($channels['threads']) && view()->exists('appchannelthreadsunoofficial::preview'))
+                        <div class="cpv pb-3" data-social-network="threads">
+                            <div class="d-flex align-items-center gap-8 my-3">
+                                <i class="fa-brands fa-threads" style="color: #101010;"></i>
+                                <span>{{ __("Threads") }}</span>
+                            </div>
+                    
+                            @include('appchannelthreadsunoofficial::preview')
+                        </div>
+                    @endif
 
                     <div class="cpv-empty mt-5">
                         <div class="py-2 text-gray-700 fs-13">{{ __('Choose a profile and enter your post to see a preview.') }}</div>
