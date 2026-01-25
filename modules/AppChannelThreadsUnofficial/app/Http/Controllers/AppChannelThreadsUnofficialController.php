@@ -27,17 +27,6 @@ class AppChannelThreadsUnofficialController extends Controller
             \Access::deny(__('To use Threads, you must first configure the app ID, app secret, permissions, and API version.'));
         }
 
-        try {
-            $this->oauthClient = new Facebook([
-                'app_id' => $appId,
-                'app_secret' => $appSecret,
-                'default_graph_version' => $appVersion,
-            ]);
-
-        } catch (\Exception $e) {
-            \Access::deny(__('Could not connect to Threads API: ') . $e->getMessage());
-        }
-
         $this->scopes = $appPermissions;
     }
 
@@ -119,9 +108,10 @@ class AppChannelThreadsUnofficialController extends Controller
                     throw new \Exception('Invalid OAuth state. Please try connecting again.');
                 }
 
-                // Exchange code -> short-lived access token (Threads)
-                // NOTE: This must be server-to-server. No Meta/Facebook app secret is needed here.
-                $tokenResp = \Illuminate\Support\Facades\Http::asForm()->post('https://graph.threads.net/oauth/access_token', [
+                $graphVersion = get_option('threads_graph_version', 'v21.0');
+
+                // Exchange code -> short-lived
+                $tokenResp = Http::asForm()->post("https://graph.threads.net/oauth/access_token", [
                     'client_id'     => $clientId,
                     'client_secret' => $clientSecret,
                     'grant_type'    => 'authorization_code',
@@ -134,30 +124,25 @@ class AppChannelThreadsUnofficialController extends Controller
                 }
 
                 $tokenJson = $tokenResp->json();
-                if (empty($tokenJson['access_token'])) {
-                    throw new \Exception('Threads token exchange did not return an access_token: ' . json_encode($tokenJson));
+                $finalToken = $tokenJson['access_token'] ?? null;
+
+                if (!$finalToken) {
+                    throw new \Exception('No access_token returned: ' . json_encode($tokenJson));
                 }
 
-                session(['Threads_AccessToken' => $tokenJson['access_token']]);
-
-                // Optional: exchange short-lived -> long-lived token
-                // (If your app needs persistent tokens, uncomment this)
-                /*
-                $longResp = \Illuminate\Support\Facades\Http::get('https://graph.threads.net/access_token', [
-                    'grant_type'        => 'th_exchange_token',
-                    'client_secret'     => $clientSecret,
-                    'access_token'      => $tokenJson['access_token'],
+                // Exchange short -> long-lived
+                $longResp = Http::get("https://graph.threads.net/access_token", [
+                    'grant_type'    => 'th_exchange_token',
+                    'client_secret' => $clientSecret,
+                    'access_token'  => $finalToken,
                 ]);
 
-                if ($longResp->ok()) {
-                    $longJson = $longResp->json();
-                    if (!empty($longJson['access_token'])) {
-                        session(['Threads_AccessToken' => $longJson['access_token']]);
-                    }
+                if ($longResp->ok() && !empty($longResp->json()['access_token'])) {
+                    $finalToken = $longResp->json()['access_token'];
                 }
-                */
 
-                // Reload page to continue profile fetch step
+                session(['Threads_AccessToken' => $finalToken]);
+
                 return redirect($redirectUri);
             }
 
@@ -165,10 +150,18 @@ class AppChannelThreadsUnofficialController extends Controller
             $accessToken = session('Threads_AccessToken');
 
             // Threads profile endpoint (NO app secret needed here)
-            $profileResp = \Illuminate\Support\Facades\Http::get('https://graph.threads.net/me', [
-                'fields'       => 'id,username,threads_profile_picture_url', // keep minimal; add more fields only if supported in your API version
+            $graphVersion = get_option('threads_graph_version', 'v21.0');
+
+            $profileResp = Http::get("https://graph.threads.net/{$graphVersion}/me", [
+                'fields' => 'id,username,threads_profile_picture_url',
                 'access_token' => $accessToken,
             ]);
+            
+            $err = $profileResp->json('error.code');
+            if ($err == 190) {
+                session()->forget('Threads_AccessToken');
+                return redirect(module_url('oauth'));
+            }
 
             if (!$profileResp->ok()) {
                 // If token invalid/expired, clear and restart OAuth
@@ -177,6 +170,7 @@ class AppChannelThreadsUnofficialController extends Controller
             }
 
             $profile = $profileResp->json();
+
 
             if (!empty($profile['id'])) {
                 $username = $profile['username'] ?? 'threads';
