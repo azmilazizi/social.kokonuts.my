@@ -108,10 +108,35 @@ var AppPubishing = new (function () {
             });
         },
 
+        AppPubishing.getSelectedAccounts = function () {
+            var selections = [];
+            $(".am-list-account .am-choice-body .am-choice-item input:checked").each(function () {
+                var $item = $(this).closest(".am-choice-item");
+                if ($item.length) {
+                    selections.push($item);
+                }
+            });
+
+            if (selections.length === 0) {
+                $(".am-selected-list .am-selected-item").each(function () {
+                    var id = $(this).data("id");
+                    if (!id) {
+                        return;
+                    }
+                    var $item = $(".am-list-account .am-choice-body .am-choice-item input[value='" + id + "']").closest(".am-choice-item");
+                    if ($item.length) {
+                        selections.push($item);
+                    }
+                });
+            }
+
+            return selections;
+        },
+
         AppPubishing.previewAction = function () {
             function channelChanges() {
-                var elements = document.querySelectorAll('.am-selected-list .am-selected-item');
-                if (elements.length > 0) {
+                var selectedAccounts = AppPubishing.getSelectedAccounts();
+                if (selectedAccounts.length > 0) {
                     $('.cpv-empty').addClass('d-none');
                 } else {
                     $('.cpv-empty').removeClass('d-none');
@@ -131,6 +156,10 @@ var AppPubishing = new (function () {
 
                 channelChanges();
             }
+
+            $(document).on("change", ".am-choice-item input[type='checkbox']", function () {
+                channelChanges();
+            });
 
             if ($(".post-caption").length > 0) {
                 $(".post-caption")[0].emojioneArea.on("keyup", function (editor, event) {
@@ -171,33 +200,7 @@ var AppPubishing = new (function () {
         AppPubishing.preview = function () {
             var profileFound = false;
             $(".cpv").addClass("d-none");
-
-            function collectSelectedAccounts() {
-                var selections = [];
-                $(".am-list-account .am-choice-body .am-choice-item input:checked").each(function () {
-                    var $item = $(this).closest(".am-choice-item");
-                    if ($item.length) {
-                        selections.push($item);
-                    }
-                });
-
-                if (selections.length === 0) {
-                    $(".am-selected-list .am-selected-item").each(function () {
-                        var id = $(this).data("id");
-                        if (!id) {
-                            return;
-                        }
-                        var $item = $(".am-list-account .am-choice-body .am-choice-item input[value='" + id + "']").closest(".am-choice-item");
-                        if ($item.length) {
-                            selections.push($item);
-                        }
-                    });
-                }
-
-                return selections;
-            }
-
-            var selectedAccounts = collectSelectedAccounts();
+            var selectedAccounts = AppPubishing.getSelectedAccounts();
             selectedAccounts.forEach(function ($item) {
                 var network = ($item.data("social-network") || $item.data("network") || '').toString().toLowerCase();
                 console.log("Preview for network:", network);

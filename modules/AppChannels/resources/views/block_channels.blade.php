@@ -79,7 +79,14 @@ $groups = DB::table('groups')->where('team_id', $teamId)->get();
             <div class="am-choice-body max-h-400 overflow-auto">
                 @if ($channels->count())
                     @foreach ($channels as $value)
-                        @can($permission . "." . strtolower($value->module))
+                        @php
+                            $moduleKey = strtolower($value->module);
+                            $module = \Module::find($value->module);
+                            if ($module) {
+                                $moduleKey = $module->getLowerName();
+                            }
+                        @endphp
+                        @can($permission . "." . $moduleKey)
                             <div class="search-accounts">
                                 <label class="am-choice-item d-flex gap-12 border-top px-3 py-3"
                                     for="am_{{ $value->id }}"
