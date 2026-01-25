@@ -4,13 +4,13 @@ namespace Modules\AppChannelThreadsUnofficial\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use JanuSoftware\Facebook\Facebook;
 
 class AppChannelThreadsUnofficialController extends Controller
 {
     public $fb;
     public $scopes;
-
     public function __construct()
     {
         \Access::check('appchannels.' . module('key'));
@@ -28,11 +28,12 @@ class AppChannelThreadsUnofficialController extends Controller
         }
 
         try {
-            $this->fb = new Facebook([
+            $this->oauthClient = new Facebook([
                 'app_id' => $appId,
                 'app_secret' => $appSecret,
                 'default_graph_version' => $appVersion,
             ]);
+
         } catch (\Exception $e) {
             \Access::deny(__('Could not connect to Threads API: ') . $e->getMessage());
         }

@@ -175,25 +175,49 @@ var AppPubishing = new (function ()
     AppPubishing.preview = function () {
         var profileFound = false;
         $(".cpv").addClass("d-none");
-        $(".am-list-account .am-choice-body .am-choice-item").each(function () {
-            var $item = $(this);
-            if ($item.find("input").is(':checked')) {
-                var network = $item.data("social-network");
-                var avatar = $item.data("avatar");
-                var name = $item.data("name");
-                var username = $item.data("username");
-                $(".cpv").each(function () {
-                    var $cpv = $(this);
-                    var previewNetwork = $cpv.data("social-network");
-                    if (network == previewNetwork) {
-                        $cpv.removeClass("d-none");
-                        $cpv.find(".cpv-avatar").attr("src", avatar);
-                        $cpv.find(".cpv-name").text(name);
-                        $cpv.find(".cpv-username").text(username);
-                        profileFound = true;
+
+        function collectSelectedAccounts() {
+            var selections = [];
+            $(".am-list-account .am-choice-body .am-choice-item input:checked").each(function () {
+                var $item = $(this).closest(".am-choice-item");
+                if ($item.length) {
+                    selections.push($item);
+                }
+            });
+
+            if (selections.length === 0) {
+                $(".am-selected-list .am-selected-item").each(function () {
+                    var id = $(this).data("id");
+                    if (!id) {
+                        return;
+                    }
+                    var $item = $(".am-list-account .am-choice-body .am-choice-item input[value='" + id + "']").closest(".am-choice-item");
+                    if ($item.length) {
+                        selections.push($item);
                     }
                 });
             }
+
+            return selections;
+        }
+
+        var selectedAccounts = collectSelectedAccounts();
+        selectedAccounts.forEach(function ($item) {
+            var network = $item.data("social-network");
+            var avatar = $item.data("avatar");
+            var name = $item.data("name");
+            var username = $item.data("username");
+            $(".cpv").each(function () {
+                var $cpv = $(this);
+                var previewNetwork = $cpv.data("social-network");
+                if (network == previewNetwork) {
+                    $cpv.removeClass("d-none");
+                    $cpv.find(".cpv-avatar").attr("src", avatar);
+                    $cpv.find(".cpv-name").text(name);
+                    $cpv.find(".cpv-username").text(username);
+                    profileFound = true;
+                }
+            });
         });
 
         if (!profileFound) {
@@ -257,7 +281,14 @@ var AppPubishing = new (function ()
                 if (type == "image") {
                     return `<img src="${file}"/>`;
                 } else if (type == "video") {
-                    return `<div class="bg-gray-400 hp-100 d-flex align-items-center justify-content-center fs-60 text-white"><i class="fa-solid fa-play"></i></div>`;
+                    return `
+                        <div class="cpv-video-frame" data-media-type="video">
+                            <video class="cpv-video" src="${file}" playsinline></video>
+                            <button type="button" class="cpv-video-toggle" aria-label="Play video">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                        </div>
+                    `;
                 }
             }).join('');
             if (allMedias.length === 0) {
@@ -288,6 +319,72 @@ var AppPubishing = new (function ()
             onMediaItemsChange();
         } else {
             onMediaItemsChange();
+        }
+
+        if (!window.cpvVideoPreviewBound) {
+            window.cpvVideoPreviewBound = true;
+
+            document.addEventListener('click', function (event) {
+                var toggle = event.target.closest('.cpv-video-toggle');
+                var video = event.target.closest('.cpv-video');
+                var frame = event.target.closest('.cpv-video-frame');
+
+                if (toggle) {
+                    frame = toggle.closest('.cpv-video-frame');
+                    video = frame ? frame.querySelector('.cpv-video') : null;
+                }
+
+                if (!frame || !video) {
+                    return;
+                }
+
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            document.addEventListener('play', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                var toggle = frame ? frame.querySelector('.cpv-video-toggle') : null;
+                if (toggle) {
+                    toggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                }
+                if (frame) {
+                    frame.classList.add('is-playing');
+                }
+            }, true);
+
+            document.addEventListener('pause', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                var toggle = frame ? frame.querySelector('.cpv-video-toggle') : null;
+                if (toggle) {
+                    toggle.innerHTML = '<i class="fa-solid fa-play"></i>';
+                }
+                if (frame) {
+                    frame.classList.remove('is-playing');
+                }
+            }, true);
+
+            document.addEventListener('ended', function (event) {
+                var video = event.target;
+                if (!video.classList.contains('cpv-video')) {
+                    return;
+                }
+                var frame = video.closest('.cpv-video-frame');
+                if (frame) {
+                    frame.classList.remove('is-playing');
+                }
+            }, true);
         }
     },
 

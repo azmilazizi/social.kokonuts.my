@@ -8,6 +8,7 @@ use Google\Service\YouTube\Video;
 use Google\Service\YouTube\VideoSnippet;
 use Google\Service\YouTube\VideoStatus;
 use Google\Http\MediaFileUpload;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Str;
 use Modules\AppChannels\Models\Accounts;
@@ -36,7 +37,9 @@ class Post extends Facade
         }
 
         $caption = $data->caption ?? '';
-        if (trim($caption) === '') {
+        $options = (array) ($data->options ?? []);
+        $disclaimer = $options['yt_disclaimer'] ?? '';
+        if (trim($caption) === '' && trim($disclaimer) === '') {
             $errors[] = __("YouTube: Please enter a title or description.");
         }
 
@@ -77,10 +80,24 @@ class Post extends Facade
         $data = json_decode($post->data, false);
         $medias = $data->medias ?? [];
         $caption = spintax($data->caption ?? '');
-        $title = $data->title ?? Str::limit(trim($caption), 95, '');
-        $description = $caption;
+        $options = (array) ($data->options ?? []);
+        $disclaimer = spintax($options['yt_disclaimer'] ?? '');
+        $title = $caption !== '' ? $caption : ($data->title ?? Str::limit(trim($caption), 95, ''));
+        $description = $disclaimer;
+        $youtubeType = $options['yt_type'] ?? 'video';
 
-        $filePath = Media::path($medias[0] ?? '');
+        if ($youtubeType === 'shorts') {
+            $shortsTag = '#shorts';
+            $normalizedDescription = Str::lower($description);
+
+            if ($description === '') {
+                $description = $shortsTag;
+            } elseif (!Str::contains($normalizedDescription, $shortsTag)) {
+                $description = trim($description . ' ' . $shortsTag);
+            }
+        }
+
+        [$filePath, $temporaryFile] = self::resolveVideoPath($medias[0] ?? '');
         if (!$filePath || !file_exists($filePath)) {
             return [
                 "status" => 0,
@@ -146,6 +163,10 @@ class Post extends Facade
                 "message" => __("YouTube error: ") . $e->getMessage(),
                 "type" => $post->type,
             ];
+        } finally {
+            if (!empty($temporaryFile) && file_exists($filePath)) {
+                @unlink($filePath);
+            }
         }
     }
 
@@ -168,5 +189,93 @@ class Post extends Facade
         }
 
         return $client;
+    }
+
+    protected static function resolveVideoPath(string $mediaPath): array
+    {
+        if ($mediaPath === '') {
+            return [null, false];
+        }
+
+        $localPath = Media::path($mediaPath);
+        if ($localPath && file_exists($localPath)) {
+            return [$localPath, false];
+        }
+
+        $defaultDisk = config('filesystems.default', 'public');
+        $storagePath = self::normalizeStoragePath($mediaPath);
+        if ($storagePath !== '' && Storage::disk($defaultDisk)->exists($storagePath)) {
+            $tempPath = self::createTempPath();
+            if ($tempPath && self::streamToTemp(Storage::disk($defaultDisk)->readStream($storagePath), $tempPath)) {
+                return [$tempPath, true];
+            }
+        }
+
+        $sourceUrl = filter_var($mediaPath, FILTER_VALIDATE_URL) ? $mediaPath : Media::url($mediaPath);
+        if ($sourceUrl && filter_var($sourceUrl, FILTER_VALIDATE_URL)) {
+            $tempPath = self::createTempPath();
+            if ($tempPath && self::streamToTemp(@fopen($sourceUrl, 'rb'), $tempPath)) {
+                return [$tempPath, true];
+            }
+        }
+
+        return [null, false];
+    }
+
+    protected static function normalizeStoragePath(string $mediaPath): string
+    {
+        if ($mediaPath === '') {
+            return '';
+        }
+
+        if (!filter_var($mediaPath, FILTER_VALIDATE_URL)) {
+            return ltrim($mediaPath, '/');
+        }
+
+        $storageBase = rtrim(url('storage/'), '/');
+        if (str_starts_with($mediaPath, $storageBase)) {
+            return ltrim(Str::after($mediaPath, $storageBase), '/');
+        }
+
+        $path = parse_url($mediaPath, PHP_URL_PATH) ?? '';
+        return ltrim($path, '/');
+    }
+
+    protected static function createTempPath(): ?string
+    {
+        $tempDir = storage_path('app/tmp');
+        if (!is_dir($tempDir)) {
+            Storage::disk('local')->makeDirectory('tmp');
+        }
+
+        if (!is_dir($tempDir) || !is_writable($tempDir)) {
+            $tempDir = sys_get_temp_dir();
+        }
+
+        $path = tempnam($tempDir, 'yt_');
+        return $path ?: null;
+    }
+
+    protected static function streamToTemp($stream, string $tempPath): bool
+    {
+        if (!$stream) {
+            return false;
+        }
+
+        $target = fopen($tempPath, 'wb');
+        if (!$target) {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+            return false;
+        }
+
+        stream_copy_to_stream($stream, $target);
+        fclose($target);
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        return filesize($tempPath) > 0;
     }
 }

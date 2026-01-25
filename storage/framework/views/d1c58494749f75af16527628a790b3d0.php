@@ -80,6 +80,9 @@
 
     <?php
     $detectType = Media::detectFileIcon($value->detect);
+    $previewUrl = $value->detect === 'video'
+        ? (Media::videoThumbnail($value->file) ?: Media::url($value->file))
+        : Media::url($value->file);
     ?>
 
     <div class="col-4 px-2">
@@ -91,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media text-<?php echo e($detectType['color']); ?> bg-<?php echo e($detectType['color']); ?>-100" style="background-image: url( <?php echo e(Media::url($value->file)); ?> );">
+                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media text-<?php echo e($detectType['color']); ?> bg-<?php echo e($detectType['color']); ?>-100" style="background-image: url( <?php echo e($previewUrl); ?> );">
                     <?php if($value->detect != "image"): ?>
                     <div class="fs-30">
                         <i class="<?php echo e($detectType['icon']); ?>"></i>
@@ -136,5 +139,4 @@
 <?php else: ?>
 	<div class="empty mt-100 mb-100"></div>
 <?php endif; ?>
-
 <?php /**PATH /var/www/social.kokonuts.my/modules/AppFiles/resources/views/mini_list.blade.php ENDPATH**/ ?>
