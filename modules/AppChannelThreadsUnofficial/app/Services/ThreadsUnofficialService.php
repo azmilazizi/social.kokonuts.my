@@ -122,21 +122,41 @@ class ThreadsUnofficialService
             ];
         }
 
-        $publishResponse = Http::asForm()->timeout(90)->post($publishEndpoint, [
-            'creation_id'  => $creationId,
-            'access_token' => $accessToken,
-        ]);
+        $publishResponse = null;
+        $maxPublishAttempts = (int) get_option('threads_publish_attempts', 3);
+        $publishDelaySeconds = (int) get_option('threads_publish_delay_seconds', 2);
 
-        \Log::info('[Threads] publish response', [
-            'status' => $publishResponse->status(),
-            'body'   => $publishResponse->body(),
-            'creation_id' => $creationId ?? null,
-        ]);
+        for ($attempt = 1; $attempt <= max(1, $maxPublishAttempts); $attempt++) {
+            $publishResponse = Http::asForm()->timeout(90)->post($publishEndpoint, [
+                'creation_id'  => $creationId,
+                'access_token' => $accessToken,
+            ]);
 
-        if (!$publishResponse->successful()) {
+            \Log::info('[Threads] publish response', [
+                'status' => $publishResponse->status(),
+                'body'   => $publishResponse->body(),
+                'creation_id' => $creationId ?? null,
+                'attempt' => $attempt,
+            ]);
+
+            if ($publishResponse->successful()) {
+                break;
+            }
+
+            $errorSubcode = $publishResponse->json('error.error_subcode');
+            if ((int) $errorSubcode !== 4279009 || $attempt >= $maxPublishAttempts) {
+                break;
+            }
+
+            if ($publishDelaySeconds > 0) {
+                sleep($publishDelaySeconds);
+            }
+        }
+
+        if (!$publishResponse || !$publishResponse->successful()) {
             return [
                 'status' => 0,
-                'message' => 'Threads publish failed: ' . $publishResponse->body(),
+                'message' => 'Threads publish failed: ' . ($publishResponse?->body() ?? 'No response'),
                 'type' => $payload['type'] ?? 'text',
             ];
         }
