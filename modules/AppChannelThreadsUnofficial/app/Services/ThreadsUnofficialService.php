@@ -19,98 +19,111 @@ class ThreadsUnofficialService
     public function createPost(array $payload): array
     {
         $accessToken = $payload['access_token'] ?? $this->accessToken;
-        $userId = $payload['user_id'] ?? $this->userId;
-        $username = $payload['username'] ?? $this->username;
+        $userId      = $payload['user_id'] ?? $this->userId;
+        $username    = $payload['username'] ?? $this->username;
 
         if (empty($accessToken) || empty($userId)) {
             return [
                 'status' => 0,
-                'message' => __('Threads access token or user ID is missing. Please reconnect your account.'),
+                'message' => 'Threads access token or user ID is missing. Please reconnect.',
                 'type' => $payload['type'] ?? 'text',
             ];
         }
 
         $caption = $payload['caption'] ?? '';
-        $link = $payload['link'] ?? null;
+        $link    = $payload['link'] ?? null;
 
-        if (!empty($link) && $payload['type'] === 'link') {
+        if (!empty($link) && ($payload['type'] ?? '') === 'link') {
             $caption = trim($caption . ' ' . $link);
         }
 
-        $medias = $payload['medias'] ?? [];
+        $medias    = $payload['medias'] ?? [];
         $mediaUrls = array_map(static fn ($media) => Media::url($media), $medias);
 
-        $graphVersion = get_option('threads_graph_version', 'v21.0');
-        $baseUrl = 'https://graph.threads.net/' . $graphVersion;
+        $graphVersion   = get_option('threads_graph_version', 'v21.0');
+        $baseUrl        = 'https://graph.threads.net/' . $graphVersion;
         $createEndpoint = $baseUrl . '/' . $userId . '/threads';
-        $publishEndpoint = $baseUrl . '/' . $userId . '/threads_publish';
+        $publishEndpoint= $baseUrl . '/' . $userId . '/threads_publish';
 
         $createPayload = [
-            'text' => $caption,
+            'text'         => $caption,
             'access_token' => $accessToken,
         ];
 
         if (!empty($mediaUrls)) {
             $mediaUrl = $mediaUrls[0];
 
+            // Validate media URL is reachable (super helpful)
+            try {
+                $head = Http::timeout(15)->head($mediaUrl);
+                if (!$head->successful()) {
+                    return [
+                        'status' => 0,
+                        'message' => "Media URL not reachable ({$head->status()}): {$mediaUrl}",
+                        'type' => $payload['type'] ?? 'text',
+                    ];
+                }
+            } catch (\Throwable $e) {
+                return [
+                    'status' => 0,
+                    'message' => "Media URL HEAD failed: {$mediaUrl} | " . $e->getMessage(),
+                    'type' => $payload['type'] ?? 'text',
+                ];
+            }
+
             if (Media::isVideo($mediaUrl)) {
-                // TEXT + VIDEO
                 $createPayload['media_type'] = 'VIDEO';
                 $createPayload['video_url']  = $mediaUrl;
             } else {
-                // TEXT + IMAGE
                 $createPayload['media_type'] = 'IMAGE';
                 $createPayload['image_url']  = $mediaUrl;
             }
         } else {
-            // TEXT ONLY
             $createPayload['media_type'] = 'TEXT';
         }
 
-
-        $createResponse = Http::asForm()->timeout(60)->post($createEndpoint, $createPayload);
+        $createResponse = Http::asForm()->timeout(90)->post($createEndpoint, $createPayload);
 
         if (!$createResponse->successful()) {
             return [
                 'status' => 0,
-                'message' => __('Threads create request failed with status :status.', ['status' => $createResponse->status()]),
+                'message' => 'Threads create failed: ' . $createResponse->body(),
                 'type' => $payload['type'] ?? 'text',
             ];
         }
 
-        $createBody = $createResponse->json() ?? [];
-        $creationId = $createBody['id'] ?? null;
-        if (empty($creationId)) {
+        $creationId = $createResponse->json('id');
+
+        if (!$creationId) {
             return [
                 'status' => 0,
-                'message' => $createBody['message'] ?? __('Threads create request returned an error.'),
+                'message' => 'Threads create returned no id: ' . $createResponse->body(),
                 'type' => $payload['type'] ?? 'text',
             ];
         }
 
-        $publishResponse = Http::asForm()->timeout(60)->post($publishEndpoint, [
-            'creation_id' => $creationId,
+        $publishResponse = Http::asForm()->timeout(90)->post($publishEndpoint, [
+            'creation_id'  => $creationId,
             'access_token' => $accessToken,
         ]);
 
         if (!$publishResponse->successful()) {
             return [
                 'status' => 0,
-                'message' => __('Threads publish request failed with status :status.', ['status' => $publishResponse->status()]),
+                'message' => 'Threads publish failed: ' . $publishResponse->body(),
                 'type' => $payload['type'] ?? 'text',
             ];
         }
 
-        $publishBody = $publishResponse->json() ?? [];
-        $postId = $publishBody['id'] ?? null;
-        $profileUrl = $username ? 'https://www.threads.net/@' . $username : null;
+        $postId = $publishResponse->json('id');
+        $profileUrl = $username ? 'https://www.threads.net/@' . ltrim($username, '@') : null;
 
         return [
-            'status' => 1,
-            'message' => $publishBody['message'] ?? __('Succeeded'),
-            'id' => $postId,
-            'url' => $profileUrl,
-            'type' => $payload['type'] ?? 'text',
+            'status'  => 1,
+            'message' => 'Succeeded',
+            'id'      => $postId,
+            'url'     => $profileUrl,
+            'type'    => $payload['type'] ?? 'text',
         ];
     }
 }
