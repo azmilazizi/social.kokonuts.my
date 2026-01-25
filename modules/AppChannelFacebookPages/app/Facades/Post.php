@@ -119,7 +119,6 @@ class Post extends Facade
                 }
                 $uploadParams = [
                     "upload_phase" => "start",
-                    "access_token" => $post->account->token,
                 ];
                 $uploadSession = $FB->post($endpoint . 'video_reels', $uploadParams, $post->account->token)
                     ->getDecodedBody();
@@ -217,13 +216,37 @@ class Post extends Facade
 
         $maxAttempts = 10;
         $pollDelaySeconds = 3;
+        $phaseStatus = function ($phase): string {
+            // Sometimes Meta returns these as objects/arrays like: { "status": "complete" }
+            // so normalize to a lowercase string safely.
+            if (is_string($phase)) {
+                return strtolower($phase);
+            }
+
+            if (is_array($phase)) {
+                $v = $phase['status'] ?? '';
+                return is_string($v) ? strtolower($v) : '';
+            }
+
+            if (is_object($phase)) {
+                $v = $phase->status ?? '';
+                return is_string($v) ? strtolower($v) : '';
+            }
+
+            return '';
+        };
+
         for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
             $statusResponse = $FB->get("/$videoId?fields=status", $post->account->token)->getDecodedBody();
             $status = $statusResponse['status'] ?? [];
-            $error = $status['error'] ?? null;
 
+            // If status comes back weird, don't crash
+            if (!is_array($status)) $status = [];
+
+            // Meta can return errors under status.error sometimes
+            $error = $status['error'] ?? null;
             if ($error) {
-                $errorMessage = is_array($error) ? ($error['message'] ?? __("Reels processing failed.")) : $error;
+                $errorMessage = is_array($error) ? ($error['message'] ?? "Reels processing failed.") : (string)$error;
                 return [
                     "status" => 0,
                     "message" => $errorMessage,
@@ -231,15 +254,26 @@ class Post extends Facade
                 ];
             }
 
-            $processingPhase = strtolower($status['processing_phase'] ?? '');
-            $publishPhase = strtolower($status['publish_phase'] ?? '');
-            $videoStatus = strtolower($status['video_status'] ?? '');
+            $processingPhase = $phaseStatus($status['processing_phase'] ?? null);
+            $publishingPhase = $phaseStatus($status['publishing_phase'] ?? null); // NOTE: publishing_phase (bukan publish_phase)
+            $videoStatus     = is_string($status['video_status'] ?? '') ? strtolower($status['video_status']) : '';
 
-            $isProcessed = in_array($processingPhase, ['complete', 'finished'], true) || $processingPhase === '';
-            $isPublished = in_array($publishPhase, ['complete', 'published'], true);
-            $isReady = in_array($videoStatus, ['ready', 'published'], true);
+            // "ready" is the clearest success signal
+            if (in_array($videoStatus, ['ready', 'published'], true)) {
+                return [
+                    "status" => 1,
+                    "message" => __("Success"),
+                    "id" => $videoId,
+                    "url" => "https://www.facebook.com/reel/",
+                    "type" => "reels",
+                ];
+            }
 
-            if ($isProcessed && ($isPublished || $isReady)) {
+            // fallback: phase-based success
+            $isProcessed = in_array($processingPhase, ['complete'], true);
+            $isPublished = in_array($publishingPhase, ['complete'], true);
+
+            if ($isProcessed && $isPublished) {
                 return [
                     "status" => 1,
                     "message" => __("Success"),
@@ -251,6 +285,7 @@ class Post extends Facade
 
             sleep($pollDelaySeconds);
         }
+
 
         return [
             "status" => 0,
