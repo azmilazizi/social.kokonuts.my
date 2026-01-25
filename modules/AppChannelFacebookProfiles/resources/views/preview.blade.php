@@ -1,14 +1,16 @@
 <div class="border border-gray-400 rounded bg-white">
-    
+
     <div class="d-flex pf-13">
-        
+
         <div class="d-flex align-items-center gap-8">
             <div class="size-40 size-child">
-                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="align-self-center rounded-circle border cpv-avatar" alt="">
+                <img src="{{ theme_public_asset( " img/default.png" ) }}"
+                    class="align-self-center rounded-circle border cpv-avatar" alt="">
             </div>
             <div class="d-flex align-items-center flex-row-fluid flex-wrap">
                 <div class="flex-grow-1 me-2 text-truncate">
-                    <a href="javascript:void(0);" class="text-gray-800 text-hover-primary fs-14 fw-bold cpv-name">{{ __("Your name") }}</a>
+                    <a href="javascript:void(0);" class="text-gray-800 text-hover-primary fs-14 fw-bold cpv-name">{{
+                        __("Your name") }}</a>
                     <span class="text-muted fw-semibold d-block fs-12">{{ date("M j") }}</span>
                 </div>
             </div>
@@ -17,7 +19,7 @@
     </div>
 
     <div class="mb-0">
-        
+
         <div class="cpv-text fs-14 px-3 mb-3 text-truncate-5"></div>
 
         <div class="cpv-media">
@@ -39,13 +41,13 @@
                     <div class="h-12 bg-gray-300 mb-1 wp-50"></div>
                 </div>
                 <div class="cpv-link-web text-uppercase fs-10 fw-3 text-truncate-1">
-                    
+
                 </div>
                 <div class="cpv-link-title fw-6 text-truncate-1">
-                    
+
                 </div>
                 <div class="cpv-link-desc text-gray-700 text-truncate-2">
-                    
+
                 </div>
             </div>
         </div>
@@ -89,7 +91,7 @@
 </div>
 
 <script>
-function fb_renderMediaGrid(elements) {
+    function fb_renderMediaGrid(elements) {
     var fb_total = elements.length;
     var fb_visible = elements.slice(0, 4);
     var fb_moreCount = fb_total - 4;
