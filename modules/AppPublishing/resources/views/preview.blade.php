@@ -37,7 +37,16 @@
 
                     <div class="preview-list-medias">
                         @foreach ($medias as $media)
-                            <img src="{{ Media::url($media) }}">
+                            @php
+                                $mediaUrl = Media::url($media);
+                                $extension = strtolower(pathinfo($mediaUrl, PATHINFO_EXTENSION));
+                                $isVideo = in_array($extension, ['mp4', 'mov', 'webm', 'm4v'], true);
+                            @endphp
+                            @if ($isVideo)
+                                <video data-preview-media data-type="video" data-file="{{ $mediaUrl }}" src="{{ $mediaUrl }}" playsinline></video>
+                            @else
+                                <img data-preview-media data-type="image" data-file="{{ $mediaUrl }}" src="{{ $mediaUrl }}">
+                            @endif
                         @endforeach
                     </div>
 
