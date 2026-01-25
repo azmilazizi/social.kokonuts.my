@@ -9,29 +9,6 @@ use Media;
 use getID3;
 use Illuminate\Support\Facades\Http;
 
-$videoId = 'VIDEO_ID_FROM_UPLOAD_START'; // contoh: 1234567890
-$pageAccessToken = 'YOUR_PAGE_ACCESS_TOKEN';
-$fileUrl = 'https://some.cdn.url/video.mp4';
-
-$response = Http::withHeaders([
-    'Authorization' => 'OAuth ' . $pageAccessToken,
-    'file_url'      => $fileUrl,
-])->post("https://rupload.facebook.com/video-upload/v24.0/{$videoId}");
-
-if (!$response->successful()) {
-    \Log::error('[FB Reels] upload transfer failed', [
-        'status' => $response->status(),
-        'body'   => $response->body(),
-    ]);
-
-    throw new \Exception('Reels video transfer failed: ' . $response->body());
-}
-
-\Log::info('[FB Reels] upload transfer success', [
-    'body' => $response->body(),
-]);
-
-
 class Post extends Facade
 {
     protected static function getFacadeAccessor()
@@ -183,42 +160,39 @@ class Post extends Facade
     protected static function completeReelsUpload($FB, $post, $uploadSession, $caption, $mediaUrl, $endpoint)
     {
         $videoId = $uploadSession['video_id'];
-        // $uploadSessionId = $uploadSession['upload_session_id'] ?? null;
         $uploadUrl = $uploadSession['upload_url'] ?? null;
 
-        // if (empty($uploadSessionId)) {
-        //     return [
-        //         "status" => 0,
-        //         "message" => __("Could not create upload session for Reels."),
-        //         "type" => $post->type,
-        //     ];
-        // }
-
-        if (empty($uploadUrl)) {
+        if (empty($videoId) || empty($uploadUrl)) {
             return [
                 "status" => 0,
-                "message" => __("Could not create upload URL for Reels."),
+                "message" => __("Could not create upload session for Reels (missing video_id or upload_url)."),
                 "type" => $post->type,
             ];
         }
 
-        // $transferResponse = $FB->post($endpoint . 'video_reels', [
-        //     'upload_phase' => 'transfer',
-        //     'upload_session_id' => $uploadSessionId,
-        //     'file_url' => $mediaUrl,
-        //     'description' => $caption,
-        // ], $post->account->token)->getDecodedBody();
+        $transferResp = Http::withHeaders([
+            'Authorization' => 'OAuth ' . $post->account->token,
+            'file_url'      => $mediaUrl,
+        ])->timeout(300)->post($uploadUrl);
 
-        $transferResponse = Http::withHeaders(['file_url' => $mediaUrl])->post($uploadUrl);
+        if (!$transferResp->successful()) {
+            return [
+                "status" => 0,
+                "message" => "Reels transfer failed: " . $transferResp->body(),
+                "type" => $post->type,
+            ];
+        }
 
-        // $transferResponse = $FB->post($endpoint . 'video_reels', [
-        //     'upload_phase' => 'transfer',
-        //     'upload_session_id' => $uploadSessionId,
-        //     'file_url' => $mediaUrl,
-        //     'description' => $caption,
-        // ], $post->account->token)->getDecodedBody();
+        $transferJson = $transferResp->json() ?? [];
+        if (isset($transferJson['success']) && (int)$transferJson['success'] !== 1) {
+            return [
+                "status" => 0,
+                "message" => "Reels transfer not successful: " . $transferResp->body(),
+                "type" => $post->type,
+            ];
+        }
 
-        if (empty($transferResponse['success']) || $transferResponse['success'] != 1) {
+        if (empty($transferJson['success']) || $transferJson['success'] != 1) {
             return [
                 "status" => 0,
                 "message" => __("Could not transfer Reels upload."),
