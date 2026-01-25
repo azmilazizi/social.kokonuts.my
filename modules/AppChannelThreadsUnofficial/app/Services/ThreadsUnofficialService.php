@@ -26,30 +26,24 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads access token or user ID is missing. Please reconnect.',
-                'type' => $payload['type'] ?? 'text',
             ];
         }
 
         $caption = $payload['caption'] ?? '';
         $link    = $payload['link'] ?? null;
 
-        if (!empty($link) && ($payload['type'] ?? '') === 'link') {
-            $caption = trim($caption . ' ' . $link);
+        $attachmentUrl = $payload['video_url'] ?? $payload['image_url'] ?? null;
+        $mediaType = 'TEXT';
+        if (!empty($attachmentUrl)) {
+            $mediaType = Media::isVideo($attachmentUrl) ? 'VIDEO' : 'IMAGE';
         }
 
-        $mediaType = strtoupper((string) ($payload['media_type'] ?? ''));
-        $videoUrl = $payload['video_url'] ?? null;
-        $imageUrl = $payload['image_url'] ?? null;
-        $mediaUrl = $videoUrl ?: $imageUrl;
-
         \Log::info('[Threads] payload', [
-            'type'      => $payload['type'] ?? null,
             'user_id'   => $userId,
             'username'  => $username,
             'caption'   => $caption,
-            'media_type' => $mediaType ?: null,
-            'video_url'  => $videoUrl,
-            'image_url'  => $imageUrl,
+            'media_type'    => $mediaType,
+            'attachment_url' => $attachmentUrl,
         ]);
 
         $graphVersion   = get_option('threads_graph_version', 'v21.0');
@@ -66,66 +60,42 @@ class ThreadsUnofficialService
             'access_token' => $accessToken,
         ];
 
-        if (!empty($mediaUrl) || $mediaType === 'VIDEO' || $mediaType === 'IMAGE') {
+        if (!empty($attachmentUrl)) {
             if ($caption !== '') {
                 $createPayload['text'] = $caption;
             }
 
-            if ($mediaType === 'VIDEO' && empty($videoUrl)) {
-                return [
-                    'status' => 0,
-                    'message' => 'Threads create failed: video_url is required when media_type is VIDEO.',
-                    'type' => $payload['type'] ?? 'text',
-                ];
-            }
-
-            if ($mediaType === 'IMAGE' && empty($imageUrl)) {
-                return [
-                    'status' => 0,
-                    'message' => 'Threads create failed: image_url is required when media_type is IMAGE.',
-                    'type' => $payload['type'] ?? 'text',
-                ];
-            }
-
-            if ($mediaType === '') {
-                if (!empty($videoUrl) && empty($imageUrl)) {
-                    $mediaType = 'VIDEO';
-                } elseif (!empty($imageUrl) && empty($videoUrl)) {
-                    $mediaType = 'IMAGE';
-                }
-            }
-
             // Validate media URL is reachable (super helpful)
             try {
-                $head = Http::timeout(15)->head($mediaUrl);
+                $head = Http::timeout(15)->head($attachmentUrl);
                 if (!$head->successful()) {
                     return [
                         'status' => 0,
-                        'message' => "Media URL not reachable ({$head->status()}): {$mediaUrl}",
-                        'type' => $payload['type'] ?? 'text',
+                        'message' => "Media URL not reachable ({$head->status()}): {$attachmentUrl}",
+                        'media_type' => $mediaType,
                     ];
                 }
             } catch (\Throwable $e) {
                 return [
                     'status' => 0,
-                    'message' => "Media URL HEAD failed: {$mediaUrl} | " . $e->getMessage(),
-                    'type' => $payload['type'] ?? 'text',
+                    'message' => "Media URL HEAD failed: {$attachmentUrl} | " . $e->getMessage(),
+                    'media_type' => $mediaType,
                 ];
             }
 
-            if ($mediaType === 'VIDEO' || ($mediaType === '' && Media::isVideo($mediaUrl))) {
+            if ($mediaType === 'VIDEO') {
                 $createPayload['media_type'] = 'VIDEO';
-                $createPayload['video_url']  = $videoUrl ?? $mediaUrl;
+                $createPayload['video_url']  = $attachmentUrl;
             } else {
                 $createPayload['media_type'] = 'IMAGE';
-                $createPayload['image_url']  = $imageUrl ?? $mediaUrl;
+                $createPayload['image_url']  = $attachmentUrl;
             }
         } else {
             if ($caption === '') {
                 return [
                     'status' => 0,
                     'message' => 'Threads create failed: text is required when media_type is TEXT.',
-                    'type' => $payload['type'] ?? 'text',
+                    'media_type' => $mediaType,
                 ];
             }
             $createPayload['media_type'] = 'TEXT';
@@ -144,7 +114,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads create failed: ' . $createResponse->body(),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -154,7 +124,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads create returned no id: ' . $createResponse->body(),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -193,7 +163,7 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads publish failed: ' . ($publishResponse?->body() ?? 'No response'),
-                'type' => $payload['type'] ?? 'text',
+                'media_type' => $mediaType,
             ];
         }
 
@@ -205,7 +175,7 @@ class ThreadsUnofficialService
             'message' => 'Succeeded',
             'id'      => $postId,
             'url'     => $profileUrl,
-            'type'    => $payload['type'] ?? 'text',
+            'media_type'    => $mediaType,
         ];
     }
 }
