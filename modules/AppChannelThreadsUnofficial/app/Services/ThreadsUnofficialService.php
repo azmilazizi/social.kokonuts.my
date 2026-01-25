@@ -52,19 +52,21 @@ class ThreadsUnofficialService
 
         if (!empty($mediaUrls)) {
             $mediaUrl = $mediaUrls[0];
-            $mediaType = Media::isVideo($mediaUrl) ? 'VIDEO' : 'IMAGE';
-            $createPayload['media_type'] = $mediaType;
-            if ($mediaType === 'VIDEO') {
-                $createPayload['video_url'] = $mediaUrl;
+
+            if (Media::isVideo($mediaUrl)) {
+                // TEXT + VIDEO
+                $createPayload['media_type'] = 'VIDEO';
+                $createPayload['video_url']  = $mediaUrl;
             } else {
-                $createPayload['image_url'] = $mediaUrl;
+                // TEXT + IMAGE
+                $createPayload['media_type'] = 'IMAGE';
+                $createPayload['image_url']  = $mediaUrl;
             }
         } else {
+            // TEXT ONLY
             $createPayload['media_type'] = 'TEXT';
-            if (!empty($link) && $payload['type'] === 'link') {
-                $createPayload['link_attachment'] = $link;
-            }
         }
+
 
         $createResponse = Http::asForm()->timeout(60)->post($createEndpoint, $createPayload);
 
