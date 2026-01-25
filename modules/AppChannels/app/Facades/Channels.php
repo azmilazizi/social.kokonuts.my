@@ -98,6 +98,7 @@ class Channels extends Facade
         try {
             $channels = app('channels');
             $channels_group = [];
+            $permissions = app()->bound('permissions') ? app('permissions') : [];
             if ($channels) 
             {
                 $channels = array_values(\Arr::sort($channels, function (array $value) {
@@ -106,7 +107,52 @@ class Channels extends Facade
 
                 foreach ($channels as $key => $channel) 
                 {
-                    if (Gate::allows($permission. '.' . $channel['key'])) {
+                    $permissionKey = $permission . '.' . $channel['key'];
+                    $permissionKeys = [$permissionKey];
+                    if (str_contains($permissionKey, 'appchannelthreadsunoofficial')) {
+                        $permissionKeys[] = str_replace(
+                            'appchannelthreadsunoofficial',
+                            'appchannelthreadsunofficial',
+                            $permissionKey
+                        );
+                    }
+
+                    $permissionKeyExists = false;
+                    foreach ($permissionKeys as $candidateKey) {
+                        if (array_key_exists($candidateKey, $permissions)) {
+                            $permissionKeyExists = true;
+                            break;
+                        }
+                    }
+
+                    $hasPublishPermission = false;
+                    foreach ($permissionKeys as $candidateKey) {
+                        if (Gate::allows($candidateKey)) {
+                            $hasPublishPermission = true;
+                            break;
+                        }
+                    }
+
+                    $fallbackKeys = ['appchannels.' . $channel['key']];
+                    if (str_contains($channel['key'], 'appchannelthreadsunoofficial')) {
+                        $fallbackKeys[] = str_replace(
+                            'appchannelthreadsunoofficial',
+                            'appchannelthreadsunofficial',
+                            $fallbackKeys[0]
+                        );
+                    }
+
+                    $hasFallbackPermission = false;
+                    if ($permission === 'apppublishing' && !$permissionKeyExists) {
+                        foreach ($fallbackKeys as $candidateKey) {
+                            if (Gate::allows($candidateKey)) {
+                                $hasFallbackPermission = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($hasPublishPermission || $hasFallbackPermission) {
                         if( !isset( $channels_group[$channel['social_network']] ) )
                         {
                             $channel_parent = $channel;
@@ -154,5 +200,3 @@ class Channels extends Facade
         return $data[$key] ?? $default;
     }
 }
-
-

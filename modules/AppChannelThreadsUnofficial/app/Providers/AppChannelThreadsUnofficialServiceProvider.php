@@ -38,14 +38,12 @@ class AppChannelThreadsUnofficialServiceProvider extends ServiceProvider
 
     public function btnChannels(): void
     {
-        if (get_option('threads_status', 0) || request()->segment(1) == 'admin') {
-            \Channels::addChannel($this->name, [
-                'name' => __('Threads (Unofficial)'),
-                'social_network' => 'threads',
-                'category' => 'profile',
-                'position' => 25,
-            ]);
-        }
+        \Channels::addChannel($this->name, [
+            'name' => __('Threads (Unofficial)'),
+            'social_network' => 'threads',
+            'category' => 'profile',
+            'position' => 25,
+        ]);
     }
 
     public function registerSubMenu(): void
