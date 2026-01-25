@@ -5,6 +5,7 @@ namespace Modules\AppChannels\Facades;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Facades\View;
 use Modules\AppChannels\Models\Accounts;
 use DB;
 
@@ -96,9 +97,64 @@ class Channels extends Facade
     protected static function channels($permission = 'appchannels') 
     {
         try {
-            $channels = app('channels');
+            $channels = app()->bound('channels') ? app('channels') : [];
             $channels_group = [];
             $permissions = app()->bound('permissions') ? app('permissions') : [];
+            $channels = is_array($channels) ? $channels : [];
+
+            if ($channels) {
+                $hasThreads = false;
+                foreach ($channels as $channel) {
+                    if (($channel['key'] ?? null) === 'appchannelthreadsunoofficial') {
+                        $hasThreads = true;
+                        break;
+                    }
+                }
+            } else {
+                $hasThreads = false;
+            }
+
+            if (!$hasThreads) {
+                $threadsPermissions = [
+                    "{$permission}.appchannelthreadsunoofficial",
+                    "{$permission}.appchannelthreadsunofficial",
+                ];
+                $fallbackPermissions = [
+                    "appchannels.appchannelthreadsunoofficial",
+                    "appchannels.appchannelthreadsunofficial",
+                ];
+                $permissionAllowed = false;
+
+                foreach (array_merge($threadsPermissions, $fallbackPermissions) as $key) {
+                    if (Gate::allows($key)) {
+                        $permissionAllowed = true;
+                        break;
+                    }
+                }
+
+                $module = \Module::find('AppChannelThreadsUnofficial');
+                if ($permissionAllowed && $module) {
+                    $menu = $module->get('menu');
+                    if ($menu) {
+                        View::addNamespace(
+                            $module->getLowerName(),
+                            module_path($module->getName(), 'resources/views')
+                        );
+                        $channels[] = [
+                            'name' => __('Threads (Unofficial)'),
+                            'social_network' => 'threads',
+                            'category' => 'profile',
+                            'position' => 25,
+                            'uri' => $menu['uri'] . '/oauth',
+                            'icon' => $menu['icon'],
+                            'color' => $menu['color'],
+                            'id' => $module->getName(),
+                            'key' => $module->getLowerName(),
+                            'module_name' => $menu['name'],
+                        ];
+                    }
+                }
+            }
             if ($channels) 
             {
                 $channels = array_values(\Arr::sort($channels, function (array $value) {
