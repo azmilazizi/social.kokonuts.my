@@ -41,7 +41,7 @@ class ThreadsUnofficialService
         $mediaUrls = array_map(static fn ($media) => Media::url($media), $medias);
 
         $graphVersion = get_option('threads_graph_version', 'v21.0');
-        $baseUrl = 'https://graph.facebook.com/' . $graphVersion;
+        $baseUrl = 'https://graph.threads.net/' . $graphVersion;
         $createEndpoint = $baseUrl . '/' . $userId . '/threads';
         $publishEndpoint = $baseUrl . '/' . $userId . '/threads_publish';
 
