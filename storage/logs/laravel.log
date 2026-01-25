@@ -416,3 +416,73 @@
 #5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
 #6 {main}
 "} 
+[2026-01-25 05:00:00] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:00:05] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:00:55] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:01:06] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:01:14] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:01:18] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 
+[2026-01-25 05:01:39] production.ERROR: There are no commands defined in the "ide-helper" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"ide-helper\" namespace. at /Users/azmil/Sites/social/vendor/symfony/console/Application.php:677)
+[stacktrace]
+#0 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(726): Symfony\\Component\\Console\\Application->findNamespace('ide-helper')
+#1 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(301): Symfony\\Component\\Console\\Application->find('ide-helper:gene...')
+#2 /Users/azmil/Sites/social/vendor/symfony/console/Application.php(194): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /Users/azmil/Sites/social/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 /Users/azmil/Sites/social/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#6 {main}
+"} 

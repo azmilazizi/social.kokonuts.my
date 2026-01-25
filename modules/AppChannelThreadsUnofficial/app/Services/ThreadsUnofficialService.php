@@ -40,10 +40,24 @@ class ThreadsUnofficialService
         $medias    = $payload['medias'] ?? [];
         $mediaUrls = array_map(static fn ($media) => Media::url($media), $medias);
 
+        \Log::info('[Threads] payload', [
+            'type'      => $payload['type'] ?? null,
+            'user_id'   => $userId,
+            'username'  => $username,
+            'caption'   => $caption,
+            'medias'    => $medias,
+            'mediaUrls' => $mediaUrls,
+        ]);
+
         $graphVersion   = get_option('threads_graph_version', 'v21.0');
         $baseUrl        = 'https://graph.threads.net/' . $graphVersion;
         $createEndpoint = $baseUrl . '/' . $userId . '/threads';
         $publishEndpoint= $baseUrl . '/' . $userId . '/threads_publish';
+
+        \Log::info('[Threads] endpoints', [
+            'create'  => $createEndpoint,
+            'publish' => $publishEndpoint,
+        ]);
 
         $createPayload = [
             'text'         => $caption,
@@ -84,6 +98,12 @@ class ThreadsUnofficialService
 
         $createResponse = Http::asForm()->timeout(90)->post($createEndpoint, $createPayload);
 
+        \Log::info('[Threads] create response', [
+            'status' => $createResponse->status(),
+            'body'   => $createResponse->body(),
+        ]);
+
+
         if (!$createResponse->successful()) {
             return [
                 'status' => 0,
@@ -105,6 +125,12 @@ class ThreadsUnofficialService
         $publishResponse = Http::asForm()->timeout(90)->post($publishEndpoint, [
             'creation_id'  => $creationId,
             'access_token' => $accessToken,
+        ]);
+
+        \Log::info('[Threads] publish response', [
+            'status' => $publishResponse->status(),
+            'body'   => $publishResponse->body(),
+            'creation_id' => $creationId ?? null,
         ]);
 
         if (!$publishResponse->successful()) {
