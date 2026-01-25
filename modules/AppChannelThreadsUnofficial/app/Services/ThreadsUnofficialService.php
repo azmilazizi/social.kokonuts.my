@@ -26,15 +26,16 @@ class ThreadsUnofficialService
             return [
                 'status' => 0,
                 'message' => 'Threads access token or user ID is missing. Please reconnect.',
-                'type' => $payload['type'] ?? 'text',
             ];
         }
 
         $caption = $payload['caption'] ?? '';
         $link    = $payload['link'] ?? null;
 
-        if (!empty($link) && ($payload['type'] ?? '') === 'link') {
-            $caption = trim($caption . ' ' . $link);
+        $attachmentUrl = $payload['video_url'] ?? $payload['image_url'] ?? null;
+        $mediaType = 'TEXT';
+        if (!empty($attachmentUrl)) {
+            $mediaType = Media::isVideo($attachmentUrl) ? 'VIDEO' : 'IMAGE';
         }
 
         $attachmentUrl = $payload['video_url'] ?? $payload['image_url'] ?? null;
@@ -44,7 +45,6 @@ class ThreadsUnofficialService
         }
 
         \Log::info('[Threads] payload', [
-            'type'      => $payload['type'] ?? null,
             'user_id'   => $userId,
             'username'  => $username,
             'caption'   => $caption,
