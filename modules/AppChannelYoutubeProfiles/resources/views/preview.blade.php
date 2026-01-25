@@ -2,7 +2,7 @@
     <div class="d-flex pf-13 align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-8">
             <div class="size-40 size-child">
-                <img src="{{ theme_public_asset( " img/default.png" ) }}"
+                <img src="{{ theme_public_asset( "img/default.png" ) }}"
                     class="align-self-center rounded-circle border cpv-avatar" alt="">
             </div>
             <div class="d-flex align-items-center flex-row-fluid flex-wrap">
@@ -21,7 +21,7 @@
             <div class="cpv-img w-100 cpv-youtube-img d-none"></div>
             <div class="cpv-youtube-img-view w-100">
                 <div class="cpv-youtube-placeholder">
-                    <img src="{{ theme_public_asset( " img/default.png" ) }}" class="w-100">
+                    <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
                 </div>
             </div>
         </div>
