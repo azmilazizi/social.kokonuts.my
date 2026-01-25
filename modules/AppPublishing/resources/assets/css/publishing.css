@@ -129,6 +129,24 @@
     width: 100%;
 }
 
+.threads-preview .cpv-threads-img-view,
+.threads-preview .cpv-threads-placeholder {
+    width: 100%;
+}
+
+.threads-preview .cpv-threads-placeholder {
+    aspect-ratio: 16 / 9;
+    background: #0f0f0f;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    padding: 12px;
+}
+
 .youtube-preview .cpv-youtube-placeholder {
     aspect-ratio: 16 / 9;
     background: #0f0f0f;
@@ -150,6 +168,12 @@
 }
 
 .youtube-preview .cpv-youtube-badge {
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.threads-preview .cpv-threads-badge {
     font-size: 10px;
     letter-spacing: 0.4px;
     text-transform: uppercase;
