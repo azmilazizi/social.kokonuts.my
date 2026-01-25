@@ -2,11 +2,13 @@
     <div class="d-flex pf-13 align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-8">
             <div class="size-40 size-child">
-                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="align-self-center rounded-circle border cpv-avatar" alt="">
+                <img src="{{ theme_public_asset( "img/default.png" ) }}"
+                    class="align-self-center rounded-circle border cpv-avatar" alt="">
             </div>
             <div class="d-flex align-items-center flex-row-fluid flex-wrap">
                 <div class="flex-grow-1 me-2 text-truncate">
-                    <a href="javascript:void(0);" class="text-gray-800 text-hover-primary fs-14 fw-bold cpv-name">{{ __("Your name") }}</a>
+                    <a href="javascript:void(0);" class="text-gray-800 text-hover-primary fs-14 fw-bold cpv-name">{{
+                        __("Your name") }}</a>
                     <span class="text-muted fw-semibold d-block fs-12">{{ __("YouTube") }}</span>
                 </div>
             </div>
@@ -18,9 +20,7 @@
         <div class="cpv-media">
             <div class="cpv-img w-100 cpv-youtube-img d-none"></div>
             <div class="cpv-youtube-img-view w-100">
-                <div class="cpv-youtube-placeholder">
-                    <div class="cpv-youtube-placeholder-text">{{ __("Video not available") }}</div>
-                </div>
+                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
             </div>
         </div>
 
@@ -41,7 +41,7 @@
 </div>
 
 <script>
-(function () {
+    (function () {
     var container = document.querySelector('.cpv-youtube-img');
     var view = document.querySelector('.cpv-youtube-img-view');
     var badge = document.querySelector('.cpv-youtube-badge');
