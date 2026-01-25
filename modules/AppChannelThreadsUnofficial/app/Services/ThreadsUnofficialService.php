@@ -38,6 +38,12 @@ class ThreadsUnofficialService
             $mediaType = Media::isVideo($attachmentUrl) ? 'VIDEO' : 'IMAGE';
         }
 
+        $attachmentUrl = $payload['video_url'] ?? $payload['image_url'] ?? null;
+        $mediaType = 'TEXT';
+        if (!empty($attachmentUrl)) {
+            $mediaType = Media::isVideo($attachmentUrl) ? 'VIDEO' : 'IMAGE';
+        }
+
         \Log::info('[Threads] payload', [
             'user_id'   => $userId,
             'username'  => $username,
@@ -61,10 +67,6 @@ class ThreadsUnofficialService
         ];
 
         if (!empty($attachmentUrl)) {
-            if ($caption !== '') {
-                $createPayload['text'] = $caption;
-            }
-
             // Validate media URL is reachable (super helpful)
             try {
                 $head = Http::timeout(15)->head($attachmentUrl);
@@ -83,12 +85,15 @@ class ThreadsUnofficialService
                 ];
             }
 
+            $createPayload['media_type'] = $mediaType;
             if ($mediaType === 'VIDEO') {
-                $createPayload['media_type'] = 'VIDEO';
-                $createPayload['video_url']  = $attachmentUrl;
+                $createPayload['video_url'] = $attachmentUrl;
             } else {
-                $createPayload['media_type'] = 'IMAGE';
-                $createPayload['image_url']  = $attachmentUrl;
+                $createPayload['image_url'] = $attachmentUrl;
+            }
+
+            if ($caption !== '') {
+                $createPayload['text'] = $caption;
             }
         } else {
             if ($caption === '') {
