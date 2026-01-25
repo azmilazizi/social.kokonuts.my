@@ -51,7 +51,7 @@ class ThreadsUnofficialService
         }
 
         // ✅ Threads API version MUST be v1.0
-        $graphVersion = (int) get_option('threads_graph_version', 'v1.0');
+        $graphVersion = get_option('threads_graph_version', 'v1.0');
         $baseUrl = "https://graph.threads.net/{$graphVersion}";
         $createEndpoint  = "{$baseUrl}/{$userId}/threads";
         $publishEndpoint = "{$baseUrl}/{$userId}/threads_publish";
