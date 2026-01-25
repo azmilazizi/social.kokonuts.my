@@ -59,7 +59,7 @@ class Post extends Facade
         $data = json_decode($post->data);
         $medias = $data->medias ?? [];
         $endpoint = "/" . $post->account->pid . "/";
-        $caption = spintax($data->caption ?? '');
+        $caption = trim(spintax($data->caption ?? ''));
         $postType = $data->options->fb_type ?? "default";
 
         try {
@@ -120,6 +120,9 @@ class Post extends Facade
                 $uploadParams = [
                     "upload_phase" => "start",
                 ];
+                if ($caption !== '') {
+                    $uploadParams['description'] = $caption;
+                }
                 $uploadSession = $FB->post($endpoint . 'video_reels', $uploadParams, $post->account->token)
                     ->getDecodedBody();
 
@@ -199,12 +202,15 @@ class Post extends Facade
             ];
         }
 
-        $finishResponse = $FB->post($endpoint . 'video_reels', [
+        $finishParams = [
             'upload_phase' => 'finish',
             'video_state' => 'PUBLISHED',
             'video_id' => $videoId,
-            'description' => $caption,
-        ], $post->account->token)->getDecodedBody();
+        ];
+        if ($caption !== '') {
+            $finishParams['description'] = $caption;
+        }
+        $finishResponse = $FB->post($endpoint . 'video_reels', $finishParams, $post->account->token)->getDecodedBody();
 
         if (empty($finishResponse['success']) || $finishResponse['success'] != 1) {
             return [
