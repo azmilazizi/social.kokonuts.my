@@ -201,17 +201,16 @@ class AppChannelsController extends Controller
                     "team_id" => $team_id
                 ])->get()->first();
 
-                $avatar_url = 'channel_avatars/'.rand_string(10).'.png';
-
+                $avatar_file = rand_string(10);
 
                 try 
                 {
-                    $avatar_url = \UploadFile::storeSingleFileFromURL($channel['avatar'], 'channel_avatars');
+                    $avatar_url = \UploadFile::storeSingleFileFromURL($channel['avatar'], 'channel_avatars', $avatar_file);
                 } 
                 catch (\Exception $e) 
                 {
                     $avatarRandom = text2img($channel['name'], 'rand');
-                    $avatar_url = \UploadFile::storeSingleFileFromURL($avatarRandom, 'channel_avatars');
+                    $avatar_url = \UploadFile::storeSingleFileFromURL($avatarRandom, 'channel_avatars', $avatar_file);
                 }
 
                 $oauth = $channel['oauth'];

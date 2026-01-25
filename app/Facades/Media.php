@@ -37,12 +37,16 @@ class Media extends Facade
     protected static function url($path = '')
     {
         if (empty($path)) {
-            return url(Storage::url('app/public/'));
+            return url('storage/');
         }
         
         // If already a valid URL, return it
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
+        }
+
+        if (str_starts_with($path, 'storage/') || str_starts_with($path, '/storage/')) {
+            return url(ltrim($path, '/'));
         }
         
         $disk = config('filesystems.default');
@@ -50,7 +54,59 @@ class Media extends Facade
             return Storage::disk($disk)->url($path);
         }
         
-        return url(Storage::url('app/public/' . $path));
+        return url('storage/' . ltrim($path, '/'));
+    }
+
+    /**
+     * Generate (or reuse) a thumbnail image for a local video file using FFmpeg.
+     */
+    protected static function videoThumbnail($path, $second = 1)
+    {
+        if (empty($path)) {
+            return '';
+        }
+
+        $sourceUrl = self::url($path);
+        $relativePath = self::getPathFromUrl($sourceUrl);
+
+        if (empty($relativePath)) {
+            return '';
+        }
+
+        $storageDisk = Storage::disk('public');
+        if (!$storageDisk->exists($relativePath)) {
+            return '';
+        }
+
+        $thumbnailDir = 'thumbnails/videos';
+        $thumbnailName = md5($relativePath) . '.jpg';
+        $thumbnailPath = $thumbnailDir . '/' . $thumbnailName;
+
+        if ($storageDisk->exists($thumbnailPath)) {
+            return self::url($thumbnailPath);
+        }
+
+        $storageDisk->makeDirectory($thumbnailDir);
+
+        $inputPath = $storageDisk->path($relativePath);
+        $outputPath = $storageDisk->path($thumbnailPath);
+
+        $second = max(0, (int) $second);
+        $timeStamp = sprintf('00:00:%02d', $second);
+        $command = sprintf(
+            'ffmpeg -y -ss %s -i %s -frames:v 1 -q:v 2 %s 2>/dev/null',
+            escapeshellarg($timeStamp),
+            escapeshellarg($inputPath),
+            escapeshellarg($outputPath)
+        );
+
+        exec($command, $output, $status);
+
+        if ($status === 0 && $storageDisk->exists($thumbnailPath)) {
+            return self::url($thumbnailPath);
+        }
+
+        return '';
     }
 
     /**
@@ -58,7 +114,7 @@ class Media extends Facade
      */
     protected static function getPathFromUrl($path = '')
     { 
-        $baseUrl = url(Storage::url('app/public/'));
+        $baseUrl = url('storage/');
         return str_replace($baseUrl . "/", "", $path);
     }
 
