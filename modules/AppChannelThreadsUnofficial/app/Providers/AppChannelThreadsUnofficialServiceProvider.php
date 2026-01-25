@@ -38,19 +38,12 @@ class AppChannelThreadsUnofficialServiceProvider extends ServiceProvider
 
     public function btnChannels(): void
     {
-        $permissions = app()->bound('permissions') ? app('permissions') : [];
-        $hasChannelPermission = array_key_exists('appchannels.' . $this->nameLower, $permissions);
-        $hasPublishingPermission = array_key_exists('apppublishing.' . $this->nameLower, $permissions);
-        $hasPermissions = $hasChannelPermission || $hasPublishingPermission;
-
-        if (get_option('threads_status', 0) || request()->segment(1) == 'admin' || $hasPermissions) {
-            \Channels::addChannel($this->name, [
-                'name' => __('Threads (Unofficial)'),
-                'social_network' => 'threads',
-                'category' => 'profile',
-                'position' => 25,
-            ]);
-        }
+        \Channels::addChannel($this->name, [
+            'name' => __('Threads (Unofficial)'),
+            'social_network' => 'threads',
+            'category' => 'profile',
+            'position' => 25,
+        ]);
     }
 
     public function registerSubMenu(): void
