@@ -166,7 +166,7 @@ class AppChannelThreadsUnofficialController extends Controller
 
             // Threads profile endpoint (NO app secret needed here)
             $profileResp = \Illuminate\Support\Facades\Http::get('https://graph.threads.net/me', [
-                'fields'       => 'id,username,profile_picture_url', // keep minimal; add more fields only if supported in your API version
+                'fields'       => 'id,username,threads_profile_picture_url', // keep minimal; add more fields only if supported in your API version
                 'access_token' => $accessToken,
             ]);
 
@@ -185,7 +185,7 @@ class AppChannelThreadsUnofficialController extends Controller
                     'id' => $profile['id'],
                     'name' => $username,
                     'username' => $username,
-                    'avatar' => $profile['profile_picture_url'] ?? text2img($username),
+                    'avatar' => $profile['threads_profile_picture_url'] ?? text2img($username),
                     'desc' => $username,
                     'link' => 'https://www.threads.net/@' . $username,
                     'oauth' => $accessToken,
