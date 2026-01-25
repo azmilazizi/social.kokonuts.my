@@ -42,13 +42,26 @@ class AppChannelThreadsUnofficialController extends Controller
 
     public function oauth(Request $request)
     {
-        $request->session()->forget('Threads_AccessToken');
-        $helper = $this->fb->getRedirectLoginHelper();
-        $permissions = [$this->scopes];
-        $loginUrl = $helper->getLoginUrl(module_url(), $permissions);
+        $clientId = get_option('threads_app_id');
+        $redirectUri = module_url(); // https://social.kokonuts.my/app/threads/profile
+        $scope = get_option('threads_permissions', 'threads_basic');
+        $state = bin2hex(random_bytes(16));
+
+        $request->session()->put('threads_oauth_state', $state);
+
+        $authorizeUrl = 'https://www.threads.com/oauth/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'response_type' => 'code',
+            'scope' => $scope,
+            'state' => $state,
+        ], '', '&', PHP_QUERY_RFC3986);
+
+        $loginUrl = 'https://www.threads.com/login?next=' . urlencode($authorizeUrl);
 
         return redirect($loginUrl);
     }
+
 
     public function proccess(Request $request)
     {
@@ -63,36 +76,116 @@ class AppChannelThreadsUnofficialController extends Controller
         $result = [];
 
         try {
-            if (!session('Threads_AccessToken')) {
-                if (!$request->code) {
-                    return redirect(module_url('oauth'));
-                }
+            // ====== CONFIG ======
+            $clientId     = get_option('threads_app_id', '');
+            $clientSecret = get_option('threads_app_secret', '');
+            $scopes       = get_option('threads_permissions', 'threads_basic');
+            $redirectUri  = module_url(); // MUST match exactly what you whitelisted in Meta Threads settings
 
-                $callbackUrl = module_url();
-                $helper = $this->fb->getRedirectLoginHelper();
-                if ($request->state) {
-                    $helper->getPersistentDataHandler()->set('state', $request->state);
-                }
-
-                $accessToken = $helper->getAccessToken($callbackUrl);
-                $accessToken = $accessToken->getValue();
-                session(['Threads_AccessToken' => $accessToken]);
-
-                return redirect($callbackUrl);
+            if (!$clientId || !$clientSecret) {
+                throw new \Exception('Threads app ID/secret is missing. Please configure Threads credentials.');
             }
 
+            // ====== STEP 1: If we don't have a token yet, handle OAuth callback or start OAuth ======
+            if (!session('Threads_AccessToken')) {
+
+                // No code? Start OAuth
+                if (!$request->has('code')) {
+                    // create & store state
+                    $state = bin2hex(random_bytes(16));
+                    $request->session()->put('threads_oauth_state', $state);
+
+                    // build authorize url (Threads)
+                    $authorizeUrl = 'https://www.threads.com/oauth/authorize?' . http_build_query([
+                        'client_id'     => $clientId,
+                        'redirect_uri'  => $redirectUri,
+                        'response_type' => 'code',
+                        'scope'         => $scopes,     // comma-separated string is OK
+                        'state'         => $state,
+                    ], '', '&', PHP_QUERY_RFC3986);
+
+                    // wrap with threads login
+                    $loginUrl = 'https://www.threads.com/login?next=' . urlencode($authorizeUrl);
+
+                    return redirect($loginUrl);
+                }
+
+                // Validate state (anti-CSRF)
+                $expectedState = $request->session()->pull('threads_oauth_state');
+                $incomingState = $request->get('state');
+
+                if (!$expectedState || !$incomingState || !hash_equals($expectedState, $incomingState)) {
+                    throw new \Exception('Invalid OAuth state. Please try connecting again.');
+                }
+
+                // Exchange code -> short-lived access token (Threads)
+                // NOTE: This must be server-to-server. No Meta/Facebook app secret is needed here.
+                $tokenResp = \Illuminate\Support\Facades\Http::asForm()->post('https://graph.threads.net/oauth/access_token', [
+                    'client_id'     => $clientId,
+                    'client_secret' => $clientSecret,
+                    'grant_type'    => 'authorization_code',
+                    'redirect_uri'  => $redirectUri,
+                    'code'          => $request->get('code'),
+                ]);
+
+                if (!$tokenResp->ok()) {
+                    throw new \Exception('Threads token exchange failed: ' . $tokenResp->body());
+                }
+
+                $tokenJson = $tokenResp->json();
+                if (empty($tokenJson['access_token'])) {
+                    throw new \Exception('Threads token exchange did not return an access_token: ' . json_encode($tokenJson));
+                }
+
+                session(['Threads_AccessToken' => $tokenJson['access_token']]);
+
+                // Optional: exchange short-lived -> long-lived token
+                // (If your app needs persistent tokens, uncomment this)
+                /*
+                $longResp = \Illuminate\Support\Facades\Http::get('https://graph.threads.net/access_token', [
+                    'grant_type'        => 'th_exchange_token',
+                    'client_secret'     => $clientSecret,
+                    'access_token'      => $tokenJson['access_token'],
+                ]);
+
+                if ($longResp->ok()) {
+                    $longJson = $longResp->json();
+                    if (!empty($longJson['access_token'])) {
+                        session(['Threads_AccessToken' => $longJson['access_token']]);
+                    }
+                }
+                */
+
+                // Reload page to continue profile fetch step
+                return redirect($redirectUri);
+            }
+
+            // ====== STEP 2: We have a token, fetch Threads profile via Threads API (/me) ======
             $accessToken = session('Threads_AccessToken');
-            $profile = $this->fb->get('/me?fields=id,name,username,profile_picture_url', $accessToken)->getDecodedBody();
+
+            // Threads profile endpoint (NO app secret needed here)
+            $profileResp = \Illuminate\Support\Facades\Http::get('https://graph.threads.net/me', [
+                'fields'       => 'id,username', // keep minimal; add more fields only if supported in your API version
+                'access_token' => $accessToken,
+            ]);
+
+            if (!$profileResp->ok()) {
+                // If token invalid/expired, clear and restart OAuth
+                session()->forget('Threads_AccessToken');
+                throw new \Exception('Threads /me failed: ' . $profileResp->body());
+            }
+
+            $profile = $profileResp->json();
 
             if (!empty($profile['id'])) {
-                $username = $profile['username'] ?? $profile['name'] ?? 'threads';
+                $username = $profile['username'] ?? 'threads';
 
                 $result[] = [
                     'id' => $profile['id'],
-                    'name' => $profile['name'] ?? $username,
+                    'name' => $username,
                     'username' => $username,
                     'avatar' => $profile['profile_picture_url'] ?? text2img($username),
-                    'desc' => $profile['name'] ?? $username,
+                    'desc' => $username,
                     'link' => 'https://www.threads.net/@' . $username,
                     'oauth' => $accessToken,
                     'module' => $request->module['module_name'],
@@ -115,6 +208,7 @@ class AppChannelThreadsUnofficialController extends Controller
                     'message' => __('No profile to add'),
                 ];
             }
+
         } catch (\Exception $e) {
             $channels = [
                 'status' => 0,
@@ -134,6 +228,7 @@ class AppChannelThreadsUnofficialController extends Controller
 
         return redirect(url_app('channels/add'));
     }
+
 
     public function settings()
     {
