@@ -20,9 +20,7 @@
         <div class="cpv-media">
             <div class="cpv-img w-100 cpv-youtube-img d-none"></div>
             <div class="cpv-youtube-img-view w-100">
-                <div class="cpv-youtube-placeholder">
-                    <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
-                </div>
+                <img src="{{ theme_public_asset( "img/default.png" ) }}" class="w-100">
             </div>
         </div>
 
