@@ -59,6 +59,11 @@ class ThreadsUnofficialService
             } else {
                 $createPayload['image_url'] = $mediaUrl;
             }
+        } else {
+            $createPayload['media_type'] = 'TEXT';
+            if (!empty($link) && $payload['type'] === 'link') {
+                $createPayload['link_attachment'] = $link;
+            }
         }
 
         $createResponse = Http::asForm()->timeout(60)->post($createEndpoint, $createPayload);
