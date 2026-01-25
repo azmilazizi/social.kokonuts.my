@@ -98,6 +98,7 @@ class Channels extends Facade
         try {
             $channels = app('channels');
             $channels_group = [];
+            $permissions = app()->bound('permissions') ? app('permissions') : [];
             if ($channels) 
             {
                 $channels = array_values(\Arr::sort($channels, function (array $value) {
@@ -106,7 +107,13 @@ class Channels extends Facade
 
                 foreach ($channels as $key => $channel) 
                 {
-                    if (Gate::allows($permission. '.' . $channel['key'])) {
+                    $permissionKey = $permission . '.' . $channel['key'];
+                    $hasPublishPermission = Gate::allows($permissionKey);
+                    $hasFallbackPermission = $permission === 'apppublishing'
+                        && !array_key_exists($permissionKey, $permissions)
+                        && Gate::allows('appchannels.' . $channel['key']);
+
+                    if ($hasPublishPermission || $hasFallbackPermission) {
                         if( !isset( $channels_group[$channel['social_network']] ) )
                         {
                             $channel_parent = $channel;
@@ -154,5 +161,4 @@ class Channels extends Facade
         return $data[$key] ?? $default;
     }
 }
-
 
