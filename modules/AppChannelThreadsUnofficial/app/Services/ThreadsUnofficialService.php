@@ -54,9 +54,9 @@ class ThreadsUnofficialService
         if (!empty($attachmentUrl)) {
             $createPayload['media_type'] = $mediaType;
             if ($mediaType === 'VIDEO') {
-                $createPayload['video_url'] = $attachmentUrl;
+                $createPayload['video_url'] = $attachmentUrl[0];
             } else {
-                $createPayload['image_url'] = $attachmentUrl;
+                $createPayload['image_url'] = $attachmentUrl[0];
             }
 
             if ($caption !== '') {
