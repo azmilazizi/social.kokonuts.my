@@ -26,9 +26,9 @@
 <body class="antialiased bg-body text-body font-body">
 
 <body class="sm:overflow-x-hidden">
-    @if( request()->segment(1) != "auth")
+    <!-- @if( request()->segment(1) != "auth")
         @include('partials.header')
-    @endif
+    @endif -->
 
     @yield('content')
 

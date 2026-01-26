@@ -77,7 +77,7 @@
                         <input class="w-4 h-4" id="accep_terms" name="accep_terms" type="checkbox" value="1" required>
                         <label class="ml-2 text-gray-700 font-medium" for="accep_terms" >
                             <span>{{ __("I agree to the") }}</span>
-                            <a class="text-indigo-600 hover:text-indigo-700" href="{{ url('terms-of-service') }}">{{ __("Terms & Conditions") }}</a>
+                            <a class="text-indigo-600 hover:text-indigo-700" href="{{ url('terms-of-service') }}">{{ __("Terms of Service") }}</a>
                         </label>
                     </div>
                 </div>
