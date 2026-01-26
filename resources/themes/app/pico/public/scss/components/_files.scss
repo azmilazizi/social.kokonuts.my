@@ -155,3 +155,16 @@
 	}
 
 }
+
+.thumbnail-dropzone{
+	.items{
+		text-align: left;
+	}
+
+	.file-item{
+		width: 95px!important;
+		height: 95px!important;
+		min-height: 95px!important;
+		display: inline-block;
+	}
+}
