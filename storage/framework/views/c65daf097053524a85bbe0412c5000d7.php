@@ -54,12 +54,6 @@ if($post){
                             <textarea class="form-control input-emoji post-caption fw-4 border" name="caption" placeholder="<?php echo e(__("Enter caption")); ?>"><?php echo e($caption); ?></textarea>
                             <div class="p-3 border-end border-start border-bottom compose-type-media">
                                 <div class="compose-type-link <?php echo e($postType == 'link' ? '' : 'd-none'); ?>">
-                                    <div class="form-control mb-3">
-                                        <input placeholder="<?php echo e(__("Enter url")); ?>" class="actionChange" data-url="<?php echo e(module_url("getLinkInfo")); ?>" data-call-success="AppPubishing.previewLink(result);" name="link" type="text" value="<?php echo e($link); ?>" data-loading="false">
-                                        <button type="button" class="btn btn-icon">
-                                            <i class="fa-light fa-link"></i>
-                                        </button>
-                                    </div>
                                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check("appfiles")): ?>
                                     <div class="mb-3">
                                         <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
@@ -67,11 +61,36 @@ if($post){
                                             <span><i class="fa-light fa-circle-question" data-bs-title="<?php echo e(__('Note: Some social networks will take the image of the link without using the thumbnail image.')); ?>" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    
                                         </label>
                                         <span class="fs-12 text-gray-600"></span>
+                                        <?php
+                                            $thumbnail = $postType === 'link' ? ($medias[0] ?? '') : '';
+                                            $thumbnailUrl = $thumbnail ? Media::url($thumbnail) : '';
+                                        ?>
+                                            <div class="thumbnail-dropzone mt-2" data-thumbnail-dropzone>
+                                                <div class="items clearfix">
+                                                    <?php if($thumbnailUrl): ?>
+                                                        <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="<?php echo e($thumbnailUrl); ?>" data-type="image">
+                                                            <label class="d-flex flex-column flex-fill">
+                                                                <input type="text" name="medias[]" value="<?php echo e($thumbnail); ?>" class="d-none">
+                                                                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('<?php echo e($thumbnailUrl); ?>');"></div>
+                                                            </label>
+                                                            <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
+                                                        </div>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="drophere px-3 py-4 text-center text-gray-400 text-uppercase fs-12 bg-gray-100 border-3 border-dashed b-r-6" style="<?php echo e($thumbnailUrl ? "display: none;" : ""); ?>">
+                                                <span class="has-action d-none"><?php echo e(__("Drop here")); ?></span>
+                                                <span class="no-action"><?php echo e(__("Drag media here to post")); ?></span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check("appfiles")): ?>
                                 <div class="compose-type-media">
+                                    <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
+                                        <span><?php echo e(__("Video/Image")); ?></span>
+                                        <span><i class="fa-light fa-circle-question" data-bs-title="<?php echo e(__('Note: Accepts one image/video at a time.')); ?>" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    
+                                    </label>
                                     <?php echo $__env->make('appfiles::block_selected_files', [
                                         "files" => $medias
                                     ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -378,7 +397,10 @@ if($post){
                 
                 <div class="max-w-450 wp-100 mx-auto ">
 
-                    <?php $__currentLoopData = Channels::channels('apppublishing'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        $channels = Channels::channels('apppublishing');
+                    ?>
+                    <?php $__currentLoopData = $channels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                         <?php
                             $view = $value['key'].'::preview';
@@ -396,7 +418,6 @@ if($post){
                         <?php endif; ?>
                         
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
                     <div class="cpv-empty mt-5">
                         <div class="py-2 text-gray-700 fs-13"><?php echo e(__('Choose a profile and enter your post to see a preview.')); ?></div>
                         <div class="border border-gray-400 rounded bg-white">
@@ -465,4 +486,5 @@ if($post){
     Main.init(false);
     AppPubishing.init(false);
     Files.init(false);
-</script><?php /**PATH /var/www/social.kokonuts.my/modules/AppPublishing/resources/views/composer.blade.php ENDPATH**/ ?>
+</script>
+<?php /**PATH /var/www/social.kokonuts.my/modules/AppPublishing/resources/views/composer.blade.php ENDPATH**/ ?>

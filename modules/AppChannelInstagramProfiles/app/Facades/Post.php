@@ -63,6 +63,7 @@ class Post extends Facade
         self::initFacebook(); // Ensure Facebook SDK is initialized
         $data = json_decode($post->data, false);
         $medias = $data->medias;
+        $cover_url = $data->link;
 
         $caption = spintax($data->caption);
         $post_type = $data->options->ig_type ?? 'media';
@@ -74,10 +75,10 @@ class Post extends Facade
             switch ($post_type) {
                 case 'stories':
                 case 'reels':
-                    return self::handleSingleMediaPost($medias[0], $post_type, $upload_endpoint, $endpoint, $caption, $comment, $post);
+                    return self::handleSingleMediaPost($medias[0], $post_type, $upload_endpoint, $endpoint, $caption, $comment, $post, $cover_url);
                 default:
                     return count($medias) === 1
-                        ? self::handleSingleMediaPost($medias[0], "media", $upload_endpoint, $endpoint, $caption, $comment, $post)
+                        ? self::handleSingleMediaPost($medias[0], "media", $upload_endpoint, $endpoint, $caption, $comment, $post, $cover_url)
                         : self::handleCarouselPost($medias, $upload_endpoint, $endpoint, $caption, $comment, $post);
             }
         } catch (\Exception $e) {
@@ -90,7 +91,7 @@ class Post extends Facade
         }
     }
 
-    protected static function handleSingleMediaPost($media, $media_type, $upload_endpoint, $endpoint, $caption, $comment, $post)
+    protected static function handleSingleMediaPost($media, $media_type, $upload_endpoint, $endpoint, $caption, $comment, $post, $cover_url = null)
     {
         $media = Media::url($media);
         switch ($media_type) {
@@ -107,7 +108,7 @@ class Post extends Facade
                 break;
         }
 
-        $upload_params = self::getMediaUploadParams($media, $caption, $media_type, $post);
+        $upload_params = self::getMediaUploadParams($media, $caption, $media_type, $post, false, $cover_url);
         $upload_response = self::$fb->post($upload_endpoint, $upload_params, $post->account->token)->getDecodedBody();
         return self::publishPost($upload_response, $endpoint, $comment, $post, $media_type === "stories" ? "stories" : "p");
     }
@@ -131,9 +132,8 @@ class Post extends Facade
         return self::publishPost($upload_response, $endpoint, $comment, $post, "p");
     }
 
-    protected static function getMediaUploadParams($media, $caption, $media_type, $post, $is_carousel_item = false)
-    {
-       
+    protected static function getMediaUploadParams($media, $caption, $media_type, $post, $is_carousel_item = false, $cover_url = null)
+    {       
         if (!Media::isImg($media) && !Media::isVideo($media) ) {
             throw new \Exception( __("Currently, Instagram only supports posting with videos or images.") );
         }
@@ -152,6 +152,10 @@ class Post extends Facade
 
         if ($is_carousel_item) {
             $params['is_carousel_item'] = true;
+        }
+
+        if (!empty($cover_url)) {
+            $params['cover_url'] = $cover_url;
         }
 
         return $params;

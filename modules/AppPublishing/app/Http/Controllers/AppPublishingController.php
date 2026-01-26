@@ -262,9 +262,13 @@ class AppPublishingController extends Controller
                 $messages['medias.required'] = __('Please select at least one media');
                 break;
             case "link":
-                $rules['link'] = 'required|url';
-                $messages['link.required'] = __('Link is required');
-                $messages['link.url']      = __('Link must be a valid URL');
+                // $rules['link'] = 'required|url';
+                // $messages['link.required'] = __('Link is required');
+                // $messages['link.url']      = __('Link must be a valid URL');
+                $rules['medias'] = 'required|array|min:2';
+                $rules['medias.0'] = 'required|url';
+                $messages['medias.0.required'] = __('Thumbnail is required');
+                $messages['medias.0.url'] = __('Thumbnail is required');
                 break;
             default:
                 $rules['caption'] = 'required|string';
@@ -286,6 +290,10 @@ class AppPublishingController extends Controller
         }
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($type === 'link') {
+            $link = array_shift($medias);
+        }
 
         if ($validator->fails()) {
             return ms([

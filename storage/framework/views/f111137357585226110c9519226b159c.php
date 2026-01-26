@@ -79,7 +79,14 @@ $groups = DB::table('groups')->where('team_id', $teamId)->get();
             <div class="am-choice-body max-h-400 overflow-auto">
                 <?php if($channels->count()): ?>
                     <?php $__currentLoopData = $channels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check($permission . "." . strtolower($value->module))): ?>
+                        <?php
+                            $moduleKey = strtolower($value->module);
+                            $module = \Module::find($value->module);
+                            if ($module) {
+                                $moduleKey = $module->getLowerName();
+                            }
+                        ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check($permission . "." . $moduleKey)): ?>
                             <div class="search-accounts">
                                 <label class="am-choice-item d-flex gap-12 border-top px-3 py-3"
                                     for="am_<?php echo e($value->id); ?>"
@@ -142,4 +149,5 @@ $groups = DB::table('groups')->where('team_id', $teamId)->get();
             </div>
         </div>
     </div>
-</div><?php /**PATH /var/www/social.kokonuts.my/modules/AppChannels/resources/views/block_channels.blade.php ENDPATH**/ ?>
+</div>
+<?php /**PATH /var/www/social.kokonuts.my/modules/AppChannels/resources/views/block_channels.blade.php ENDPATH**/ ?>
