@@ -610,46 +610,6 @@ var AppPubishing = new (function () {
                     }
                 });
             });
-
-            $(document).on('mouseover', '.compose-type-media .file-selected-media .items .file-item', function () {
-                var $item = $(this);
-                if ($item.data('type') !== 'image') {
-                    return;
-                }
-
-                if ($item.hasClass('ui-draggable-handle')) {
-                    return;
-                }
-
-                $item.draggable({
-                    addClasses: false,
-                    connectToSortable: $dropzone.find('.items'),
-                    containment: 'document',
-                    revert: 'invalid',
-                    revertDuration: 200,
-                    distance: 10,
-                    appendTo: $dropzone.find('.items'),
-                    helper: 'clone',
-                    cursor: '-webkit-grabbing',
-                    cursorAt: {
-                        left: 35,
-                        top: 35
-                    },
-                    start: function () {
-                        $(".compose-type-media .file-selected-media .items").sortable("disable");
-                        $dropzone.find('.drophere').show();
-                        $dropzone.find('.drophere .has-action').show();
-                        $dropzone.find('.drophere .no-action').hide();
-                    },
-                    stop: function () {
-                        $(".compose-type-media .file-selected-media .items").sortable("enable");
-                        $dropzone.find('.drophere .has-action').hide();
-                        $dropzone.find('.drophere .no-action').show();
-                        AppPubishing.setThumbnailDropzoneState();
-                        $item.draggable('destroy');
-                    }
-                });
-            });
         },
 
         AppPubishing.closePopoverCalendar = function () {
