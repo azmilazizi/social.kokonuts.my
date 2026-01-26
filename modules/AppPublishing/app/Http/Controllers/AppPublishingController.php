@@ -214,6 +214,7 @@ class AppPublishingController extends Controller
 
     public function save(Request $request)
     {
+        \Log::info('AppPublishingController@save', ['request' => $request->all()]);
         $skipValidate    = (bool) $request->confirm;
         $type            = (string) $request->type;
         $postBy          = (int) $request->post_by;
