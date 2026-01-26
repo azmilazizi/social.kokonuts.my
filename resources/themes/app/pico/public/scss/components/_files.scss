@@ -162,9 +162,26 @@
 	}
 
 	.file-item{
+		position: relative;
 		width: 95px!important;
 		height: 95px!important;
 		min-height: 95px!important;
 		display: inline-block;
+
+		.remove{
+			position: absolute;
+			right: 3px!important;
+			top: 3px;
+			left: auto!important;
+			display: none;
+			background: transparent;
+			border: none;
+			padding: 0;
+			z-index: 10000;
+		}
+
+		&:hover .remove{
+			display: block!important;
+		}
 	}
 }
