@@ -10,6 +10,10 @@ class GuestController extends Controller
     public function __construct()
     {
         if(!get_option("auth_landing_page_status", 1)){
+            $request = request();
+            if ($request->is('privacy-policy') || $request->is('terms-of-service')) {
+                return;
+            }
             if(auth()->id()){
                 header("Location: ". route('app.dashboard'));
             }else{
