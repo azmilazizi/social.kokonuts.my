@@ -160,7 +160,8 @@ class Post extends Facade
                         "type" => $post->type,
                     ];
                 }
-                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint);
+
+                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint, $data->link);
             case 'text':
                 return [
                     "status" => 0,
@@ -179,7 +180,7 @@ class Post extends Facade
     /**
      * Complete the upload for a Reels video.
      */
-    protected static function completeReelsUpload($FB, $post, $uploadSession, $caption, $mediaUrl, $endpoint)
+    protected static function completeReelsUpload($FB, $post, $uploadSession, $caption, $mediaUrl, $endpoint, $thumbnail_url = null)
     {
         $videoId = $uploadSession['video_id'];
         $uploadUrl = $uploadSession['upload_url'] ?? null;
@@ -284,8 +285,36 @@ class Post extends Facade
             $publishingPhase = $phaseStatus($status['publishing_phase'] ?? null); // NOTE: publishing_phase (bukan publish_phase)
             $videoStatus     = is_string($status['video_status'] ?? '') ? strtolower($status['video_status']) : '';
 
-            // "ready" is the clearest success signal
             if (in_array($videoStatus, ['ready', 'published'], true)) {
+                // === FACEBOOK REELS THUMBNAIL HOOK ===
+                try {
+                    if ($thumbnail_url) {
+                        \Log::warning('FB Reels: resolving thumbnail', [
+                            'video_id' => $videoId,
+                            'thumb_url' => $thumbnail_url,
+                        ]);
+
+                        $thumbnail = self::resolveVideoThumbnail($thumbnail_url);
+
+                        if ($thumbnail) {
+                            // small delay to let FB stabilize
+                            sleep(2);
+
+                            self::uploadVideoThumbnail($post, $videoId, $thumbnail);
+
+                            // cleanup local file
+                            if (!empty($thumbnail['path']) && file_exists($thumbnail['path'])) {
+                                @unlink($thumbnail['path']);
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('FB Reels thumbnail failed (non-blocking)', [
+                        'video_id' => $videoId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
                 return [
                     "status" => 1,
                     "message" => __("Success"),
@@ -338,10 +367,24 @@ class Post extends Facade
         $response = $FB->post($endpoint, $params, $post->account->token)->getDecodedBody();
         $postId = $response['id'] ?? null;
 
-        if ($postId && $post->type === 'media' && !empty($medias) && Media::isVideo($medias[0])) {
-            $thumbnail = self::resolveVideoThumbnail($data, $medias);
-            if ($thumbnail) {
-                self::uploadVideoThumbnail($post, $postId, $thumbnail);
+        
+        if ($postId && $post->type === 'link' && !empty($medias) && Media::isVideo($medias[0])) {
+            $thumbnail = self::resolveVideoThumbnail($data->link);
+            
+            if (!empty($thumbnail)) {
+                sleep(2);
+                $videoNodeId = self::resolveVideoIdFromPostId($post, $postId);
+
+                if ($videoNodeId) {
+                    self::uploadVideoThumbnail($post, $videoNodeId, $thumbnail);
+                } else {
+                    \Log::warning('Could not resolve video node id from post id', ['post_id' => $postId]);
+                }
+
+                // DELETE local thumbnail file
+                if (!empty($thumbnail['path']) && file_exists($thumbnail['path'])) {
+                    @unlink($thumbnail['path']);
+                }
             }
         }
 
@@ -425,25 +468,142 @@ class Post extends Facade
         return [$endpoint . "feed", $params];
     }
 
-    protected static function resolveVideoThumbnail($data, $medias): ?string
+    protected static function resolveVideoIdFromPostId($post, string $postId): ?string
     {
-        $options = is_object($data) ? ($data->options ?? null) : null;
+        $graphVersion = get_option("facebook_graph_version", "v21.0");
+        $url = "https://graph.facebook.com/{$graphVersion}/{$postId}";
 
-        $thumbnail = $options->thumbnail ?? $options->thumbnail_url ?? null;
-        if (!$thumbnail) {
-            $thumbnail = $data->thumbnail ?? $data->thumbnail_url ?? null;
+        $resp = Http::timeout(30)->get($url, [
+            'fields' => 'attachments{media_type,media}',
+            'access_token' => $post->account->token,
+        ]);
+
+        if (!$resp->successful()) {
+            \Log::warning('Resolve video id failed', [
+                'post_id' => $postId,
+                'status' => $resp->status(),
+                'body' => $resp->body(),
+            ]);
+            return null;
         }
 
-        if (!$thumbnail && count($medias) > 1) {
-            foreach (array_slice($medias, 1) as $media) {
-                if (Media::isImg($media)) {
-                    $thumbnail = $media;
-                    break;
-                }
+        $body = $resp->json();
+
+        $attachments = $body['attachments']['data'] ?? [];
+        foreach ($attachments as $att) {
+            // media_type examples: "video", "photo", etc
+            $mediaType = $att['media_type'] ?? null;
+            $mediaId   = $att['media']['id'] ?? null;
+
+            if ($mediaType && stripos($mediaType, 'video') !== false && $mediaId) {
+                return (string) $mediaId; // ✅ this is the Video node id
             }
         }
 
-        return $thumbnail ?: null;
+        return null;
+    }
+
+
+    protected static function resolveVideoThumbnail(string $publicUrl): ?array
+    {
+        $tmpIn = null;
+
+        try {
+            // Validate URL
+            if (!filter_var($publicUrl, FILTER_VALIDATE_URL)) {
+                return null;
+            }
+
+            // Download image
+            $ctx = stream_context_create([
+                'http' => [
+                    'timeout' => 15,
+                    'follow_location' => true,
+                    'user_agent' => 'KokonutsSocial/1.0',
+                ],
+            ]);
+
+            $raw = @file_get_contents($publicUrl, false, $ctx);
+            if (!$raw) {
+                return null;
+            }
+
+            // Temp input file
+            $tmpIn = sys_get_temp_dir() . '/thumb_in_' . uniqid();
+            file_put_contents($tmpIn, $raw);
+
+            // Detect image
+            $info = @getimagesize($tmpIn);
+            if (!$info || empty($info['mime'])) {
+                return null;
+            }
+
+            $mime   = $info['mime'];
+            $width  = (int) ($info[0] ?? 0);
+            $height = (int) ($info[1] ?? 0);
+
+            if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+                return null;
+            }
+
+            // Create GD resource
+            switch ($mime) {
+                case 'image/jpeg':
+                    $im = imagecreatefromjpeg($tmpIn);
+                    break;
+                case 'image/png':
+                    $im = imagecreatefrompng($tmpIn);
+                    break;
+                case 'image/webp':
+                    if (!function_exists('imagecreatefromwebp')) {
+                        return null;
+                    }
+                    $im = imagecreatefromwebp($tmpIn);
+                    break;
+                default:
+                    return null;
+            }
+
+            if (!$im) {
+                return null;
+            }
+
+            // Hardcoded output directory
+            $relativePath = 'files/meta-thumbnails/thumb_' . uniqid() . '.jpg';
+            $outputPath  = storage_path('app/public/' . $relativePath);
+
+            if (!is_dir(dirname($outputPath))) {
+                mkdir(dirname($outputPath), 0775, true);
+            }
+
+            // Convert to JPEG (quality hardcoded to 85)
+            imagejpeg($im, $outputPath, 85);
+            imagedestroy($im);
+
+            // Read final info
+            $finalInfo = @getimagesize($outputPath);
+            $bytes = @filesize($outputPath);
+
+            // Public URL
+            $publicThumbUrl = rtrim(config('app.url'), '/') . '/storage/' . $relativePath;
+
+            return [
+                'path'      => $outputPath,       // for FB thumbnail upload (CURLFile)
+                'relative'  => $relativePath,     // storage relative
+                'url'       => $publicThumbUrl,   // for IG cover_url
+                'width'     => (int) ($finalInfo[0] ?? $width),
+                'height'    => (int) ($finalInfo[1] ?? $height),
+                'mime'      => 'image/jpeg',
+                'bytes'     => $bytes,
+                'source'    => $publicUrl,
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        } finally {
+            if ($tmpIn && file_exists($tmpIn)) {
+                @unlink($tmpIn);
+            }
+        }
     }
 
     protected static function uploadVideoThumbnail($post, $videoId, $thumbnail)
@@ -464,6 +624,12 @@ class Post extends Facade
                     'is_preferred' => 'true',
                 ]);
 
+            \Log::info('Facebook thumbnail upload response', [
+                'video_id' => $videoId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             if (!$response->successful()) {
                 Log::warning('Facebook thumbnail upload failed', [
                     'video_id' => $videoId,
@@ -479,51 +645,67 @@ class Post extends Facade
         }
     }
 
-    protected static function buildThumbnailPayload($thumbnail): ?array
+    // protected static function buildThumbnailPayload($thumbnail): ?array
+    // {
+    //     if (!$thumbnail) {
+    //         return null;
+    //     }
+
+    //     if (filter_var($thumbnail, FILTER_VALIDATE_URL)) {
+    //         $response = Http::timeout(30)->get($thumbnail);
+    //         if (!$response->successful()) {
+    //             return null;
+    //         }
+
+    //         $path = parse_url($thumbnail, PHP_URL_PATH) ?: '';
+    //         $filename = basename($path) ?: 'thumbnail.jpg';
+
+    //         return [
+    //             'contents' => $response->body(),
+    //             'filename' => $filename,
+    //         ];
+    //     }
+
+    //     $path = Media::path($thumbnail);
+    //     if ($path && file_exists($path)) {
+    //         return [
+    //             'contents' => file_get_contents($path),
+    //             'filename' => basename($path),
+    //         ];
+    //     }
+
+    //     $url = Media::url($thumbnail);
+    //     if ($url && filter_var($url, FILTER_VALIDATE_URL)) {
+    //         $response = Http::timeout(30)->get($url);
+    //         if (!$response->successful()) {
+    //             return null;
+    //         }
+
+    //         $path = parse_url($url, PHP_URL_PATH) ?: '';
+    //         $filename = basename($path) ?: 'thumbnail.jpg';
+
+    //         return [
+    //             'contents' => $response->body(),
+    //             'filename' => $filename,
+    //         ];
+    //     }
+
+    //     return null;
+    // }
+
+    protected static function buildThumbnailPayload($thumbnail)
     {
-        if (!$thumbnail) {
+        if (
+            empty($thumbnail['path']) ||
+            !file_exists($thumbnail['path']) ||
+            !is_readable($thumbnail['path'])
+        ) {
             return null;
         }
 
-        if (filter_var($thumbnail, FILTER_VALIDATE_URL)) {
-            $response = Http::timeout(30)->get($thumbnail);
-            if (!$response->successful()) {
-                return null;
-            }
-
-            $path = parse_url($thumbnail, PHP_URL_PATH) ?: '';
-            $filename = basename($path) ?: 'thumbnail.jpg';
-
-            return [
-                'contents' => $response->body(),
-                'filename' => $filename,
-            ];
-        }
-
-        $path = Media::path($thumbnail);
-        if ($path && file_exists($path)) {
-            return [
-                'contents' => file_get_contents($path),
-                'filename' => basename($path),
-            ];
-        }
-
-        $url = Media::url($thumbnail);
-        if ($url && filter_var($url, FILTER_VALIDATE_URL)) {
-            $response = Http::timeout(30)->get($url);
-            if (!$response->successful()) {
-                return null;
-            }
-
-            $path = parse_url($url, PHP_URL_PATH) ?: '';
-            $filename = basename($path) ?: 'thumbnail.jpg';
-
-            return [
-                'contents' => $response->body(),
-                'filename' => $filename,
-            ];
-        }
-
-        return null;
+        return [
+            'contents' => file_get_contents($thumbnail['path']),
+            'filename' => basename($thumbnail['path']),
+        ];
     }
 }
