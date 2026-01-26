@@ -65,20 +65,15 @@ if($post){
                                             $thumbnail = $postType === 'link' ? ($medias[0] ?? '') : '';
                                             $thumbnailUrl = $thumbnail ? Media::url($thumbnail) : '';
                                         @endphp
-                                        <div class="thumbnail-dropzone mt-2" data-thumbnail-dropzone>
-                                            <div class="items clearfix">
-                                                @if ($thumbnailUrl)
-                                                    <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="{{ $thumbnailUrl }}" data-type="image">
-                                                        <label class="d-flex flex-column flex-fill">
-                                                            <div class="position-absolute r-6 t-6 zIndex-1">
-                                                                <div class="form-check form-check-sm">
-                                                                    <input class="form-check-input" name="medias[]" type="text" value="{{ $thumbnailUrl }}" style="display: none;">
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('{{ $thumbnailUrl }}');"></div>
-                                                        </label>
-                                                        <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
-                                                    </div>
+                                            <div class="thumbnail-dropzone mt-2" data-thumbnail-dropzone>
+                                                <div class="items clearfix">
+                                                    @if ($thumbnailUrl)
+                                                        <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="{{ $thumbnailUrl }}" data-type="image">
+                                                            <label class="d-flex flex-column flex-fill">
+                                                                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('{{ $thumbnailUrl }}');"></div>
+                                                            </label>
+                                                            <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
+                                                        </div>
                                                 @endif
                                             </div>
                                             <div class="drophere px-3 py-4 text-center text-gray-400 text-uppercase fs-12 bg-gray-100 border-3 border-dashed b-r-6" style="{{ $thumbnailUrl ? "display: none;" : "" }}">
