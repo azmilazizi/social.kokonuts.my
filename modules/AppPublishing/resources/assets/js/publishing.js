@@ -298,8 +298,13 @@ var AppPubishing = new (function () {
                 }).join('');
                 if (allMedias.length === 0) {
                     $(".cpv-img").html('');
-                    if (postType === "link" && linkThumbnail) {
-                        $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                    if (postType === "link") {
+                        var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
+                        if (linkThumbnail) {
+                            $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                        } else {
+                            $(".cpv-link .cpv-link-img").html('');
+                        }
                     } else {
                         $(".cpv-link .cpv-link-img").html('');
                     }
@@ -309,8 +314,13 @@ var AppPubishing = new (function () {
                 var firstFileType = firstMedia.dataset?.type || 'image';
                 var firstFile = firstMedia.dataset?.file || firstMedia.src;
                 $(".cpv-img").html(previewHtml);
-                if (postType === "link" && linkThumbnail) {
-                    $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                if (postType === "link") {
+                    var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
+                    if (linkThumbnail) {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                    } else if (firstFileType == "image") {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
+                    }
                 } else if (firstFileType == "image") {
                     $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
                 }
@@ -415,16 +425,18 @@ var AppPubishing = new (function () {
                 $(".cpv-default").addClass("d-none");
             }
 
-            var thumbnailItems = document.querySelectorAll('[data-thumbnail-dropzone] .items .file-item');
-            var images = thumbnailItems.length
-                ? thumbnailItems
-                : document.querySelectorAll('.compose-type-media .file-selected-media .items .file-item');
-            if (images.length > 0) {
-                var type = $(images[0]).data('type');
-                var file = $(images[0]).data('file');
+            var thumbnail = AppPubishing.getThumbnailDropzoneUrl();
+            if (thumbnail) {
+                $(".cpv-link .cpv-link-img").html(`<img src="${thumbnail}"/>`);
+            } else {
+                var images = document.querySelectorAll('.file-selected-media .items .file-item');
+                if (images.length > 0) {
+                    var type = $(images[0]).data('type');
+                    var file = $(images[0]).data('file');
 
-                if (type == "image") {
-                    $(".cpv-link .cpv-link-img").html(`<img src="${file}"/>`);
+                    if (type == "image") {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${file}"/>`);
+                    }
                 }
             }
         },
@@ -482,6 +494,14 @@ var AppPubishing = new (function () {
         AppPubishing.reloadCalendar = function () {
             if ($(".compose-calendar").length == 0) return false;
             Calendar.refetchEvents();
+        },
+
+        AppPubishing.getThumbnailDropzoneUrl = function () {
+            var $item = $('[data-thumbnail-dropzone] .items .file-item').first();
+            if (!$item.length) {
+                return '';
+            }
+            return $item.data('file') || '';
         },
 
         AppPubishing.setThumbnailDropzoneState = function () {
@@ -557,25 +577,19 @@ var AppPubishing = new (function () {
                 AppPubishing.clearThumbnailDropzone();
             });
 
-            if ($.fn.sortable) {
-                $dropzone.find('.items').sortable({
-                    containment: 'parent',
-                    distance: 10,
-                    items: '.file-item',
-                    placeholder: 'file-item item--placeholder',
-                    receive: function (event, ui) {
-                        ui.helper.remove();
-                        AppPubishing.setThumbnailFromFileItem(ui.item);
+            if ($.fn.droppable) {
+                $dropzone.droppable({
+                    accept: '.file-item',
+                    tolerance: 'pointer',
+                    drop: function (event, ui) {
+                        var $item = ui.draggable || ui.helper;
+                        AppPubishing.setThumbnailFromFileItem($item);
                     }
                 });
             }
 
-            $(document).on('mouseover', '.file-widget .file-item', function () {
+            $(document).on('mouseover', '.file-widget .file-item, .compose-type-media .file-selected-media .items .file-item', function () {
                 var $item = $(this);
-                if ($item.hasClass('active') || $item.hasClass('fm-folder-item')) {
-                    return;
-                }
-
                 if ($item.data('type') !== 'image') {
                     return;
                 }
@@ -586,12 +600,11 @@ var AppPubishing = new (function () {
 
                 $item.draggable({
                     addClasses: false,
-                    connectToSortable: $dropzone.find('.items'),
                     containment: 'document',
                     revert: 'invalid',
                     revertDuration: 200,
                     distance: 10,
-                    appendTo: $dropzone.find('.items'),
+                    helper: 'clone',
                     cursor: '-webkit-grabbing',
                     cursorAt: {
                         left: 35,
