@@ -109835,6 +109835,17 @@ table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:after {
   border-radius: 6px;
 }
 
+.thumbnail-dropzone .items {
+  text-align: left;
+}
+
+.thumbnail-dropzone .file-item {
+  width: 95px !important;
+  height: 95px !important;
+  min-height: 95px !important;
+  display: inline-block;
+}
+
 .file-selected-media .file-item .remove {
   position: absolute;
   right: 3px !important;
