@@ -13,7 +13,7 @@
             <div class="w-auto">
                 <div class="flex items-center justify-between">
                     <div class="w-auto hidden lg:block">
-                        <ul class="flex items-center mr-16">
+                        <!-- <ul class="flex items-center mr-16">
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('') }}"
                                    class="{{ request()->is('/') ? 'text-indigo-600 font-bold' : '' }}">
@@ -50,7 +50,7 @@
                                     {{ __("Contact") }}
                                 </a>
                             </li>
-                        </ul>
+                        </ul> -->
                     </div>
                     <div class="w-auto">
                         <div class="flex flex-wrap items-center">
@@ -146,7 +146,7 @@
                         </div>
                     </div>
                     <div class="flex flex-col justify-center py-16 w-full">
-                        <ul>
+                        <!-- <ul>
                             <li class="mb-12">
                                 <a class="font-medium hover:text-gray-700 {{ request()->is('/') ? 'text-indigo-600' : '' }}"
                                    href="{{ url('') }}">
@@ -183,7 +183,7 @@
                                     {{ __("Contact") }}
                                 </a>
                             </li>
-                        </ul>
+                        </ul> -->
                     </div>
                     <div class="flex flex-col justify-end w-full pb-8">
                         <div class="flex flex-wrap">
