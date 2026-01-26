@@ -109840,10 +109840,27 @@ table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:after {
 }
 
 .thumbnail-dropzone .file-item {
+  position: relative;
   width: 95px !important;
   height: 95px !important;
   min-height: 95px !important;
   display: inline-block;
+}
+
+.thumbnail-dropzone .file-item .remove {
+  position: absolute;
+  right: 3px !important;
+  top: 3px;
+  left: auto !important;
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 10000;
+}
+
+.thumbnail-dropzone .file-item:hover .remove {
+  display: block !important;
 }
 
 .file-selected-media .file-item .remove {
