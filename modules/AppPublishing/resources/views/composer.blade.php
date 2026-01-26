@@ -94,8 +94,8 @@ if($post){
                                 @can("appfiles")
                                 <div class="compose-type-media">
                                     <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
-                                        <span>{{ __("Thumbnail") }}</span>
-                                        <span><i class="fa-light fa-circle-question" data-bs-title="{{ __('Note: Some social networks will take the image of the link without using the thumbnail image.') }}" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    
+                                        <span>{{ __("Video/Image") }}</span>
+                                        <span><i class="fa-light fa-circle-question" data-bs-title="{{ __('Note: Accepts one image/video at a time.') }}" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    
                                     </label>
                                     @include('appfiles::block_selected_files', [
                                         "files" => $medias
