@@ -175,7 +175,7 @@
                                 <a class="tracking-tight" href="{{ url('privacy-policy') }}">{{ __("Privacy Policy") }}</a>
                             </div>
                             <div class="w-auto p-4">
-                                <a class="tracking-tight" href="{{ url('terms-of-service') }}">{{ __("Terms & Conditions") }}</a>
+                                <a class="tracking-tight" href="{{ url('terms-of-service') }}">{{ __("Terms of Service") }}</a>
                             </div>
                         </div>
                     </div>

@@ -2,8 +2,8 @@
     <div class="max-w-4xl mx-auto">
         <!-- Header Section -->
         <div class="mb-8 text-center">
-            <h1 class="text-6xl md:text-7xl font-bold font-heading leading-none text-gray-900 mb-4">{{ __("Terms & Conditions") }}</h1>
-            <p class="text-lg text-gray-600 font-medium">{{ __('Please read these Terms & Conditions carefully before using this service.') }}</p>
+            <h1 class="text-6xl md:text-7xl font-bold font-heading leading-none text-gray-900 mb-4">{{ __("Terms of Service") }}</h1>
+            <p class="text-lg text-gray-600 font-medium">{{ __('Please read these Terms of Service carefully before using this service.') }}</p>
         </div>
         <!-- Main Content -->
         <div class="bg-white rounded-4xl shadow-sm p-8">
