@@ -524,8 +524,8 @@ var AppPubishing = new (function () {
             }
 
             $dropzone.find('.items').empty();
-            $dropzone.find('input[name="medias[]"]').remove();
             AppPubishing.setThumbnailDropzoneState();
+            $(".compose-editor [name='link']").val('');
             AppPubishing.preview();
         },
 
@@ -549,11 +549,6 @@ var AppPubishing = new (function () {
             var itemHtml = `
                 <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="${file}" data-type="image">
                     <label class="d-flex flex-column flex-fill">
-                        <div class="position-absolute r-6 t-6 zIndex-1">
-                            <div class="form-check form-check-sm">
-                                <input class="form-check-input" name="medias[]" type="text" value="${file}" style="display: none;">
-                            </div>
-                        </div>
                         <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('${file}');"></div>
                     </label>
                     <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
@@ -562,6 +557,7 @@ var AppPubishing = new (function () {
 
             $dropzone.find('.items').html(itemHtml);
             AppPubishing.setThumbnailDropzoneState();
+            $(".compose-editor [name='link']").val(file).trigger("change");
             AppPubishing.preview();
         },
 
