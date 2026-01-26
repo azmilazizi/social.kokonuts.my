@@ -33,6 +33,7 @@ var AppPubishing = new (function () {
         if ($(".composer-scheduling").length > 0) {
             AppPubishing.previewAction();
             AppPubishing.preview();
+            AppPubishing.initThumbnailDropzone();
         }
 
     },
@@ -267,7 +268,7 @@ var AppPubishing = new (function () {
             }
 
             function onMediaItemsChange() {
-                var images = document.querySelectorAll('.file-selected-media .items .file-item');
+                var images = document.querySelectorAll('.compose-type-media .file-selected-media .items .file-item');
                 let allMedias;
                 if (images.length > 0) {
                     allMedias = Array.from(images);
@@ -275,6 +276,10 @@ var AppPubishing = new (function () {
                     var previewMedias = document.querySelectorAll('.preview-list-medias [data-preview-media]');
                     allMedias = Array.from(previewMedias);
                 }
+                var linkThumbnailItems = document.querySelectorAll('[data-thumbnail-dropzone] .items .file-item');
+                var linkThumbnail = linkThumbnailItems.length
+                    ? linkThumbnailItems[0].dataset?.file
+                    : '';
                 const previewHtml = allMedias.map(media => {
                     var type = media.dataset?.type || 'image';
                     var file = media.dataset?.file || media.src;
@@ -293,19 +298,25 @@ var AppPubishing = new (function () {
                 }).join('');
                 if (allMedias.length === 0) {
                     $(".cpv-img").html('');
-                    $(".cpv-link .cpv-link-img").html('');
+                    if (postType === "link" && linkThumbnail) {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                    } else {
+                        $(".cpv-link .cpv-link-img").html('');
+                    }
                     return;
                 }
                 var firstMedia = allMedias[0];
                 var firstFileType = firstMedia.dataset?.type || 'image';
                 var firstFile = firstMedia.dataset?.file || firstMedia.src;
                 $(".cpv-img").html(previewHtml);
-                if (firstFileType == "image") {
+                if (postType === "link" && linkThumbnail) {
+                    $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                } else if (firstFileType == "image") {
                     $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
                 }
             }
 
-            var container = document.querySelector('.file-selected-media .items');
+            var container = document.querySelector('.compose-type-media .file-selected-media .items');
             if (container) {
                 const observer = new MutationObserver(() => {
                     onMediaItemsChange();
@@ -404,7 +415,10 @@ var AppPubishing = new (function () {
                 $(".cpv-default").addClass("d-none");
             }
 
-            var images = document.querySelectorAll('.file-selected-media .items .file-item');
+            var thumbnailItems = document.querySelectorAll('[data-thumbnail-dropzone] .items .file-item');
+            var images = thumbnailItems.length
+                ? thumbnailItems
+                : document.querySelectorAll('.compose-type-media .file-selected-media .items .file-item');
             if (images.length > 0) {
                 var type = $(images[0]).data('type');
                 var file = $(images[0]).data('file');
@@ -432,6 +446,7 @@ var AppPubishing = new (function () {
                 case "media":
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").removeClass("d-none");
+                    AppPubishing.clearThumbnailDropzone();
                     break;
 
                 case "link":
@@ -442,6 +457,7 @@ var AppPubishing = new (function () {
                 default:
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").addClass("d-none");
+                    AppPubishing.clearThumbnailDropzone();
 
             }
 
@@ -466,6 +482,174 @@ var AppPubishing = new (function () {
         AppPubishing.reloadCalendar = function () {
             if ($(".compose-calendar").length == 0) return false;
             Calendar.refetchEvents();
+        },
+
+        AppPubishing.setThumbnailDropzoneState = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            if ($dropzone.find('.items .file-item').length > 0) {
+                $dropzone.find('.drophere').hide();
+            } else {
+                $dropzone.find('.drophere').show();
+            }
+        },
+
+        AppPubishing.clearThumbnailDropzone = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            $dropzone.find('.items').empty();
+            $dropzone.find('input[name="medias[]"]').remove();
+            AppPubishing.setThumbnailDropzoneState();
+            AppPubishing.preview();
+        },
+
+        AppPubishing.setThumbnailFromFileItem = function (fileItem) {
+            var $fileItem = $(fileItem);
+            if (!$fileItem.length) {
+                return;
+            }
+
+            var type = $fileItem.data('type');
+            var file = $fileItem.data('file');
+            if (type !== 'image' || !file) {
+                return;
+            }
+
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            var itemHtml = `
+                <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="${file}" data-type="image">
+                    <label class="d-flex flex-column flex-fill">
+                        <div class="position-absolute r-6 t-6 zIndex-1">
+                            <div class="form-check form-check-sm">
+                                <input class="form-check-input" name="medias[]" type="text" value="${file}" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('${file}');"></div>
+                    </label>
+                    <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
+                </div>
+            `;
+
+            $dropzone.find('.items').html(itemHtml);
+            AppPubishing.setThumbnailDropzoneState();
+            AppPubishing.preview();
+        },
+
+        AppPubishing.initThumbnailDropzone = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            AppPubishing.setThumbnailDropzoneState();
+
+            $(document).on('click', '[data-thumbnail-dropzone] .file-item .remove', function () {
+                AppPubishing.clearThumbnailDropzone();
+            });
+
+            if ($.fn.sortable) {
+                $dropzone.find('.items').sortable({
+                    containment: 'parent',
+                    distance: 10,
+                    items: '.file-item',
+                    placeholder: 'file-item item--placeholder',
+                    receive: function (event, ui) {
+                        ui.helper.remove();
+                        AppPubishing.setThumbnailFromFileItem(ui.item);
+                    }
+                });
+            }
+
+            $(document).on('mouseover', '.file-widget .file-item', function () {
+                var $item = $(this);
+                if ($item.hasClass('active') || $item.hasClass('fm-folder-item')) {
+                    return;
+                }
+
+                if ($item.data('type') !== 'image') {
+                    return;
+                }
+
+                if ($item.hasClass('ui-draggable-handle')) {
+                    return;
+                }
+
+                $item.draggable({
+                    addClasses: false,
+                    connectToSortable: $dropzone.find('.items'),
+                    containment: 'document',
+                    revert: 'invalid',
+                    revertDuration: 200,
+                    distance: 10,
+                    appendTo: $dropzone.find('.items'),
+                    cursor: '-webkit-grabbing',
+                    cursorAt: {
+                        left: 35,
+                        top: 35
+                    },
+                    start: function () {
+                        $dropzone.find('.drophere').show();
+                        $dropzone.find('.drophere .has-action').show();
+                        $dropzone.find('.drophere .no-action').hide();
+                    },
+                    stop: function () {
+                        $dropzone.find('.drophere .has-action').hide();
+                        $dropzone.find('.drophere .no-action').show();
+                        AppPubishing.setThumbnailDropzoneState();
+                        $item.draggable('destroy');
+                    }
+                });
+            });
+
+            $(document).on('mouseover', '.compose-type-media .file-selected-media .items .file-item', function () {
+                var $item = $(this);
+                if ($item.data('type') !== 'image') {
+                    return;
+                }
+
+                if ($item.hasClass('ui-draggable-handle')) {
+                    return;
+                }
+
+                $item.draggable({
+                    addClasses: false,
+                    connectToSortable: $dropzone.find('.items'),
+                    containment: 'document',
+                    revert: 'invalid',
+                    revertDuration: 200,
+                    distance: 10,
+                    appendTo: $dropzone.find('.items'),
+                    helper: 'clone',
+                    cursor: '-webkit-grabbing',
+                    cursorAt: {
+                        left: 35,
+                        top: 35
+                    },
+                    start: function () {
+                        $(".compose-type-media .file-selected-media .items").sortable("disable");
+                        $dropzone.find('.drophere').show();
+                        $dropzone.find('.drophere .has-action').show();
+                        $dropzone.find('.drophere .no-action').hide();
+                    },
+                    stop: function () {
+                        $(".compose-type-media .file-selected-media .items").sortable("enable");
+                        $dropzone.find('.drophere .has-action').hide();
+                        $dropzone.find('.drophere .no-action').show();
+                        AppPubishing.setThumbnailDropzoneState();
+                        $item.draggable('destroy');
+                    }
+                });
+            });
         },
 
         AppPubishing.closePopoverCalendar = function () {

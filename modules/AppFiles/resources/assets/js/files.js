@@ -193,15 +193,15 @@ var Files = new (function ()
     },
 
     Files.checkSelectedEmpty = function(){
-        if( $(".file-selected-media").find(".items .file-item").length > 0 ){
-            $(".file-selected-media").find(".drophere").hide();
+        if( $(".file-selected-media:not(.thumbnail-dropzone)").find(".items .file-item").length > 0 ){
+            $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere").hide();
         }else{
-            $(".file-selected-media").find(".drophere").show();
+            $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere").show();
         }
     },
 
     Files.DragAndDropSelect = function(){
-        $(".file-selected-media").find(".items").sortable({
+        $(".file-selected-media:not(.thumbnail-dropzone)").find(".items").sortable({
             containment: "parent",
             cursor: "-webkit-grabbing",
             distance: 10,
@@ -209,10 +209,10 @@ var Files = new (function ()
             placeholder: "file-item item--placeholder",
 
             stop: function(event, ui) {
-                if ($(".file-selected-media").find(".file-item").length > 0) {
-                    $(".file-selected-media").removeClass('droppable');
+                if ($(".file-selected-media:not(.thumbnail-dropzone)").find(".file-item").length > 0) {
+                    $(".file-selected-media:not(.thumbnail-dropzone)").removeClass('droppable');
                 } else {
-                    $(".file-selected-media").addClass('droppable');
+                    $(".file-selected-media:not(.thumbnail-dropzone)").addClass('droppable');
                 }
             },
 
@@ -222,8 +222,8 @@ var Files = new (function ()
             },
 
             update: function() {
-                if ($(".file-selected-media").find(".file-item").length == 0) {
-                    $(".file-selected-media").addClass('none');
+                if ($(".file-selected-media:not(.thumbnail-dropzone)").find(".file-item").length == 0) {
+                    $(".file-selected-media:not(.thumbnail-dropzone)").addClass('none');
                 }
             }
         });
@@ -232,12 +232,12 @@ var Files = new (function ()
             var that = $(this);
             that.draggable({
                 addClasses: false,
-                connectToSortable: $(".file-selected-media").find(".items"),
+                connectToSortable: $(".file-selected-media:not(.thumbnail-dropzone)").find(".items"),
                 containment: "document",
                 revert: "invalid",
                 revertDuration: 200,
                 distance: 10,
-                appendTo: $(".file-selected-media").find(".items"),
+                appendTo: $(".file-selected-media:not(.thumbnail-dropzone)").find(".items"),
                 cursor: "-webkit-grabbing",
                 cursorAt: { 
                     left: 35,
@@ -259,25 +259,25 @@ var Files = new (function ()
                     item.append('<button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12"><i class="fal fa-times"></i></button>');
 
                     var copy_item = item.clone();
-                    copy_item.appendTo(".file-selected-media .items");
+                    copy_item.appendTo(".file-selected-media:not(.thumbnail-dropzone) .items");
                     copy_item.remove();
 
                     return item;
                 },
 
                 start: function(event, ui) {
-                    $(".file-selected-media").find(".items").sortable("disable");
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".items").sortable("disable");
                     $(".file-list").addClass("draggable");
-                    $(".file-selected-media").find(".drophere").show();
-                    $(".file-selected-media").find(".drophere .has-action").show();
-                    $(".file-selected-media").find(".drophere .no-action").hide();
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere").show();
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere .has-action").show();
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere .no-action").hide();
                 },
 
                 stop: function(event, ui) {
                     $(".file-list").removeClass("draggable");
-                    $(".file-selected-media").find(".drophere .has-action").hide();
-                    $(".file-selected-media").find(".drophere .no-action").show();
-                    $(".file-selected-media").find(".items").sortable("enable");
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere .has-action").hide();
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".drophere .no-action").show();
+                    $(".file-selected-media:not(.thumbnail-dropzone)").find(".items").sortable("enable");
                     Files.checkSelectedEmpty();
                     that.draggable( "destroy" );
                 }
