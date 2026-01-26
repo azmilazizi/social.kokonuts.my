@@ -1,6 +1,6 @@
 <section class="py-24 md:pb-32 bg-white overflow-hidden" style="background-image: url({{ theme_public_asset('images/features/pattern-white.svg') }}); background-position: center;">
     <img class="absolute top-0 left-1/2 transform -translate-x-1/2" src="{{ theme_public_asset('images/cta/gradient4.svg') }}" alt=""/>
-    <div class="relative z-10 container px-4 mx-auto">
+    <!-- <div class="relative z-10 container px-4 mx-auto">
         <div class="flex flex-wrap -m-8">
             <div class="w-full md:w-auto p-8">
 
@@ -38,7 +38,7 @@
                 <img class="w-52 mx-auto transform hover:-translate-y-4 transition ease-in-out duration-1000 rounded-lg" src="{{ theme_public_asset('images/cta/woman-play2.png') }}" alt=""/>
             </div>
         </div>
-    </div>
+    </div> -->
 </section>
 
 <section class="pt-15 overflow-hidden border-t border-gray-600" style="background-image: url({{ theme_public_asset('images/features/pattern-white.svg') }}); background-position: center;">
@@ -52,7 +52,7 @@
                     </a>
                 </div>
                 {{-- Main Menu --}}
-                <ul class="flex flex-wrap -m-4 md:-m-9 p-4">
+                <!-- <ul class="flex flex-wrap -m-4 md:-m-9 p-4">
                     <li class="p-4 md:p-9">
                         <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('/') ? 'text-indigo-600' : '' }}"
                            href="{{ url('') }}">
@@ -94,7 +94,7 @@
                             {{ __("Contact") }}
                         </a>
                     </li>
-                </ul>
+                </ul> -->
 
                 {{-- Social Icons --}}
                 <div class="w-auto p-4">
