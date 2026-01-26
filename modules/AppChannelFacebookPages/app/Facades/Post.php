@@ -137,11 +137,30 @@ class Post extends Facade
                 return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint);
 
             case 'link':
-                return [
-                    "status" => 0,
-                    "message" => __("Facebook Reels do not support link posts."),
-                    "type" => $post->type,
+                if (empty($medias) || !Media::isVideo($medias[0])) {
+                    return [
+                        "status" => 0,
+                        "message" => __("Facebook Reels only support video posts."),
+                        "type" => $post->type,
+                    ];
+                }
+                $uploadParams = [
+                    "upload_phase" => "start",
                 ];
+                if ($caption !== '') {
+                    $uploadParams['description'] = $caption;
+                }
+                $uploadSession = $FB->post($endpoint . 'video_reels', $uploadParams, $post->account->token)
+                    ->getDecodedBody();
+
+                if (empty($uploadSession['video_id'])) {
+                    return [
+                        "status" => 0,
+                        "message" => __("Could not create upload session for Reels."),
+                        "type" => $post->type,
+                    ];
+                }
+                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint);
             case 'text':
                 return [
                     "status" => 0,
