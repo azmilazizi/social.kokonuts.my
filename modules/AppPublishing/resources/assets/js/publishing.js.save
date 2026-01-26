@@ -204,6 +204,7 @@ var AppPubishing = new (function () {
             var selectedAccounts = AppPubishing.getSelectedAccounts();
             selectedAccounts.forEach(function ($item) {
                 var network = ($item.data("social-network") || $item.data("network") || '').toString().toLowerCase();
+               
                 var avatar = $item.data("avatar");
                 var name = $item.data("name");
                 var username = $item.data("username");
