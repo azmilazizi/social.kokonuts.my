@@ -268,7 +268,7 @@ var AppPubishing = new (function () {
             }
 
             function onMediaItemsChange() {
-                var images = document.querySelectorAll('.file-selected-media .items .file-item');
+                var images = document.querySelectorAll('.compose-type-media .file-selected-media .items .file-item');
                 let allMedias;
                 if (images.length > 0) {
                     allMedias = Array.from(images);
@@ -276,6 +276,10 @@ var AppPubishing = new (function () {
                     var previewMedias = document.querySelectorAll('.preview-list-medias [data-preview-media]');
                     allMedias = Array.from(previewMedias);
                 }
+                var linkThumbnailItems = document.querySelectorAll('[data-thumbnail-dropzone] .items .file-item');
+                var linkThumbnail = linkThumbnailItems.length
+                    ? linkThumbnailItems[0].dataset?.file
+                    : '';
                 const previewHtml = allMedias.map(media => {
                     var type = media.dataset?.type || 'image';
                     var file = media.dataset?.file || media.src;
@@ -322,7 +326,7 @@ var AppPubishing = new (function () {
                 }
             }
 
-            var container = document.querySelector('.file-selected-media .items');
+            var container = document.querySelector('.compose-type-media .file-selected-media .items');
             if (container) {
                 const observer = new MutationObserver(() => {
                     onMediaItemsChange();
