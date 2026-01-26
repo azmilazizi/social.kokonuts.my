@@ -347,7 +347,7 @@ class Media extends Facade
             case 'image':
                 return ["color" => "gray",    "icon" => "fa-light fa-image"];
             case 'video':
-                return ["color" => "success", "icon" => "fa-light fa-film"];
+                return ["color" => "white", "icon" => "fa-light fa-film"];
             case 'audio':
                 return ["color" => "primary", "icon" => "fa-light fa-volume"];
             case 'csv':
