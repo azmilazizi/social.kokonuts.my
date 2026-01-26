@@ -33,6 +33,7 @@ var AppPubishing = new (function () {
         if ($(".composer-scheduling").length > 0) {
             AppPubishing.previewAction();
             AppPubishing.preview();
+            AppPubishing.initThumbnailDropzone();
         }
 
     },
@@ -293,14 +294,30 @@ var AppPubishing = new (function () {
                 }).join('');
                 if (allMedias.length === 0) {
                     $(".cpv-img").html('');
-                    $(".cpv-link .cpv-link-img").html('');
+                    if (postType === "link") {
+                        var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
+                        if (linkThumbnail) {
+                            $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                        } else {
+                            $(".cpv-link .cpv-link-img").html('');
+                        }
+                    } else {
+                        $(".cpv-link .cpv-link-img").html('');
+                    }
                     return;
                 }
                 var firstMedia = allMedias[0];
                 var firstFileType = firstMedia.dataset?.type || 'image';
                 var firstFile = firstMedia.dataset?.file || firstMedia.src;
                 $(".cpv-img").html(previewHtml);
-                if (firstFileType == "image") {
+                if (postType === "link") {
+                    var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
+                    if (linkThumbnail) {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
+                    } else if (firstFileType == "image") {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
+                    }
+                } else if (firstFileType == "image") {
                     $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
                 }
             }
@@ -404,13 +421,18 @@ var AppPubishing = new (function () {
                 $(".cpv-default").addClass("d-none");
             }
 
-            var images = document.querySelectorAll('.file-selected-media .items .file-item');
-            if (images.length > 0) {
-                var type = $(images[0]).data('type');
-                var file = $(images[0]).data('file');
+            var thumbnail = AppPubishing.getThumbnailDropzoneUrl();
+            if (thumbnail) {
+                $(".cpv-link .cpv-link-img").html(`<img src="${thumbnail}"/>`);
+            } else {
+                var images = document.querySelectorAll('.file-selected-media .items .file-item');
+                if (images.length > 0) {
+                    var type = $(images[0]).data('type');
+                    var file = $(images[0]).data('file');
 
-                if (type == "image") {
-                    $(".cpv-link .cpv-link-img").html(`<img src="${file}"/>`);
+                    if (type == "image") {
+                        $(".cpv-link .cpv-link-img").html(`<img src="${file}"/>`);
+                    }
                 }
             }
         },
@@ -432,6 +454,7 @@ var AppPubishing = new (function () {
                 case "media":
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").removeClass("d-none");
+                    AppPubishing.clearThumbnailDropzone();
                     break;
 
                 case "link":
@@ -442,6 +465,7 @@ var AppPubishing = new (function () {
                 default:
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").addClass("d-none");
+                    AppPubishing.clearThumbnailDropzone();
 
             }
 
@@ -466,6 +490,135 @@ var AppPubishing = new (function () {
         AppPubishing.reloadCalendar = function () {
             if ($(".compose-calendar").length == 0) return false;
             Calendar.refetchEvents();
+        },
+
+        AppPubishing.getThumbnailDropzoneUrl = function () {
+            var $item = $('[data-thumbnail-dropzone] .items .file-item').first();
+            if (!$item.length) {
+                return '';
+            }
+            return $item.data('file') || '';
+        },
+
+        AppPubishing.setThumbnailDropzoneState = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            if ($dropzone.find('.items .file-item').length > 0) {
+                $dropzone.find('.drophere').hide();
+            } else {
+                $dropzone.find('.drophere').show();
+            }
+        },
+
+        AppPubishing.clearThumbnailDropzone = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            $dropzone.find('.items').empty();
+            $dropzone.find('input[name="medias[]"]').remove();
+            AppPubishing.setThumbnailDropzoneState();
+            AppPubishing.preview();
+        },
+
+        AppPubishing.setThumbnailFromFileItem = function (fileItem) {
+            var $fileItem = $(fileItem);
+            if (!$fileItem.length) {
+                return;
+            }
+
+            var type = $fileItem.data('type');
+            var file = $fileItem.data('file');
+            if (type !== 'image' || !file) {
+                return;
+            }
+
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            var itemHtml = `
+                <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="${file}" data-type="image">
+                    <label class="d-flex flex-column flex-fill">
+                        <div class="position-absolute r-6 t-6 zIndex-1">
+                            <div class="form-check form-check-sm">
+                                <input class="form-check-input" name="medias[]" type="text" value="${file}" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('${file}');"></div>
+                    </label>
+                    <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
+                </div>
+            `;
+
+            $dropzone.find('.items').html(itemHtml);
+            AppPubishing.setThumbnailDropzoneState();
+            AppPubishing.preview();
+        },
+
+        AppPubishing.initThumbnailDropzone = function () {
+            var $dropzone = $('[data-thumbnail-dropzone]');
+            if (!$dropzone.length) {
+                return;
+            }
+
+            AppPubishing.setThumbnailDropzoneState();
+
+            $(document).on('click', '[data-thumbnail-dropzone] .file-item .remove', function () {
+                AppPubishing.clearThumbnailDropzone();
+            });
+
+            if ($.fn.droppable) {
+                $dropzone.droppable({
+                    accept: '.file-item',
+                    tolerance: 'pointer',
+                    drop: function (event, ui) {
+                        var $item = ui.draggable || ui.helper;
+                        AppPubishing.setThumbnailFromFileItem($item);
+                    }
+                });
+            }
+
+            $(document).on('mouseover', '.file-widget .file-item, .compose-type-media .file-selected-media .items .file-item', function () {
+                var $item = $(this);
+                if ($item.data('type') !== 'image') {
+                    return;
+                }
+
+                if ($item.hasClass('ui-draggable-handle')) {
+                    return;
+                }
+
+                $item.draggable({
+                    addClasses: false,
+                    containment: 'document',
+                    revert: 'invalid',
+                    revertDuration: 200,
+                    distance: 10,
+                    helper: 'clone',
+                    cursor: '-webkit-grabbing',
+                    cursorAt: {
+                        left: 35,
+                        top: 35
+                    },
+                    start: function () {
+                        $dropzone.find('.drophere').show();
+                        $dropzone.find('.drophere .has-action').show();
+                        $dropzone.find('.drophere .no-action').hide();
+                    },
+                    stop: function () {
+                        $dropzone.find('.drophere .has-action').hide();
+                        $dropzone.find('.drophere .no-action').show();
+                        AppPubishing.setThumbnailDropzoneState();
+                        $item.draggable('destroy');
+                    }
+                });
+            });
         },
 
         AppPubishing.closePopoverCalendar = function () {
