@@ -80,6 +80,16 @@
             </form>
         </div>
 
+        <div class="mt-6 flex items-center justify-center text-sm text-gray-500">
+            <a href="{{ url('terms-of-service') }}" class="font-medium text-gray-600 hover:text-gray-800">
+                {{ __("Terms of Service") }}
+            </a>
+            <span class="mx-3 h-4 w-px bg-gray-300" aria-hidden="true"></span>
+            <a href="{{ url('privacy-policy') }}" class="font-medium text-gray-600 hover:text-gray-800">
+                {{ __("Privacy Policy") }}
+            </a>
+        </div>
+
         @if(get_option("auth_signup_page_status", 1))
             <p class="text-center pt-6 text-sm text-gray-500">
                 {{ __("Don't have an account?") }}
