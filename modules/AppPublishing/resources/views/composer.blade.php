@@ -54,12 +54,6 @@ if($post){
                             <textarea class="form-control input-emoji post-caption fw-4 border" name="caption" placeholder="{{ __("Enter caption") }}">{{ $caption }}</textarea>
                             <div class="p-3 border-end border-start border-bottom compose-type-media">
                                 <div class="compose-type-link {{ $postType == 'link' ? '' : 'd-none' }}">
-                                    <div class="form-control mb-3">
-                                        <input placeholder="{{ __("Enter url") }}" class="actionChange" data-url="{{ module_url("getLinkInfo") }}" data-call-success="AppPubishing.previewLink(result);" name="link" type="text" value="{{ $link }}" data-loading="false">
-                                        <button type="button" class="btn btn-icon">
-                                            <i class="fa-light fa-link"></i>
-                                        </button>
-                                    </div>
                                     @can("appfiles")
                                     <div class="mb-3">
                                         <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
@@ -99,6 +93,10 @@ if($post){
                                 </div>
                                 @can("appfiles")
                                 <div class="compose-type-media">
+                                    <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
+                                        <span>{{ __("Thumbnail") }}</span>
+                                        <span><i class="fa-light fa-circle-question" data-bs-title="{{ __('Note: Some social networks will take the image of the link without using the thumbnail image.') }}" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    
+                                    </label>
                                     @include('appfiles::block_selected_files', [
                                         "files" => $medias
                                     ])
