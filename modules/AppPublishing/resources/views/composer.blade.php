@@ -52,9 +52,17 @@ if($post){
                     <div class="mb-3">
                         <div class="mb-3 wrap-input-emoji">
                             <textarea class="form-control input-emoji post-caption fw-4 border" name="caption" placeholder="{{ __("Enter caption") }}">{{ $caption }}</textarea>
-                            <div class="p-3 border-end border-start border-bottom compose-type-media">
+                            <div class="p-3 border-end border-start border-bottom compose-type-body">
                                 <div class="compose-type-link {{ $postType == 'link' ? '' : 'd-none' }}">
-                                    @can("appfiles")
+                                    <div class="mb-3">
+                                        <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
+                                            <span>{{ __("Link") }}</span>
+                                        </label>
+                                        <input class="form-control compose-link-input" type="url" name="link" placeholder="{{ __("Enter your link") }}" value="{{ $link }}" {{ $postType === 'link' ? '' : 'disabled' }}>
+                                    </div>
+                                </div>
+                                @can("appfiles")
+                                <div class="compose-type-media {{ $postType === 'media' ? '' : 'd-none' }}">
                                     <div class="mb-3">
                                         <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
                                             <span>{{ __("Thumbnail") }}</span>
@@ -62,19 +70,19 @@ if($post){
                                         </label>
                                         <span class="fs-12 text-gray-600"></span>
                                         @php
-                                            $thumbnail = $postType === 'link' ? ($medias[0] ?? '') : '';
-                                            $thumbnailUrl = $thumbnail ? Media::url($thumbnail) : '';
+                                            $thumbnail = $postType === 'media' ? ($link ?? '') : '';
+                                            $thumbnailUrl = $thumbnail ? (filter_var($thumbnail, FILTER_VALIDATE_URL) ? $thumbnail : Media::url($thumbnail)) : '';
                                         @endphp
-                                            <div class="thumbnail-dropzone mt-2" data-thumbnail-dropzone>
-                                                <div class="items clearfix">
-                                                    @if ($thumbnailUrl)
-                                                        <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="{{ $thumbnailUrl }}" data-type="image">
-                                                            <label class="d-flex flex-column flex-fill">
-                                                                <input type="text" name="medias[]" value="{{ $thumbnail }}" class="d-none">
-                                                                <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('{{ $thumbnailUrl }}');"></div>
-                                                            </label>
-                                                            <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
-                                                        </div>
+                                        <div class="thumbnail-dropzone mt-2" data-thumbnail-dropzone>
+                                            <div class="items clearfix">
+                                                @if ($thumbnailUrl)
+                                                    <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="{{ $thumbnailUrl }}" data-type="image">
+                                                        <label class="d-flex flex-column flex-fill">
+                                                            <input type="text" name="link" value="{{ $thumbnail }}" class="d-none">
+                                                            <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('{{ $thumbnailUrl }}');"></div>
+                                                        </label>
+                                                        <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
+                                                    </div>
                                                 @endif
                                             </div>
                                             <div class="drophere px-3 py-4 text-center text-gray-400 text-uppercase fs-12 bg-gray-100 border-3 border-dashed b-r-6" style="{{ $thumbnailUrl ? "display: none;" : "" }}">
@@ -83,10 +91,6 @@ if($post){
                                             </div>
                                         </div>
                                     </div>
-                                    @endcan
-                                </div>
-                                @can("appfiles")
-                                <div class="compose-type-media">
                                     <label class="form-label text-uppercase mb-0 d-flex align-items-center gap-8">
                                         <span>{{ __("Video/Image") }}</span>
                                         <span><i class="fa-light fa-circle-question" data-bs-title="{{ __('Note: Accepts one image/video at a time.') }}" data-bs-toggle="tooltip" data-bs-placement="top"></i></span>    

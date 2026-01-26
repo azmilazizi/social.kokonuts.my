@@ -63,7 +63,7 @@ class Post extends Facade
         self::initFacebook(); // Ensure Facebook SDK is initialized
         $data = json_decode($post->data, false);
         $medias = $data->medias;
-        $cover_url = $data->link;
+        $cover_url = $post->type === 'media' ? ($data->link ?? null) : null;
 
         $caption = spintax($data->caption);
         $post_type = $data->options->ig_type ?? 'media';
@@ -209,5 +209,4 @@ class Post extends Facade
     }
 
 }
-
 

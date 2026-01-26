@@ -275,10 +275,6 @@ var AppPubishing = new (function () {
                     var previewMedias = document.querySelectorAll('.preview-list-medias [data-preview-media]');
                     allMedias = Array.from(previewMedias);
                 }
-                var linkThumbnailItems = document.querySelectorAll('[data-thumbnail-dropzone] .items .file-item');
-                var linkThumbnail = linkThumbnailItems.length
-                    ? linkThumbnailItems[0].dataset?.file
-                    : '';
                 const previewHtml = allMedias.map(media => {
                     var type = media.dataset?.type || 'image';
                     var file = media.dataset?.file || media.src;
@@ -297,14 +293,7 @@ var AppPubishing = new (function () {
                 }).join('');
                 if (allMedias.length === 0) {
                     $(".cpv-img").html('');
-                    if (postType === "link") {
-                        var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
-                        if (linkThumbnail) {
-                            $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
-                        } else {
-                            $(".cpv-link .cpv-link-img").html('');
-                        }
-                    } else {
+                    if (postType !== "link") {
                         $(".cpv-link .cpv-link-img").html('');
                     }
                     return;
@@ -313,14 +302,7 @@ var AppPubishing = new (function () {
                 var firstFileType = firstMedia.dataset?.type || 'image';
                 var firstFile = firstMedia.dataset?.file || firstMedia.src;
                 $(".cpv-img").html(previewHtml);
-                if (postType === "link") {
-                    var linkThumbnail = AppPubishing.getThumbnailDropzoneUrl();
-                    if (linkThumbnail) {
-                        $(".cpv-link .cpv-link-img").html(`<img src="${linkThumbnail}"/>`);
-                    } else if (firstFileType == "image") {
-                        $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
-                    }
-                } else if (firstFileType == "image") {
+                if (postType !== "link" && firstFileType == "image") {
                     $(".cpv-link .cpv-link-img").html(`<img src="${firstFile}"/>`);
                 }
             }
@@ -424,20 +406,6 @@ var AppPubishing = new (function () {
                 $(".cpv-default").addClass("d-none");
             }
 
-            var thumbnail = AppPubishing.getThumbnailDropzoneUrl();
-            if (thumbnail) {
-                $(".cpv-link .cpv-link-img").html(`<img src="${thumbnail}"/>`);
-            } else {
-                var images = document.querySelectorAll('.file-selected-media .items .file-item');
-                if (images.length > 0) {
-                    var type = $(images[0]).data('type');
-                    var file = $(images[0]).data('file');
-
-                    if (type == "image") {
-                        $(".cpv-link .cpv-link-img").html(`<img src="${file}"/>`);
-                    }
-                }
-            }
         },
 
         AppPubishing.closeCompose = function () {
@@ -457,18 +425,23 @@ var AppPubishing = new (function () {
                 case "media":
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").removeClass("d-none");
-                    AppPubishing.clearThumbnailDropzone();
+                    $(".compose-link-input").prop("disabled", true);
                     break;
 
                 case "link":
                     $(".compose-type-link").removeClass("d-none");
-                    $(".compose-type-media").removeClass("d-none");
+                    $(".compose-type-media").addClass("d-none");
+                    $(".compose-link-input").prop("disabled", false);
+                    AppPubishing.clearThumbnailDropzone();
+                    AppPubishing.clearSelectedMedia();
                     break;
 
                 default:
                     $(".compose-type-link").addClass("d-none");
                     $(".compose-type-media").addClass("d-none");
+                    $(".compose-link-input").prop("disabled", true);
                     AppPubishing.clearThumbnailDropzone();
+                    AppPubishing.clearSelectedMedia();
 
             }
 
@@ -547,7 +520,7 @@ var AppPubishing = new (function () {
             var itemHtml = `
                 <div class="file-item w-100 ratio ratio-1x1 min-h-80 border b-r-6 rounded selected bg-primary-100 text-primary" data-file="${file}" data-type="image">
                     <label class="d-flex flex-column flex-fill">
-                        <input type="text" name="medias[]" value="${file}" class="d-none">
+                        <input type="text" name="link" value="${file}" class="d-none">
                         <div class="d-flex flex-fill align-items-center justify-content-center overflow-y-auto bg-cover position-relative btl-r-6 btr-r-6 file-item-media" style="background-image: url('${file}');"></div>
                     </label>
                     <button type="button" href="javascript:void(0)" class="remove bg-white border b-r-100 text-danger w-20 h-20 fs-12 position-absolute r-0"><i class="fal fa-times"></i></button>
@@ -617,6 +590,18 @@ var AppPubishing = new (function () {
                     }
                 });
             });
+        },
+
+        AppPubishing.clearSelectedMedia = function () {
+            var $items = $(".compose-type-media .file-selected-media .items");
+            if (!$items.length) {
+                return;
+            }
+
+            $items.empty();
+            if (window.Files && typeof Files.checkSelectedEmpty === "function") {
+                Files.checkSelectedEmpty();
+            }
         },
 
         AppPubishing.closePopoverCalendar = function () {

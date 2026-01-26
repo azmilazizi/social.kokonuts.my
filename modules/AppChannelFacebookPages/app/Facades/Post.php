@@ -368,7 +368,7 @@ class Post extends Facade
         $postId = $response['id'] ?? null;
 
         
-        if ($postId && $post->type === 'link' && !empty($medias) && Media::isVideo($medias[0])) {
+        if ($postId && $post->type === 'media' && !empty($medias) && Media::isVideo($medias[0])) {
             $thumbnail = self::resolveVideoThumbnail($data->link);
             
             if (!empty($thumbnail)) {
