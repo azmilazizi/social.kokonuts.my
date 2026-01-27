@@ -34,6 +34,7 @@ var AppPubishing = new (function () {
             AppPubishing.previewAction();
             AppPubishing.preview();
             AppPubishing.initThumbnailDropzone();
+            AppPubishing.initCaptionByNetwork();
         }
 
     },
@@ -134,6 +135,337 @@ var AppPubishing = new (function () {
             return selections;
         },
 
+        AppPubishing.initCaptionByNetwork = function () {
+            var $container = $("[data-caption-by-network]");
+            if (!$container.length || $container.data("caption-network-init")) {
+                return;
+            }
+
+            $container.data("caption-network-init", true);
+
+            var $tabsWrap = $container.find("[data-caption-network-tabs]");
+            var $tabList = $container.find("[data-caption-tab-list]");
+            var $panels = $container.find("[data-caption-network-panels]");
+            var templateLabel = $container.data("template-label") || "Template";
+            var promptText = $container.data("caption-edit-prompt") || "Click this button to stop using the current template and customize the post";
+            var editLabel = $container.data("caption-edit-button") || "Edit";
+
+            function getSelectedAccountsData() {
+                return AppPubishing.getSelectedAccounts().map(function ($item) {
+                    var id = $item.find("input").val();
+                    var name = $item.data("name") || $item.find(".text-gray-800").first().text().trim();
+                    var network = $item.data("social-network") || $item.data("network");
+                    return {
+                        id: id,
+                        name: name || id,
+                        network: network || ""
+                    };
+                });
+            }
+
+            function buildTabButton(key, label) {
+                return `
+                    <button type="button" class="nav-link" data-caption-tab="${key}">
+                        ${label}
+                    </button>
+                `;
+            }
+
+            function getNetworkIconHtml(network, label) {
+                var icons = {
+                    facebook: "fa-facebook-f",
+                    instagram: "fa-instagram",
+                    tiktok: "fa-tiktok",
+                    linkedin: "fa-linkedin-in",
+                    twitter: "fa-twitter",
+                    x: "fa-x-twitter",
+                    youtube: "fa-youtube",
+                    pinterest: "fa-pinterest-p",
+                    reddit: "fa-reddit-alien"
+                };
+                var key = (network || "").toString().toLowerCase();
+                var iconClass = icons[key] || "fa-share-nodes";
+                var title = label || key || "Network";
+                return `<i class="fa-brands ${iconClass}" title="${title}" aria-label="${title}"></i>`;
+            }
+
+            function buildCaptionPanel(account) {
+                var panel = $(`
+                    <div class="caption-panel d-none" data-caption-panel="${account.id}">
+                        <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" placeholder="${templateLabel}"></textarea>
+                        <div class="caption-disabled-overlay" data-caption-disabled>
+                            <div class="caption-disabled-content">
+                                <div class="caption-disabled-text text-center mb-2">${promptText}</div>
+                                <button type="button" class="btn btn-primary btn-sm" data-caption-enable>
+                                    ${editLabel}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                var $textarea = panel.find("textarea");
+                AppPubishing.initEmojiArea($textarea);
+                AppPubishing.disableCaptionField($textarea);
+                AppPubishing.bindCaptionEvents($textarea);
+                return panel;
+            }
+
+            function ensureTemplatePanel() {
+                var $templatePanel = $panels.find('[data-caption-panel="template"]');
+                if ($templatePanel.length) {
+                    AppPubishing.bindCaptionEvents($templatePanel.find("textarea"));
+                }
+            }
+
+            function buildTabs() {
+                var accounts = getSelectedAccountsData();
+                var selectedKeys = accounts.map(function (account) {
+                    return account.id;
+                });
+
+                $panels.find("[data-caption-panel]").each(function () {
+                    var key = $(this).data("caption-panel");
+                    if (key === "template") {
+                        return;
+                    }
+                    if (selectedKeys.indexOf(key) === -1) {
+                        $(this).remove();
+                    }
+                });
+
+                accounts.forEach(function (account) {
+                    if (!$panels.find('[data-caption-panel="' + account.id + '"]').length) {
+                        $panels.append(buildCaptionPanel(account));
+                    }
+                });
+
+                var tabsHtml = [buildTabButton("template", templateLabel)];
+                accounts.forEach(function (account) {
+                    tabsHtml.push(buildTabButton(account.id, getNetworkIconHtml(account.network, account.name)));
+                });
+                $tabList.html(tabsHtml.join(""));
+                activateTab($tabList.find('[data-caption-tab="template"]'));
+            }
+
+            function activateTab($tab) {
+                if (!$tab || !$tab.length) {
+                    return;
+                }
+                var key = $tab.data("caption-tab");
+                $tabList.find(".nav-link").removeClass("active");
+                $tab.addClass("active");
+                $panels.find("[data-caption-panel]").addClass("d-none").removeClass("is-active");
+                var $panel = $panels.find('[data-caption-panel="' + key + '"]');
+                $panel.removeClass("d-none").addClass("is-active");
+                AppPubishing.initEmojiArea($panel.find("textarea"));
+                AppPubishing.refreshCaptionPreview();
+            }
+
+            function isNetworkModeActive() {
+                return $container.hasClass("is-caption-network-active");
+            }
+
+            function updateTabsVisibility() {
+                $tabsWrap.toggleClass("d-none", !isNetworkModeActive());
+            }
+
+            $(document).on("click", "[data-caption-network-toggle]", function () {
+                $container.toggleClass("is-caption-network-active");
+                if (isNetworkModeActive()) {
+                    buildTabs();
+                } else {
+                    $tabList.find(".nav-link").removeClass("active");
+                    $panels.find("[data-caption-panel]").addClass("d-none").removeClass("is-active");
+                    $panels.find('[data-caption-panel="template"]').removeClass("d-none").addClass("is-active");
+                    AppPubishing.refreshCaptionPreview();
+                }
+                updateTabsVisibility();
+            });
+
+            $(document).on("click", "[data-caption-tab]", function () {
+                activateTab($(this));
+            });
+
+            $(document).on("click", "[data-caption-enable]", function () {
+                var $panel = $(this).closest("[data-caption-panel]");
+                var $textarea = $panel.find("textarea");
+                var templateText = AppPubishing.getCaptionText($panels.find('[data-caption-panel="template"] textarea'));
+                AppPubishing.initEmojiArea($textarea);
+                AppPubishing.enableCaptionField($textarea);
+                AppPubishing.setCaptionText($textarea, templateText);
+                $panel.find("[data-caption-disabled]").addClass("d-none");
+                $panel.addClass("is-enabled");
+                AppPubishing.refreshCaptionPreview();
+            });
+
+            var selectionContainer = document.querySelector(".am-selected-list");
+            if (selectionContainer) {
+                var selectionObserver = new MutationObserver(function () {
+                    if (isNetworkModeActive()) {
+                        buildTabs();
+                    }
+                });
+                selectionObserver.observe(selectionContainer, { childList: true, subtree: false });
+            }
+
+            $(document).on("change", ".am-choice-item input[type='checkbox']", function () {
+                if (isNetworkModeActive()) {
+                    buildTabs();
+                }
+            });
+
+            ensureTemplatePanel();
+            updateTabsVisibility();
+        },
+
+        AppPubishing.initEmojiArea = function ($textarea) {
+            if (!$textarea || !$textarea.length) {
+                return;
+            }
+            if ($textarea.data("emojioneArea")) {
+                return;
+            }
+            $textarea.emojioneArea({
+                hideSource: true,
+                useSprite: false,
+                pickerPosition: "bottom",
+                filtersPosition: "top"
+            });
+        },
+
+        AppPubishing.disableCaptionField = function ($textarea) {
+            if (!$textarea || !$textarea.length) {
+                return;
+            }
+            $textarea.prop("disabled", true);
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.disable && emojiArea.editor) {
+                emojiArea.disable();
+            }
+        },
+
+        AppPubishing.enableCaptionField = function ($textarea) {
+            if (!$textarea || !$textarea.length) {
+                return;
+            }
+            $textarea.prop("disabled", false);
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.enable && emojiArea.editor) {
+                emojiArea.enable();
+            }
+        },
+
+        AppPubishing.getCaptionText = function ($textarea) {
+            if (!$textarea || !$textarea.length) {
+                return "";
+            }
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.getText && emojiArea.editor) {
+                return emojiArea.getText();
+            }
+            return $textarea.val() || "";
+        },
+
+        AppPubishing.setCaptionText = function ($textarea, text) {
+            if (!$textarea || !$textarea.length) {
+                return;
+            }
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.setText && emojiArea.editor) {
+                emojiArea.setText(text || "");
+                return;
+            }
+            $textarea.val(text || "");
+        },
+
+        AppPubishing.getCaptionContent = function ($textarea, editor) {
+            if (editor && editor.html) {
+                return editor.html();
+            }
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.editor) {
+                return emojiArea.editor.html();
+            }
+            return $textarea.val() || "";
+        },
+
+        AppPubishing.isCaptionPanelActive = function ($textarea) {
+            var $panel = $textarea.closest("[data-caption-panel]");
+            if (!$panel.length) {
+                return true;
+            }
+            if ($panel.hasClass("is-active")) {
+                return true;
+            }
+            var $container = $panel.closest("[data-caption-by-network]");
+            return !$container.hasClass("is-caption-network-active") && $panel.data("caption-panel") === "template";
+        },
+
+        AppPubishing.getActiveCaptionTextarea = function () {
+            var $container = $("[data-caption-by-network]");
+            var $activePanel = $container.find("[data-caption-panel].is-active");
+            if ($activePanel.length) {
+                var $textarea = $activePanel.find("textarea").first();
+                if ($textarea.length) {
+                    return $textarea;
+                }
+            }
+            return $(".post-caption").first();
+        },
+
+        AppPubishing.refreshCaptionPreview = function () {
+            var $textarea = AppPubishing.getActiveCaptionTextarea();
+            if (!$textarea.length) {
+                return;
+            }
+            var text = AppPubishing.getCaptionText($textarea);
+            var content = AppPubishing.getCaptionContent($textarea);
+            $textarea.closest(".wrap-input-emoji").find(".count-word span").html(text.length);
+            if (text !== "") {
+                $(".cpv-text").html(content);
+            } else {
+                $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
+            }
+        },
+
+        AppPubishing.bindCaptionEvents = function ($textarea) {
+            if (!$textarea || !$textarea.length || $textarea.data("caption-events")) {
+                return;
+            }
+            $textarea.data("caption-events", true);
+            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+            if (emojiArea && emojiArea.on) {
+                emojiArea.on("keyup", function (editor, event) {
+                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                        return;
+                    }
+                    AppPubishing.refreshCaptionPreview();
+                });
+
+                emojiArea.on("change", function (editor, event) {
+                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                        return;
+                    }
+                    AppPubishing.refreshCaptionPreview();
+                });
+
+                emojiArea.on("emojibtn.click", function (button, event) {
+                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                        return;
+                    }
+                    AppPubishing.refreshCaptionPreview();
+                });
+            } else {
+                $textarea.on("input", function () {
+                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                        return;
+                    }
+                    AppPubishing.refreshCaptionPreview();
+                });
+            }
+        },
+
         AppPubishing.previewAction = function () {
             function channelChanges() {
                 var selectedAccounts = AppPubishing.getSelectedAccounts();
@@ -163,38 +495,7 @@ var AppPubishing = new (function () {
             });
 
             if ($(".post-caption").length > 0) {
-                $(".post-caption")[0].emojioneArea.on("keyup", function (editor, event) {
-                    var text = $(".post-caption")[0].emojioneArea.getText();
-                    var content = editor.html();
-                    editor.parents(".wrap-input-emoji").find('.count-word span').html(text.length);
-                    if (text != "") {
-                        $(".cpv-text").html(content);
-                    } else {
-                        $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-                    }
-                });
-
-                $(".post-caption")[0].emojioneArea.on("change", function (editor, event) {
-                    var text = $(".post-caption")[0].emojioneArea.getText();
-                    var content = editor.html();
-                    editor.parents(".wrap-input-emoji").find('.count-word span').html(text.length);
-                    if (text != "") {
-                        $(".cpv-text").html(content);
-                    } else {
-                        $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-                    }
-                });
-
-                $(".post-caption")[0].emojioneArea.on("emojibtn.click", function (button, event) {
-                    var text = $(".post-caption")[0].emojioneArea.getText();
-                    var content = $(".post-caption")[0].parents(".wrap-input-emoji").find(".emojionearea-editor").html();
-                    button.parents(".wrap-input-emoji").find('.count-word span').html(text.length);
-                    if (text != "") {
-                        $(".cpv-text").html(content);
-                    } else {
-                        $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-                    }
-                });
+                AppPubishing.bindCaptionEvents($(".post-caption").eq(0));
             }
         },
 
@@ -259,12 +560,7 @@ var AppPubishing = new (function () {
                     break;
             }
 
-            var caption = $('[name="caption"]').val();
-            var $cpvText = $(".cpv-text");
-            $cpvText.html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
-            if (caption) {
-                $cpvText.html(caption);
-            }
+            AppPubishing.refreshCaptionPreview();
 
             function onMediaItemsChange() {
                 var images = document.querySelectorAll('.compose-type-media .file-selected-media .items .file-item');
