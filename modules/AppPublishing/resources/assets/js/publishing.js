@@ -171,13 +171,31 @@ var AppPubishing = new (function () {
                 `;
             }
 
+            function getNetworkIconHtml(network, label) {
+                var icons = {
+                    facebook: "fa-facebook-f",
+                    instagram: "fa-instagram",
+                    tiktok: "fa-tiktok",
+                    linkedin: "fa-linkedin-in",
+                    twitter: "fa-twitter",
+                    x: "fa-x-twitter",
+                    youtube: "fa-youtube",
+                    pinterest: "fa-pinterest-p",
+                    reddit: "fa-reddit-alien"
+                };
+                var key = (network || "").toString().toLowerCase();
+                var iconClass = icons[key] || "fa-share-nodes";
+                var title = label || key || "Network";
+                return `<i class="fa-brands ${iconClass}" title="${title}" aria-label="${title}"></i>`;
+            }
+
             function buildCaptionPanel(account) {
                 var panel = $(`
                     <div class="caption-panel d-none" data-caption-panel="${account.id}">
                         <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" placeholder="${templateLabel}"></textarea>
                         <div class="caption-disabled-overlay" data-caption-disabled>
                             <div class="caption-disabled-content">
-                                <div class="text-center mb-2">${promptText}</div>
+                                <div class="caption-disabled-text text-center mb-2">${promptText}</div>
                                 <button type="button" class="btn btn-primary btn-sm" data-caption-enable>
                                     ${editLabel}
                                 </button>
@@ -224,7 +242,7 @@ var AppPubishing = new (function () {
 
                 var tabsHtml = [buildTabButton("template", templateLabel)];
                 accounts.forEach(function (account) {
-                    tabsHtml.push(buildTabButton(account.id, account.name));
+                    tabsHtml.push(buildTabButton(account.id, getNetworkIconHtml(account.network, account.name)));
                 });
                 $tabList.html(tabsHtml.join(""));
                 activateTab($tabList.find('[data-caption-tab="template"]'));
@@ -240,6 +258,7 @@ var AppPubishing = new (function () {
                 $panels.find("[data-caption-panel]").addClass("d-none").removeClass("is-active");
                 var $panel = $panels.find('[data-caption-panel="' + key + '"]');
                 $panel.removeClass("d-none").addClass("is-active");
+                AppPubishing.initEmojiArea($panel.find("textarea"));
                 AppPubishing.refreshCaptionPreview();
             }
 
@@ -272,8 +291,9 @@ var AppPubishing = new (function () {
                 var $panel = $(this).closest("[data-caption-panel]");
                 var $textarea = $panel.find("textarea");
                 var templateText = AppPubishing.getCaptionText($panels.find('[data-caption-panel="template"] textarea'));
-                AppPubishing.setCaptionText($textarea, templateText);
+                AppPubishing.initEmojiArea($textarea);
                 AppPubishing.enableCaptionField($textarea);
+                AppPubishing.setCaptionText($textarea, templateText);
                 $panel.find("[data-caption-disabled]").addClass("d-none");
                 $panel.addClass("is-enabled");
                 AppPubishing.refreshCaptionPreview();
