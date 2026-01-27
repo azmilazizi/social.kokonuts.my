@@ -1607,9 +1607,23 @@ var Main = new (function ()
                                 case "text":
                                     if (result.errors && typeof result.errors === "object") {
                                         Object.values(result.errors).forEach(function(errArr) {
-                                            errArr.forEach(function(errorMsg) {
-                                                Main.showNotify(result.title || '', errorMsg, 'error'); // hoặc result.status nếu status là 'error'
-                                            });
+                                            if (Array.isArray(errArr)) {
+                                                errArr.forEach(function(errorMsg) {
+                                                    Main.showNotify(result.title || '', errorMsg, 'error'); // hoặc result.status nếu status là 'error'
+                                                });
+                                            } else if (typeof errArr === "string") {
+                                                Main.showNotify(result.title || '', errArr, 'error');
+                                            } else if (errArr && typeof errArr === "object") {
+                                                Object.values(errArr).forEach(function(nestedErrArr) {
+                                                    if (Array.isArray(nestedErrArr)) {
+                                                        nestedErrArr.forEach(function(errorMsg) {
+                                                            Main.showNotify(result.title || '', errorMsg, 'error');
+                                                        });
+                                                    } else if (typeof nestedErrArr === "string") {
+                                                        Main.showNotify(result.title || '', nestedErrArr, 'error');
+                                                    }
+                                                });
+                                            }
                                         });
                                     } else {
                                         Main.showNotify(result.title, result.message, result.status);
@@ -1619,9 +1633,23 @@ var Main = new (function ()
                                 default:
                                     if (result.errors && typeof result.errors === "object") {
                                         Object.values(result.errors).forEach(function(errArr) {
-                                            errArr.forEach(function(errorMsg) {
-                                                Main.showNotify(result.title || '', errorMsg, 'error'); // hoặc result.status nếu status là 'error'
-                                            });
+                                            if (Array.isArray(errArr)) {
+                                                errArr.forEach(function(errorMsg) {
+                                                    Main.showNotify(result.title || '', errorMsg, 'error'); // hoặc result.status nếu status là 'error'
+                                                });
+                                            } else if (typeof errArr === "string") {
+                                                Main.showNotify(result.title || '', errArr, 'error');
+                                            } else if (errArr && typeof errArr === "object") {
+                                                Object.values(errArr).forEach(function(nestedErrArr) {
+                                                    if (Array.isArray(nestedErrArr)) {
+                                                        nestedErrArr.forEach(function(errorMsg) {
+                                                            Main.showNotify(result.title || '', errorMsg, 'error');
+                                                        });
+                                                    } else if (typeof nestedErrArr === "string") {
+                                                        Main.showNotify(result.title || '', nestedErrArr, 'error');
+                                                    }
+                                                });
+                                            }
                                         });
                                     } else {
                                         Main.showNotify(result.title, result.message, result.status);
