@@ -39,8 +39,13 @@ class Post extends Facade
         $caption = $data->caption ?? '';
         $options = (array) ($data->options ?? []);
         $disclaimer = $options['yt_disclaimer'] ?? '';
+        $youtubeType = $options['yt_type'] ?? 'video';
+        $title = trim($caption);
         if (trim($caption) === '' && trim($disclaimer) === '') {
             $errors[] = __("YouTube: Please enter a title or description.");
+        }
+        if ($youtubeType === 'shorts' && $title !== '' && mb_strlen($title) > 100) {
+            $errors[] = __("YouTube Shorts: Title must be 100 characters or less.");
         }
 
         return $errors;
