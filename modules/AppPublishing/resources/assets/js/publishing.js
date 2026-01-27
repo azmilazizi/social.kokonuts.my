@@ -320,7 +320,7 @@ var AppPubishing = new (function () {
             }
             $textarea.prop("disabled", true);
             var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.disable) {
+            if (emojiArea && emojiArea.disable && emojiArea.editor) {
                 emojiArea.disable();
             }
         },
@@ -331,7 +331,7 @@ var AppPubishing = new (function () {
             }
             $textarea.prop("disabled", false);
             var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.enable) {
+            if (emojiArea && emojiArea.enable && emojiArea.editor) {
                 emojiArea.enable();
             }
         },
@@ -341,7 +341,7 @@ var AppPubishing = new (function () {
                 return "";
             }
             var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.getText) {
+            if (emojiArea && emojiArea.getText && emojiArea.editor) {
                 return emojiArea.getText();
             }
             return $textarea.val() || "";
@@ -352,7 +352,7 @@ var AppPubishing = new (function () {
                 return;
             }
             var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.setText) {
+            if (emojiArea && emojiArea.setText && emojiArea.editor) {
                 emojiArea.setText(text || "");
                 return;
             }
