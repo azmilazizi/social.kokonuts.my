@@ -134,7 +134,7 @@ class Post extends Facade
                         "type" => $post->type,
                     ];
                 }
-                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint);
+                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint, $data->link);
 
             case 'link':
                 if (empty($medias) || !Media::isVideo($medias[0])) {
@@ -161,7 +161,7 @@ class Post extends Facade
                     ];
                 }
 
-                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint, $data->link);
+                return self::completeReelsUpload($FB, $post, $uploadSession, $caption, Media::url($medias[0]), $endpoint);
             case 'text':
                 return [
                     "status" => 0,
