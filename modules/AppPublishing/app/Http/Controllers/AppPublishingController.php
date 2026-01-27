@@ -218,6 +218,7 @@ class AppPublishingController extends Controller
         $type            = (string) $request->type;
         $postBy          = (int) $request->post_by;
         $caption         = (string) $request->caption;
+        $captionsByAccount = (array) $request->input('captions', []);
         $title           = (string) $request->title;
         $timePosts       = (array) $request->time_posts;
         $link            = (string) $request->link;
@@ -329,21 +330,13 @@ class AppPublishingController extends Controller
             ->get();
         $labelIdsArray = $labels ? Arr::pluck($labels, 'id') : [];
 
-        $postData = [
-            "title"   => $title,
-            "caption" => $caption,
-            "link"    => $link,
-            "medias"  => $medias,
-            "options" => $options,
-        ];
-
         $data = [
             "campaign"         => $campaignId,
             "labels"           => $labelIdsArray,
             "team_id"          => $request->team_id,
             "function"         => "post",
             "type"             => $type,
-            "data"             => json_encode($postData),
+            "data"             => "",
             "time_post"        => 0,
             "delay"            => $intervalPerPost,
             "repost_frequency" => $repostFrequency,
@@ -378,6 +371,19 @@ class AppPublishingController extends Controller
             $data['category']       = $channel->category;
             $data['api_type']       = $channel->login_type;
             $data['module']         = $channel->module;
+            $channelCaption = $caption;
+            if (array_key_exists($channel->id_secure, $captionsByAccount)) {
+                $channelCaption = (string) $captionsByAccount[$channel->id_secure];
+            }
+
+            $postData = [
+                "title"   => $title,
+                "caption" => $channelCaption,
+                "link"    => $link,
+                "medias"  => $medias,
+                "options" => $options,
+            ];
+            $data['data'] = json_encode($postData);
 
             if ($postBy === 3) {
                 foreach ($timePosts as $time) {
