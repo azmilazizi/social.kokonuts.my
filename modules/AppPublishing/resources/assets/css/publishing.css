@@ -34,6 +34,11 @@
     max-width: 360px;
 }
 
+.caption-disabled-text {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 @media only screen and (max-width: 768px) {
  	.compose .compose-media{
 		position: absolute;
