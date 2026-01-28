@@ -256,7 +256,8 @@ var AppPubishing = new (function () {
                     x: "fa-x-twitter",
                     youtube: "fa-youtube",
                     pinterest: "fa-pinterest-p",
-                    reddit: "fa-reddit-alien"
+                    reddit: "fa-reddit-alien",
+                    threads: "fa-threads"
                 };
                 var key = (network || "").toString().toLowerCase();
                 var iconClass = icons[key] || "fa-share-nodes";
