@@ -528,11 +528,53 @@ var AppPubishing = new (function () {
             var text = AppPubishing.getCaptionText($textarea);
             var content = AppPubishing.getCaptionContent($textarea);
             $textarea.closest(".wrap-input-emoji").find(".count-word span").html(text.length);
-            if (text !== "") {
-                $(".cpv-text").html(content);
-            } else {
-                $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
+            var placeholderHtml = '<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>';
+
+            function applyCaptionPreview($target, previewText, previewContent) {
+                if (!$target || !$target.length) {
+                    return;
+                }
+                if (previewText !== "") {
+                    $target.html(previewContent);
+                } else {
+                    $target.html(placeholderHtml);
+                }
             }
+
+            var $captionContainer = $("[data-caption-by-network]");
+            if ($captionContainer.hasClass("is-caption-network-active")) {
+                var selectedAccounts = AppPubishing.getSelectedAccounts();
+                if (selectedAccounts.length) {
+                    selectedAccounts.forEach(function ($item) {
+                        var accountId = $item.find("input").val();
+                        var network = ($item.data("social-network") || $item.data("network") || '').toString().toLowerCase();
+                        var $templateTextarea = $captionContainer
+                            .find("[data-caption-network-panels]")
+                            .find('[data-caption-panel="template"] textarea')
+                            .first();
+                        var $panel = $captionContainer
+                            .find("[data-caption-network-panels]")
+                            .find('[data-caption-panel="' + accountId + '"]');
+                        var $accountTextarea = $panel.find("textarea");
+                        var $sourceTextarea = $templateTextarea;
+                        if ($accountTextarea.length && $accountTextarea.data("caption-customized") === true) {
+                            $sourceTextarea = $accountTextarea;
+                        }
+                        var accountText = AppPubishing.getCaptionText($sourceTextarea);
+                        var accountContent = AppPubishing.getCaptionContent($sourceTextarea);
+                        $(".cpv").each(function () {
+                            var $cpv = $(this);
+                            var previewNetwork = ($cpv.data("social-network") || '').toString().toLowerCase();
+                            if (network && previewNetwork && network === previewNetwork) {
+                                applyCaptionPreview($cpv.find(".cpv-text"), accountText, accountContent);
+                            }
+                        });
+                    });
+                    return;
+                }
+            }
+
+            applyCaptionPreview($(".cpv-text"), text, content);
         },
 
         AppPubishing.bindCaptionEvents = function ($textarea) {
