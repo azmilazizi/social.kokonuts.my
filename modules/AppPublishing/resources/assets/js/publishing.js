@@ -150,6 +150,80 @@ var AppPubishing = new (function () {
             var promptText = $container.data("caption-edit-prompt") || "Click this button to stop using the current template and customize the post";
             var editLabel = $container.data("caption-edit-button") || "Edit";
 
+            function getTemplateTextarea() {
+                return $panels.find('[data-caption-panel="template"] textarea').first();
+            }
+
+            function isCaptionCustomized($textarea) {
+                return $textarea.data("caption-customized") === true;
+            }
+
+            function setCaptionFromTemplate($textarea, templateText) {
+                if (!$textarea || !$textarea.length) {
+                    return;
+                }
+                $textarea.data("caption-syncing", true);
+                AppPubishing.setCaptionText($textarea, templateText);
+                $textarea.data("caption-syncing", false);
+            }
+
+            function syncTemplateToChannels() {
+                if (!isNetworkModeActive()) {
+                    return;
+                }
+                var templateText = AppPubishing.getCaptionText(getTemplateTextarea());
+                $panels.find("[data-caption-panel]").each(function () {
+                    var $panel = $(this);
+                    if ($panel.data("caption-panel") === "template") {
+                        return;
+                    }
+                    var $textarea = $panel.find("textarea");
+                    if (isCaptionCustomized($textarea)) {
+                        return;
+                    }
+                    AppPubishing.initEmojiArea($textarea);
+                    setCaptionFromTemplate($textarea, templateText);
+                });
+            }
+
+            function markCaptionCustomized($textarea) {
+                if (!$textarea || !$textarea.length) {
+                    return;
+                }
+                if ($textarea.data("caption-syncing")) {
+                    return;
+                }
+                if (isCaptionCustomized($textarea)) {
+                    return;
+                }
+                $textarea.data("caption-customized", true);
+                var $panel = $textarea.closest("[data-caption-panel]");
+                $panel.addClass("is-enabled");
+                $panel.find("[data-caption-disabled]").addClass("d-none");
+                AppPubishing.enableCaptionField($textarea);
+            }
+
+            function bindChannelCustomizationEvents($textarea) {
+                if (!$textarea || !$textarea.length || $textarea.data("caption-customize-events")) {
+                    return;
+                }
+                $textarea.data("caption-customize-events", true);
+                var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
+                var handleCustomization = function () {
+                    if (!isNetworkModeActive()) {
+                        return;
+                    }
+                    markCaptionCustomized($textarea);
+                };
+                if (emojiArea && emojiArea.on) {
+                    emojiArea.on("keyup", handleCustomization);
+                    emojiArea.on("change", handleCustomization);
+                    emojiArea.on("emojibtn.click", handleCustomization);
+                } else {
+                    $textarea.on("input", handleCustomization);
+                }
+            }
+
             function getSelectedAccountsData() {
                 return AppPubishing.getSelectedAccounts().map(function ($item) {
                     var id = $item.find("input").val();
@@ -221,13 +295,29 @@ var AppPubishing = new (function () {
                 AppPubishing.initEmojiArea($textarea);
                 AppPubishing.disableCaptionField($textarea);
                 AppPubishing.bindCaptionEvents($textarea);
+                bindChannelCustomizationEvents($textarea);
                 return panel;
             }
 
             function ensureTemplatePanel() {
                 var $templatePanel = $panels.find('[data-caption-panel="template"]');
                 if ($templatePanel.length) {
-                    AppPubishing.bindCaptionEvents($templatePanel.find("textarea"));
+                    var $templateTextarea = $templatePanel.find("textarea");
+                    AppPubishing.bindCaptionEvents($templateTextarea);
+                    if (!$templateTextarea.data("caption-template-events")) {
+                        $templateTextarea.data("caption-template-events", true);
+                        var emojiArea = $templateTextarea[0] && $templateTextarea[0].emojioneArea;
+                        var syncHandler = function () {
+                            syncTemplateToChannels();
+                        };
+                        if (emojiArea && emojiArea.on) {
+                            emojiArea.on("keyup", syncHandler);
+                            emojiArea.on("change", syncHandler);
+                            emojiArea.on("emojibtn.click", syncHandler);
+                        } else {
+                            $templateTextarea.on("input", syncHandler);
+                        }
+                    }
                 }
             }
 
@@ -260,6 +350,7 @@ var AppPubishing = new (function () {
                 });
                 $tabList.html(tabsHtml.join(""));
                 activateTab($tabList.find('[data-caption-tab="template"]'));
+                syncTemplateToChannels();
             }
 
             function activateTab($tab) {
@@ -304,10 +395,10 @@ var AppPubishing = new (function () {
             $(document).on("click", "[data-caption-enable]", function () {
                 var $panel = $(this).closest("[data-caption-panel]");
                 var $textarea = $panel.find("textarea");
-                var templateText = AppPubishing.getCaptionText($panels.find('[data-caption-panel="template"] textarea'));
+                var templateText = AppPubishing.getCaptionText(getTemplateTextarea());
                 AppPubishing.initEmojiArea($textarea);
                 AppPubishing.enableCaptionField($textarea);
-                AppPubishing.setCaptionText($textarea, templateText);
+                setCaptionFromTemplate($textarea, templateText);
                 $panel.find("[data-caption-disabled]").addClass("d-none");
                 $panel.addClass("is-enabled");
                 AppPubishing.refreshCaptionPreview();
@@ -330,6 +421,7 @@ var AppPubishing = new (function () {
             });
 
             ensureTemplatePanel();
+            syncTemplateToChannels();
             updateTabsVisibility();
         },
 
@@ -436,11 +528,53 @@ var AppPubishing = new (function () {
             var text = AppPubishing.getCaptionText($textarea);
             var content = AppPubishing.getCaptionContent($textarea);
             $textarea.closest(".wrap-input-emoji").find(".count-word span").html(text.length);
-            if (text !== "") {
-                $(".cpv-text").html(content);
-            } else {
-                $(".cpv-text").html('<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>');
+            var placeholderHtml = '<div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1"></div><div class="h-12 bg-gray-200 mb-1 wp-50"></div>';
+
+            function applyCaptionPreview($target, previewText, previewContent) {
+                if (!$target || !$target.length) {
+                    return;
+                }
+                if (previewText !== "") {
+                    $target.html(previewContent);
+                } else {
+                    $target.html(placeholderHtml);
+                }
             }
+
+            var $captionContainer = $("[data-caption-by-network]");
+            if ($captionContainer.hasClass("is-caption-network-active")) {
+                var selectedAccounts = AppPubishing.getSelectedAccounts();
+                if (selectedAccounts.length) {
+                    selectedAccounts.forEach(function ($item) {
+                        var accountId = $item.find("input").val();
+                        var network = ($item.data("social-network") || $item.data("network") || '').toString().toLowerCase();
+                        var $templateTextarea = $captionContainer
+                            .find("[data-caption-network-panels]")
+                            .find('[data-caption-panel="template"] textarea')
+                            .first();
+                        var $panel = $captionContainer
+                            .find("[data-caption-network-panels]")
+                            .find('[data-caption-panel="' + accountId + '"]');
+                        var $accountTextarea = $panel.find("textarea");
+                        var $sourceTextarea = $templateTextarea;
+                        if ($accountTextarea.length && $accountTextarea.data("caption-customized") === true) {
+                            $sourceTextarea = $accountTextarea;
+                        }
+                        var accountText = AppPubishing.getCaptionText($sourceTextarea);
+                        var accountContent = AppPubishing.getCaptionContent($sourceTextarea);
+                        $(".cpv").each(function () {
+                            var $cpv = $(this);
+                            var previewNetwork = ($cpv.data("social-network") || '').toString().toLowerCase();
+                            if (network && previewNetwork && network === previewNetwork) {
+                                applyCaptionPreview($cpv.find(".cpv-text"), accountText, accountContent);
+                            }
+                        });
+                    });
+                    return;
+                }
+            }
+
+            applyCaptionPreview($(".cpv-text"), text, content);
         },
 
         AppPubishing.bindCaptionEvents = function ($textarea) {
