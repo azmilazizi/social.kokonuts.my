@@ -163,9 +163,10 @@ var AppPubishing = new (function () {
                 });
             }
 
-            function buildTabButton(key, label) {
+            function buildTabButton(key, label, title) {
+                var safeTitle = title || "";
                 return `
-                    <button type="button" class="nav-link" data-caption-tab="${key}">
+                    <button type="button" class="nav-link" data-caption-tab="${key}" title="${safeTitle}">
                         ${label}
                     </button>
                 `;
@@ -187,6 +188,18 @@ var AppPubishing = new (function () {
                 var iconClass = icons[key] || "fa-share-nodes";
                 var title = label || key || "Network";
                 return `<i class="fa-brands ${iconClass}" title="${title}" aria-label="${title}"></i>`;
+            }
+
+            function formatNetworkLabel(network) {
+                if (!network) {
+                    return "Network";
+                }
+                return network
+                    .toString()
+                    .replace(/[_-]+/g, " ")
+                    .replace(/\b\w/g, function (char) {
+                        return char.toUpperCase();
+                    });
             }
 
             function buildCaptionPanel(account) {
@@ -240,9 +253,10 @@ var AppPubishing = new (function () {
                     }
                 });
 
-                var tabsHtml = [buildTabButton("template", templateLabel)];
+                var tabsHtml = [buildTabButton("template", templateLabel, templateLabel)];
                 accounts.forEach(function (account) {
-                    tabsHtml.push(buildTabButton(account.id, getNetworkIconHtml(account.network, account.name)));
+                    var networkLabel = formatNetworkLabel(account.network);
+                    tabsHtml.push(buildTabButton(account.id, getNetworkIconHtml(account.network, networkLabel), networkLabel));
                 });
                 $tabList.html(tabsHtml.join(""));
                 activateTab($tabList.find('[data-caption-tab="template"]'));
