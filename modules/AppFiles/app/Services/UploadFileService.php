@@ -30,7 +30,7 @@ class UploadFileService
     {
         $storageType = get_option('file_storage_server', 'local');
         $this->disk = $this->disks[$storageType] ?? 'public';
-        $this->maxFileSize = (int)\Access::permission('appfiles.max_size') * 1024;
+        $this->maxFileSize = (int)\Access::permission('appfiles.max_size');
         $this->allowedFileTypes = explode(',', get_option("file_allowed_file_types", "jpeg,gif,png,jpg,webp,mp4,csv,pdf,mp3,wmv,json") );
 
         switch ($storageType) {
@@ -146,7 +146,7 @@ class UploadFileService
             }
 
             // Size check (MB)
-            if ($size > $this->maxFileSize * 1024 * 1024) {
+            if ($this->maxFileSize > 0 && $size > $this->maxFileSize * 1024 * 1024) {
                 throw new \Exception(__('File size exceeds the maximum allowed size of :size MB.', [
                     'size' => $this->maxFileSize
                 ]));

@@ -125,7 +125,7 @@
                         <label for="file-upload" class="dropdown-item p-2 rounded d-flex gap-8 fw-5 fs-14">
                             <span class="size-16 me-1 text-center"><i class="fa-light fa-up-from-bracket"></i></span> {{ __("Upload file") }}
                         </label>
-                        <input id="file-upload" class="d-none form-file-input" name="avatar" type="file" multiple="true" data-call-success="Main.ajaxScroll(true)" />
+                        <input id="file-upload" class="d-none form-file-input" name="avatar" type="file" multiple="true" data-max-size-mb="{{ Access::permission('appfiles.max_size') }}" data-call-success="Main.ajaxScroll(true)" />
                     </div>
                     <div>
                         <a class="dropdown-item p-2 rounded d-flex gap-8 fw-5 fs-14 actionItem" href="{{ module_url("update_folder") }}" data-popup="updateFolderModal" data-call-success="Main.ajaxScroll(true)">

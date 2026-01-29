@@ -308,8 +308,24 @@ var Files = new (function ()
             form_data.append("folder_id", folder_id == undefined ? "0" : folder_id);
 
             var totalfiles = this.files ? this.files.length : 0;
+            var maxSizeMb = parseFloat($(this).data('max-size-mb'));
+            var maxSizeBytes = !isNaN(maxSizeMb) && maxSizeMb > 0 ? maxSizeMb * 1024 * 1024 : null;
+            var hasValidFiles = false;
+
             for (var index = 0; index < totalfiles; index++) {
-                form_data.append("files[]", this.files[index]);
+                var file = this.files[index];
+                if (maxSizeBytes && file.size > maxSizeBytes) {
+                    Main.showNotify('', 'File "' + file.name + '" exceeds the ' + maxSizeMb + 'MB limit.', 'error');
+                    continue;
+                }
+
+                form_data.append("files[]", file);
+                hasValidFiles = true;
+            }
+
+            if (!hasValidFiles) {
+                $(this).val('');
+                return false;
             }
 
             $(this).val('');
