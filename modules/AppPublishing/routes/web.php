@@ -27,6 +27,8 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::post('destroy-by-filters', [AppPublishingController::class, 'destroyByFilter'])->name('app.publishing.destroy_by_filter');
             Route::post('save', [AppPublishingController::class, 'save'])->name('app.publishing.save');
             Route::post('changePostDate', [AppPublishingController::class, 'changePostDate'])->name('app.publishing.changePostDate');
+            Route::post('youtube-disclaimer-template', [AppPublishingController::class, 'saveYoutubeDisclaimerTemplate'])
+                ->name('app.publishing.youtube_disclaimer_template');
 
         });
     });

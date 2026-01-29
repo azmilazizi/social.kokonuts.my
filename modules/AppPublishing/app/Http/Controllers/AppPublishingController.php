@@ -174,6 +174,25 @@ class AppPublishingController extends Controller
         ms([ "status" => 1 ]);
     }
 
+    public function saveYoutubeDisclaimerTemplate(Request $request)
+    {
+        $value = (string) $request->input('value', '');
+
+        DB::table('options')->updateOrInsert(
+            ['name' => 'yt_disclaimer'],
+            ['value' => $value]
+        );
+
+        if (app()->bound('options')) {
+            app()->forgetInstance('options');
+        }
+
+        ms([
+            "status" => 1,
+            "message" => __("Succeed")
+        ]);
+    }
+
     public function composer(Request $request)
     {
         $id = $request->input("id");
