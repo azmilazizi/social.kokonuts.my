@@ -13,7 +13,7 @@ use Publishing;
 class CronJobCommand extends Command
 {
     // The name and signature of the console command.
-    protected $signature = 'appaiublishing:cronjob';
+    protected $signature = 'appaipublishing:cronjob';
 
     // The console command description.
     protected $description = 'Execute the scheduler cron job';

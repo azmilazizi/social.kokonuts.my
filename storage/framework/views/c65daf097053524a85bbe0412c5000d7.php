@@ -50,8 +50,21 @@ if($post){
                     </div>
 
                     <div class="mb-3">
-                        <div class="mb-3 wrap-input-emoji">
-                            <textarea class="form-control input-emoji post-caption fw-4 border" name="caption" placeholder="<?php echo e(__("Enter caption")); ?>"><?php echo e($caption); ?></textarea>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm caption-by-network-toggle" data-caption-network-toggle>
+                                <i class="fa-light fa-pen-to-square me-1"></i> <?php echo e(__("Edit by Network")); ?>
+
+                            </button>
+                        </div>
+                        <div class="mb-3 wrap-input-emoji" data-caption-by-network data-template-label="<?php echo e(__('Template')); ?>" data-caption-edit-prompt="<?php echo e(__('Click this button to stop using the current template and customize the post')); ?>" data-caption-edit-button="<?php echo e(__('Edit')); ?>">
+                            <div class="caption-tabs d-none mb-2" data-caption-network-tabs>
+                                <div class="nav nav-tabs flex-nowrap overflow-auto" data-caption-tab-list></div>
+                            </div>
+                            <div class="caption-panels" data-caption-network-panels>
+                                <div class="caption-panel" data-caption-panel="template">
+                                    <textarea class="form-control input-emoji post-caption caption-template fw-4 border" name="caption" placeholder="<?php echo e(__("Enter caption")); ?>"><?php echo e($caption); ?></textarea>
+                                </div>
+                            </div>
                             <div class="p-3 border-end border-start border-bottom compose-type-body">
                                 <div class="compose-type-link <?php echo e($postType == 'link' ? '' : 'd-none'); ?>">
                                     <div class="mb-3">
