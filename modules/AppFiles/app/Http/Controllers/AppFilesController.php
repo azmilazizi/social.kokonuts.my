@@ -20,7 +20,7 @@ class AppFilesController extends Controller
 
         // Allowed file types
         $this->allowedFileTypes = get_option("file_allowed_file_types", "jpeg,gif,png,jpg,webp,mp4,csv,pdf,mp3,wmv,json");
-        $this->maxFileSize = (int)\Access::permission('appfiles.max_size') * 1024;
+        $this->maxFileSize = (int)\Access::permission('appfiles.max_size');
     }
 
     public function index(Request $request)
@@ -77,7 +77,7 @@ class AppFilesController extends Controller
         $allowedFileTypes = is_array($this->allowedFileTypes)
             ? $this->allowedFileTypes
             : explode(',', $this->allowedFileTypes);
-        $maxFileSizeKB = $this->maxFileSize;
+        $maxFileSizeKB = $this->maxFileSize > 0 ? $this->maxFileSize * 1024 : null;
 
         $errors = [];
         $validFiles = [];
@@ -94,21 +94,26 @@ class AppFilesController extends Controller
             ];
             $isCsv = $ext === 'csv';
 
+            $fileRules = [
+                'required',
+                'file',
+                $isCsv ? 'mimetypes:' . implode(',', $allowedCsvTypes) : ('mimes:' . implode(',', $allowedFileTypes)),
+            ];
+
+            if ($maxFileSizeKB) {
+                $fileRules[] = 'max:' . $maxFileSizeKB;
+            }
+
             $validator = Validator::make(
                 ['file' => $file],
                 [
-                    'file' => [
-                        'required',
-                        'file',
-                        $isCsv ? 'mimetypes:' . implode(',', $allowedCsvTypes) : ('mimes:' . implode(',', $allowedFileTypes)),
-                        'max:' . $maxFileSizeKB
-                    ]
+                    'file' => $fileRules
                 ],
                 [
                     'file.mimes' => __('Invalid file type. Allowed: ') . implode(', ', $allowedFileTypes),
                     'file.mimetypes' => __('Invalid CSV file type.'),
                     'file.required' => __('Please upload at least one file.'),
-                    'file.max' => __('Max file size is :size MB.', ['size' => $maxFileSizeKB / 1024])
+                    'file.max' => __('Max file size is :size MB.', ['size' => $this->maxFileSize])
                 ]
             );
 
