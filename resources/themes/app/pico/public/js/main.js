@@ -210,6 +210,16 @@ var Main = new (function ()
         updateRemoveButtonState();
     },
 
+    Main.updateOptionNetworkVisibility = function() {
+        $(".option-network").addClass("d-none");
+        $('.am-selected-list .am-selected-item').each(function() {
+            var network = $(this).data("network");
+            if (network) {
+                $(`[data-option-network="${network}"]`).removeClass("d-none");
+            }
+        });
+    },
+
     Main.selectedAccount = function(el){
         if ($(".am-list-account").length > 0) {
             $(".am-list-account .am-choice-body .am-choice-item").each(function() {
@@ -219,13 +229,7 @@ var Main = new (function ()
                     $(".am-selected-list").append(selected_item_html);
                     $(".am-selected-empty").hide();
 
-                    $(".option-network").addClass("d-none");
-                    $('.am-selected-list .am-selected-item').each(function() {
-                        var network = $(this).data("network");
-                        if (network) {
-                            $(`[data-option-network="${network}"]`).removeClass("d-none");
-                        }
-                    });
+                    Main.updateOptionNetworkVisibility();
                 }
             });
         }
@@ -342,13 +346,7 @@ var Main = new (function ()
         $(".am-selected-list").append(selected_item_html);
         $(".am-selected-empty").hide();
 
-        $(".option-network").addClass("d-none");
-        $('.am-selected-list .am-selected-item').each(function() {
-            var network = $(this).data("network");
-            if (network) {
-                $(`[data-option-network="${network}"]`).removeClass("d-none");
-            }
-        });
+        Main.updateOptionNetworkVisibility();
     },
 
     Main.checkListChoiceEmpty = function(){
@@ -357,13 +355,7 @@ var Main = new (function ()
             $(".option-network").addClass("d-none");
         }
 
-        $('.am-selected-list .am-selected-item').each(function() {
-            var network = $(this).data("network");
-            $(".option-network").addClass("d-none");
-            if (network) {
-                $(`[data-option-network="${network}"]`).removeClass("d-none");
-            }
-        });
+        Main.updateOptionNetworkVisibility();
     },
 
     Main.updateSelectedList = function() {
@@ -385,6 +377,8 @@ var Main = new (function ()
         } else {
             $(".am-selected-empty").hide();
         }
+
+        Main.updateOptionNetworkVisibility();
     },
 
     Main.generalAIContent = function(){

@@ -71,11 +71,11 @@
                                         <label class="form-label">{{ __("Status") }}</label>
                                         <select class="form-select calendar-filter" name="status">
                                             <option value="">{{ __("All") }}</option>
-                                            <option value="3">{{ __("Processing") }}</option>
+                                            <option value="3">{{ __("Scheduled") }}</option>
                                             <option value="4">{{ __("Published") }}</option>
                                             <option value="5">{{ __("Unpublished") }}</option>
                                             <option value="1">{{ __("Active") }}</option>
-                                            <option value="2">{{ __("Waiting Approve") }}</option>
+                                            <option value="2">{{ __("Processing") }}</option>
                                             <option value="6">{{ __("Pause/Stop") }}</option>
                                         </select>
                                     </div>
@@ -209,15 +209,15 @@
 
             <div class="calendar-status d-none" data-status="3">
                 <div class="text-primary text-truncate">
-                    <i class="fa-light fa-loader fa-spin"></i>
-                    <span>{{ __("Processing") }}</span>
+                    <i class="fa-light fa-calendar-clock"></i>
+                    <span>{{ __("Scheduled") }}</span>
                 </div>
             </div>
 
             <div class="calendar-status d-none" data-status="2">
                 <div class="text-warning text-truncate">
-                    <i class="fa-solid fa-people-group"></i>
-                    <span>{{ __("Waiting Approve") }}</span>
+                    <i class="fa-light fa-loader fa-spin"></i>
+                    <span>{{ __("Processing") }}</span>
                 </div>
             </div>
 

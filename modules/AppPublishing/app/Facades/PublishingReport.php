@@ -110,8 +110,8 @@ class PublishingReport extends Facade
     {
         $statuses = [
             1 => ['label' => __('Draft'),            'color' => '#f5c542'],
-            2 => ['label' => __('Waiting Approve'),  'color' => '#4a90e2'],
-            3 => ['label' => __('Processing'),       'color' => '#50e3c2'],
+            2 => ['label' => __('Processing'),       'color' => '#4a90e2'],
+            3 => ['label' => __('Scheduled'),        'color' => '#50e3c2'],
             4 => ['label' => __('Failed'),           'color' => '#ff4d4f'],
             5 => ['label' => __('Success'),          'color' => '#52c41a'],
             6 => ['label' => __('Stop/Pause'),       'color' => '#888888'],

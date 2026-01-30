@@ -25,9 +25,9 @@
     $successTotal = $statusCounts[5] ?? 0;
     $failedTotal  = $statusCounts[4] ?? 0;
 
-    $processingTotal = $report['status_counts'][3] ?? 0;
-    $processingGrowth = $report['status_growth'][3] ?? 0;
-    $processingLabel = $report['status_map'][3]['label'] ?? 'Processing';
+    $processingTotal = $report['status_counts'][2] ?? 0;
+    $processingGrowth = $report['status_growth'][2] ?? 0;
+    $processingLabel = $report['status_map'][2]['label'] ?? 'Processing';
 
     $successRate = ($successTotal + $failedTotal) > 0
         ? round($successTotal * 100 / ($successTotal + $failedTotal), 1)

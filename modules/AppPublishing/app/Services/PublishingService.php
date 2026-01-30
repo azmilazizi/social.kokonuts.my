@@ -188,11 +188,27 @@ class PublishingService
                                             "message" => $response["message"],
                                             "type"    => $response["status"] == 5 ? $response["type"] ?? null : null,
                                         ], JSON_UNESCAPED_UNICODE);
+
+                                        if ($postId) {
+                                            Posts::where("id", $postId)->update([
+                                                'status'  => $post->status,
+                                                'result'  => $post->result,
+                                                'changed' => time(),
+                                            ]);
+                                        }
                                     } else {
                                         $countError++;
                                         $message = $response["message"];
                                         $post->status = 5;
                                         $post->result = json_encode(["message" => $response["message"]], JSON_UNESCAPED_UNICODE);
+
+                                        if ($postId) {
+                                            Posts::where("id", $postId)->update([
+                                                'status'  => $post->status,
+                                                'result'  => $post->result,
+                                                'changed' => time(),
+                                            ]);
+                                        }
                                     }
 
                                     // Handle repost
