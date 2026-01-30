@@ -343,8 +343,10 @@ class Post extends Facade
 
 
         return [
-            "status" => 0,
-            "message" => __("Reels processing timed out."),
+            "status" => 1,
+            "message" => __("Reels processing is still running and may take a few minutes."),
+            "id" => $videoId,
+            "url" => "https://www.facebook.com/reel/",
             "type" => "reels",
         ];
     }
@@ -510,6 +512,10 @@ class Post extends Facade
 
         try {
             // Validate URL
+            if (!filter_var($publicUrl, FILTER_VALIDATE_URL)) {
+                $publicUrl = Media::url($publicUrl);
+            }
+
             if (!filter_var($publicUrl, FILTER_VALIDATE_URL)) {
                 return null;
             }
