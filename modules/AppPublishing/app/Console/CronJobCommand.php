@@ -19,6 +19,7 @@ class CronJobCommand extends Command
 
         $posts = Posts::where('status', 3)
             ->where('time_post', '<=', $now)
+            ->orderBy('time_post')
             ->limit(10)
             ->get();
 
@@ -28,6 +29,18 @@ class CronJobCommand extends Command
         }
 
         foreach ($posts as $post) {
+            $claimed = Posts::where('id', $post->id)
+                ->where('status', 3)
+                ->update([
+                    'status' => 2,
+                    'changed' => $now,
+                ]);
+
+            if (!$claimed) {
+                continue;
+            }
+
+            $post->status = 2;
             Publishing::post([$post]);
         }
 
