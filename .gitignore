@@ -1,26 +1,33 @@
-/.phpunit.cache
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
+# PHP / Laravel
 /vendor
-/storage/*
-!/storage/.gitignore
-public/storage/*
-storage/app/public/files/*
 .env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
+.env.*
+/storage/*
+!/storage/.gitkeep
+/storage/*.key
+
+# Public generated files
+/public/storage/
+/public/build/
+/public/hot/
+
+# Node
+/node_modules
 npm-debug.log
 yarn-error.log
-/.fleet
+
+# Testing / tools
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
+auth.json
+
+# Dev env
+Homestead.json
+Homestead.yaml
+
+# IDEs
 /.idea
 /.vscode
+/.fleet
 /.zed
