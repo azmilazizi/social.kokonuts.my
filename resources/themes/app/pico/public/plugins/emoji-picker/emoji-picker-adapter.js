@@ -106,12 +106,12 @@
         self.$picker = $picker;
 
         var pickerElement = null;
-        if (window.customElements && window.customElements.get("emoji-picker")) {
-            pickerElement = createEmojiPicker(function (emoji, event) {
+        if (!window.customElements) {
+            pickerElement = buildPickerFallback(function (emoji, event) {
                 self.insertEmoji(emoji, event);
             });
         } else {
-            pickerElement = buildPickerFallback(function (emoji, event) {
+            pickerElement = createEmojiPicker(function (emoji, event) {
                 self.insertEmoji(emoji, event);
             });
         }
