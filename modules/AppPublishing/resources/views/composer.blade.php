@@ -61,7 +61,9 @@ if($post){
                             </div>
                             <div class="caption-panels" data-caption-network-panels>
                                 <div class="caption-panel" data-caption-panel="template">
-                                    <textarea class="form-control input-emoji post-caption caption-template fw-4 border" name="caption" placeholder="{{ __("Enter caption") }}">{{ $caption }}</textarea>
+                                    <div class="emoji-picker-field">
+                                        <textarea class="form-control input-emoji post-caption caption-template fw-4 border" name="caption" rows="4" placeholder="{{ __("Enter caption") }}">{{ $caption }}</textarea>
+                                    </div>
                                 </div>
                             </div>
                             <div class="p-3 border-end border-start border-bottom compose-type-body">

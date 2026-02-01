@@ -150,7 +150,18 @@ var AppPubishing = new (function () {
             var promptText = $container.data("caption-edit-prompt") || "Click this button to stop using the current template and customize the post";
             var editLabel = $container.data("caption-edit-button") || "Edit";
 
+            function buildTemplatePanel() {
+                return $(`
+                    <div class="caption-panel" data-caption-panel="template">
+                        <div class="emoji-picker-field">
+                            <textarea class="form-control input-emoji post-caption caption-template fw-4 border" name="caption" rows="4" placeholder="${templateLabel}"></textarea>
+                        </div>
+                    </div>
+                `);
+            }
+
             function getTemplateTextarea() {
+                ensureTemplatePanel();
                 return $panels.find('[data-caption-panel="template"] textarea').first();
             }
 
@@ -273,7 +284,9 @@ var AppPubishing = new (function () {
             function buildCaptionPanel(account) {
                 var panel = $(`
                     <div class="caption-panel d-none" data-caption-panel="${account.id}">
-                        <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" placeholder="${templateLabel}"></textarea>
+                        <div class="emoji-picker-field">
+                            <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" rows="4" placeholder="${templateLabel}"></textarea>
+                        </div>
                         <div class="caption-disabled-overlay" data-caption-disabled>
                             <div class="caption-disabled-content">
                                 <div class="caption-disabled-text text-center mb-2">${promptText}</div>
@@ -295,16 +308,19 @@ var AppPubishing = new (function () {
 
             function ensureTemplatePanel() {
                 var $templatePanel = $panels.find('[data-caption-panel="template"]');
-                if ($templatePanel.length) {
-                    var $templateTextarea = $templatePanel.find("textarea");
-                    AppPubishing.bindCaptionEvents($templateTextarea);
-                    if (!$templateTextarea.data("caption-template-events")) {
-                        $templateTextarea.data("caption-template-events", true);
-                        var syncHandler = function () {
-                            syncTemplateToChannels();
-                        };
-                        $templateTextarea.on("input", syncHandler);
-                    }
+                if (!$templatePanel.length) {
+                    $templatePanel = buildTemplatePanel();
+                    $panels.prepend($templatePanel);
+                }
+                var $templateTextarea = $templatePanel.find("textarea");
+                AppPubishing.initEmojiArea($templateTextarea);
+                AppPubishing.bindCaptionEvents($templateTextarea);
+                if (!$templateTextarea.data("caption-template-events")) {
+                    $templateTextarea.data("caption-template-events", true);
+                    var syncHandler = function () {
+                        syncTemplateToChannels();
+                    };
+                    $templateTextarea.on("input", syncHandler);
                 }
             }
 
