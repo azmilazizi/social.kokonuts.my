@@ -109834,8 +109834,35 @@ table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:after {
   border-radius: 6px;
 }
 
+.thumbnail-dropzone {
+  position: relative;
+  min-height: 100px;
+}
+
 .thumbnail-dropzone .items {
   text-align: left;
+  min-height: 100px;
+}
+
+.thumbnail-dropzone .drophere {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+}
+
+.thumbnail-dropzone .drophere span {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  margin-top: -10px;
+}
+
+.thumbnail-dropzone .drophere .has-action {
+  display: none;
 }
 
 .thumbnail-dropzone .file-item {
