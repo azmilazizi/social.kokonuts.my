@@ -110303,7 +110303,9 @@ html, body {
 }
 
 .emojionearea .emojionearea-button::before {
-  content: "😊";
+  content: "\f118";
+  font-family: "Font Awesome 5 Pro";
+  font-weight: 400;
   line-height: 1;
 }
 
