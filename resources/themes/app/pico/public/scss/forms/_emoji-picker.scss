@@ -1,0 +1,43 @@
+.input-emoji {
+  display: block;
+  padding-right: 2.75rem;
+}
+
+.emoji-picker-container {
+  position: relative;
+}
+
+.emoji-picker-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #99a1b7;
+  font-size: 18px;
+}
+
+.emoji-picker-toggle:disabled {
+  opacity: 0.5;
+}
+
+.emoji-picker-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 1050;
+  display: none;
+}
+
+.emoji-picker-popover.is-open {
+  display: block;
+}
+
+.emoji-picker-popover emoji-picker {
+  --emoji-size: 1.1rem;
+  width: 320px;
+  height: 360px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
