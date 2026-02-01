@@ -110339,8 +110339,8 @@ html, body {
 
 .emoji-picker-popover {
   position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
+  right: 0.75rem;
+  top: calc(0.75rem + 1.5rem);
   z-index: 1050;
   display: none;
 }
@@ -110351,8 +110351,31 @@ html, body {
 
 .emoji-picker-popover emoji-picker {
   --emoji-size: 1.1rem;
+  --background: #ffffff;
+  --border-color: #d0d5dd;
+  --input-background-color: #f8f9fb;
+  --input-border-color: #d0d5dd;
+  --input-font-color: #1f2937;
+  --input-placeholder-color: #98a2b3;
+  --text-color: #1f2937;
+  --category-icon-color: #98a2b3;
+  --category-icon-active-color: #1f2937;
   width: 320px;
   height: 360px;
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .emoji-picker-popover emoji-picker {
+    --background: #1e2129;
+    --border-color: #2b2f3a;
+    --input-background-color: #2b2f3a;
+    --input-border-color: #3a3f4b;
+    --input-font-color: #e4e7ec;
+    --input-placeholder-color: #98a2b3;
+    --text-color: #e4e7ec;
+    --category-icon-color: #98a2b3;
+    --category-icon-active-color: #ffffff;
+  }
 }
