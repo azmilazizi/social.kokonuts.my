@@ -208,20 +208,13 @@ var AppPubishing = new (function () {
                     return;
                 }
                 $textarea.data("caption-customize-events", true);
-                var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
                 var handleCustomization = function () {
                     if (!isNetworkModeActive()) {
                         return;
                     }
                     markCaptionCustomized($textarea);
                 };
-                if (emojiArea && emojiArea.on) {
-                    emojiArea.on("keyup", handleCustomization);
-                    emojiArea.on("change", handleCustomization);
-                    emojiArea.on("emojibtn.click", handleCustomization);
-                } else {
-                    $textarea.on("input", handleCustomization);
-                }
+                $textarea.on("input", handleCustomization);
             }
 
             function getSelectedAccountsData() {
@@ -307,17 +300,10 @@ var AppPubishing = new (function () {
                     AppPubishing.bindCaptionEvents($templateTextarea);
                     if (!$templateTextarea.data("caption-template-events")) {
                         $templateTextarea.data("caption-template-events", true);
-                        var emojiArea = $templateTextarea[0] && $templateTextarea[0].emojioneArea;
                         var syncHandler = function () {
                             syncTemplateToChannels();
                         };
-                        if (emojiArea && emojiArea.on) {
-                            emojiArea.on("keyup", syncHandler);
-                            emojiArea.on("change", syncHandler);
-                            emojiArea.on("emojibtn.click", syncHandler);
-                        } else {
-                            $templateTextarea.on("input", syncHandler);
-                        }
+                        $templateTextarea.on("input", syncHandler);
                     }
                 }
             }
@@ -430,15 +416,14 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return;
             }
-            if ($textarea.data("emojioneArea")) {
+            if ($textarea.data("emoji-picker-init")) {
                 return;
             }
-            $textarea.emojioneArea({
-                hideSource: true,
-                useSprite: false,
-                pickerPosition: "bottom",
-                filtersPosition: "top"
-            });
+            if (typeof Main !== "undefined" && typeof Main.initEmojiPicker === "function") {
+                Main.initEmojiPicker($textarea);
+                return;
+            }
+            $textarea.data("emoji-picker-init", true);
         },
 
         AppPubishing.disableCaptionField = function ($textarea) {
@@ -446,10 +431,7 @@ var AppPubishing = new (function () {
                 return;
             }
             $textarea.prop("disabled", true);
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.disable && emojiArea.editor) {
-                emojiArea.disable();
-            }
+            $textarea.closest(".emoji-picker-container").find(".emoji-picker-toggle").prop("disabled", true);
         },
 
         AppPubishing.enableCaptionField = function ($textarea) {
@@ -457,19 +439,12 @@ var AppPubishing = new (function () {
                 return;
             }
             $textarea.prop("disabled", false);
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.enable && emojiArea.editor) {
-                emojiArea.enable();
-            }
+            $textarea.closest(".emoji-picker-container").find(".emoji-picker-toggle").prop("disabled", false);
         },
 
         AppPubishing.getCaptionText = function ($textarea) {
             if (!$textarea || !$textarea.length) {
                 return "";
-            }
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.getText && emojiArea.editor) {
-                return emojiArea.getText();
             }
             return $textarea.val() || "";
         },
@@ -478,23 +453,19 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return;
             }
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.setText && emojiArea.editor) {
-                emojiArea.setText(text || "");
-                return;
-            }
             $textarea.val(text || "");
+            $textarea.trigger("input");
         },
 
         AppPubishing.getCaptionContent = function ($textarea, editor) {
             if (editor && editor.html) {
                 return editor.html();
             }
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.editor) {
-                return emojiArea.editor.html();
+            var text = $textarea.val() || "";
+            if (typeof Main !== "undefined" && typeof Main.nl2br === "function") {
+                return Main.nl2br(text);
             }
-            return $textarea.val() || "";
+            return text;
         },
 
         AppPubishing.isCaptionPanelActive = function ($textarea) {
@@ -583,36 +554,12 @@ var AppPubishing = new (function () {
                 return;
             }
             $textarea.data("caption-events", true);
-            var emojiArea = $textarea[0] && $textarea[0].emojioneArea;
-            if (emojiArea && emojiArea.on) {
-                emojiArea.on("keyup", function (editor, event) {
-                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
-                        return;
-                    }
-                    AppPubishing.refreshCaptionPreview();
-                });
-
-                emojiArea.on("change", function (editor, event) {
-                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
-                        return;
-                    }
-                    AppPubishing.refreshCaptionPreview();
-                });
-
-                emojiArea.on("emojibtn.click", function (button, event) {
-                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
-                        return;
-                    }
-                    AppPubishing.refreshCaptionPreview();
-                });
-            } else {
-                $textarea.on("input", function () {
-                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
-                        return;
-                    }
-                    AppPubishing.refreshCaptionPreview();
-                });
-            }
+            $textarea.on("input", function () {
+                if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                    return;
+                }
+                AppPubishing.refreshCaptionPreview();
+            });
         },
 
         AppPubishing.previewAction = function () {
@@ -894,9 +841,8 @@ var AppPubishing = new (function () {
         },
 
         AppPubishing.shorten = function (result) {
-            var emojiArea = $("[name='caption']").data("emojioneArea");
             if (result.data.caption != "" && result.data.caption !== null) {
-                emojiArea.setText(result.data.caption);
+                AppPubishing.setCaptionText($("[name='caption']"), result.data.caption);
             }
             $(".compose-editor [name='link']").val(result.data.link);
         },
