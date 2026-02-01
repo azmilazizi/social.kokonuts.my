@@ -1374,8 +1374,9 @@ var Main = new (function ()
         $textarea.data("emoji-picker-init", true);
         Main.bindEmojiPickerEvents();
 
+        var $fieldWrapper = $textarea.closest(".emoji-picker-field");
         var $wrapper = $textarea.closest(".wrap-input-emoji");
-        var $container = $wrapper.length ? $wrapper : $textarea.parent();
+        var $container = $fieldWrapper.length ? $fieldWrapper : ($wrapper.length ? $wrapper : $textarea.parent());
         $container.addClass("emoji-picker-container");
 
         var pickerId = $textarea.attr("id") || ("emoji-picker-" + Math.random().toString(36).slice(2, 9));

@@ -273,7 +273,9 @@ var AppPubishing = new (function () {
             function buildCaptionPanel(account) {
                 var panel = $(`
                     <div class="caption-panel d-none" data-caption-panel="${account.id}">
-                        <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" placeholder="${templateLabel}"></textarea>
+                        <div class="emoji-picker-field">
+                            <textarea class="form-control input-emoji post-caption-network fw-4 border" name="captions[${account.id}]" rows="4" placeholder="${templateLabel}"></textarea>
+                        </div>
                         <div class="caption-disabled-overlay" data-caption-disabled>
                             <div class="caption-disabled-content">
                                 <div class="caption-disabled-text text-center mb-2">${promptText}</div>

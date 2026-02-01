@@ -19,6 +19,24 @@
     position: relative;
 }
 
+.wrap-input-emoji .emoji-picker-field {
+    position: relative;
+}
+
+.wrap-input-emoji .caption-panel textarea {
+    min-height: 120px;
+}
+
+.wrap-input-emoji .emoji-picker-field .emoji-picker-toggle {
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.wrap-input-emoji .emoji-picker-field .emoji-picker-popover {
+    right: 0.5rem;
+    top: calc(0.5rem + 1.5rem);
+}
+
 .caption-tabs .nav-link {
     display: flex;
     align-items: center;
