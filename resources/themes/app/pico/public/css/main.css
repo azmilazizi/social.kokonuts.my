@@ -12913,6 +12913,30 @@ button, input, optgroup, select, textarea {
   border: 1px solid #f1f1f4;
 }
 
+.emojionearea-picker .emoji-picker-container,
+.emojionearea-picker emoji-picker {
+  height: 100%;
+  width: 100%;
+  border: 0;
+}
+
+.emoji-picker-fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+}
+
+.emoji-picker-fallback-item {
+  background: transparent;
+  border: 1px solid #f1f1f4;
+  border-radius: 6px;
+  font-size: 18px;
+  line-height: 1;
+  padding: 6px;
+  cursor: pointer;
+}
+
 *, :after, :before {
   box-sizing: border-box;
   border-width: 0;
