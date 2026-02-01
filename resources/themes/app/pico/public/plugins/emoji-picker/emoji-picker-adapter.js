@@ -106,16 +106,31 @@
         self.$picker = $picker;
 
         var pickerElement = null;
-        if (!window.customElements) {
-            pickerElement = buildPickerFallback(function (emoji, event) {
-                self.insertEmoji(emoji, event);
-            });
-        } else {
+        var canUseCustomPicker = window.customElements && typeof window.customElements.get === "function" && window.customElements.get("emoji-picker");
+        if (canUseCustomPicker) {
             pickerElement = createEmojiPicker(function (emoji, event) {
                 self.insertEmoji(emoji, event);
             });
+            $pickerContainer.append(pickerElement);
+        } else {
+            pickerElement = buildPickerFallback(function (emoji, event) {
+                self.insertEmoji(emoji, event);
+            });
+            $pickerContainer.append(pickerElement);
+            if (window.customElements && typeof window.customElements.whenDefined === "function") {
+                window.customElements.whenDefined("emoji-picker").then(function () {
+                    if (!$pickerContainer.length) {
+                        return;
+                    }
+                    $pickerContainer.empty();
+                    $pickerContainer.append(
+                        createEmojiPicker(function (emoji, event) {
+                            self.insertEmoji(emoji, event);
+                        })
+                    );
+                });
+            }
         }
-        $pickerContainer.append(pickerElement);
 
         $editor.on("input", function (event) {
             self.syncTextarea();
@@ -125,6 +140,21 @@
         $editor.on("keyup", function (event) {
             self.syncTextarea();
             self.trigger("keyup", $editor, event);
+        });
+
+        $editor.on("paste", function (event) {
+            if (self.disabled) {
+                return;
+            }
+            event.preventDefault();
+            var clipboard = (event.originalEvent && event.originalEvent.clipboardData) || event.clipboardData || window.clipboardData;
+            var text = "";
+            if (clipboard) {
+                text = clipboard.getData("text/plain") || clipboard.getData("text") || "";
+            }
+            insertAtCursor($editor[0], text);
+            self.syncTextarea();
+            self.trigger("change", $editor, event);
         });
 
         $button.on("click", function (event) {
