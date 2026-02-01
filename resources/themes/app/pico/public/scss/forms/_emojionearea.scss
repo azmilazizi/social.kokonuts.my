@@ -5,7 +5,7 @@
 }
 
 .input-emoji{
-	display: none!important;
+	display: block;
 }
 
 .emojionearea.input-emoji{
@@ -14,4 +14,64 @@
 
 .emojionearea-editor{
 	border: 1px solid $gray-200;
+}
+
+.emoji-picker-field{
+	position: relative;
+}
+
+.emoji-picker-button{
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	border: none;
+	background: transparent;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	color: $gray-700;
+	padding: 2px;
+}
+
+.emoji-picker-button:focus{
+	outline: 2px solid rgba($primary, 0.35);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
+.emoji-picker-panel{
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 6px;
+	background: $white;
+	border: 1px solid $gray-200;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+	border-radius: 8px;
+	padding: 8px;
+	display: none;
+	width: 240px;
+	max-height: 200px;
+	overflow: auto;
+	z-index: 10;
+}
+
+.emoji-picker-panel.is-open{
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 4px;
+}
+
+.emoji-picker-emoji{
+	border: none;
+	background: transparent;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 6px;
+}
+
+.emoji-picker-emoji:hover{
+	background: $gray-100;
 }

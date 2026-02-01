@@ -391,7 +391,7 @@ var Main = new (function () {
                 var that = $(this);
                 var data = new FormData();
                 var action = that.data("url");
-                var content = $(".post-caption")[0].emojioneArea.getText();
+                var content = $(".post-caption").val();
                 if (content != undefined) data.append("content", content);
                 Main.ajaxPost(that, action, data, function (result) {
                     if (result.status == 1) {
@@ -423,8 +423,6 @@ var Main = new (function () {
 
         Main.typeText = function (el, text, index = 0, clear = true) {
             const $el = $(el);
-            const isEmojiInput = $el.data("emojioneArea") !== undefined;
-            const emojiArea = isEmojiInput ? $el[0].emojioneArea : null;
             const elementId = $el.attr("id") || $el.data("typing-id") || Date.now();
 
             $el.data("typing-id", elementId); // assign id if not exists
@@ -438,23 +436,15 @@ var Main = new (function () {
             }
 
             if (clear) {
-                if (isEmojiInput) {
-                    emojiArea.setText("");
-                } else {
-                    $el.val("");
-                }
+                $el.val("");
             }
 
             function stepType(i) {
                 if (i < text.length) {
-                    const current = isEmojiInput ? emojiArea.getText() : $el.val();
+                    const current = $el.val();
                     const nextChar = text.charAt(i);
 
-                    if (isEmojiInput) {
-                        emojiArea.setText(current + nextChar);
-                    } else {
-                        $el.val(current + nextChar);
-                    }
+                    $el.val(current + nextChar);
 
                     const timer = setTimeout(() => {
                         stepType(i + 1);
@@ -1331,15 +1321,86 @@ var Main = new (function () {
                 element = "input-emoji";
             }
 
-            if ($('.' + element).length > 0) {
-                $('.' + element).emojioneArea({
-                    hideSource: true,
-                    useSprite: false,
-                    pickerPosition: "bottom",
-                    filtersPosition: "top"
+            var $targets = $('.' + element);
+            if ($targets.length > 0) {
+                var emojis = [
+                    "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎", "🤩", "🥳", "😇", "🤔", "😴", "🙃", "😌", "🤗",
+                    "😅", "😆", "😉", "🙂", "😋", "😜", "🤪", "😝", "🤤", "😢", "😭", "😤", "😠", "😡", "🤯", "😱",
+                    "👍", "👎", "👏", "🙌", "🤝", "🙏", "💪", "🔥", "✨", "🌟", "💯", "❤️", "🧡", "💛", "💚", "💙",
+                    "💜", "🖤", "🤍", "🤎", "🎉", "🎯", "✅", "⚡", "🌈", "☀️", "🌙", "⭐", "🍀", "🍕", "🍔", "☕"
+                ];
+
+                var insertEmoji = function (textarea, emoji) {
+                    if (!textarea) {
+                        return;
+                    }
+                    var start = textarea.selectionStart || 0;
+                    var end = textarea.selectionEnd || 0;
+                    var value = textarea.value || "";
+                    textarea.value = value.slice(0, start) + emoji + value.slice(end);
+                    var nextPos = start + emoji.length;
+                    textarea.selectionStart = nextPos;
+                    textarea.selectionEnd = nextPos;
+                    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+                };
+
+                $targets.each(function () {
+                    var $textarea = $(this);
+                    if ($textarea.data("emoji-picker")) {
+                        return;
+                    }
+                    $textarea.data("emoji-picker", true);
+                    var $wrapper = $textarea.closest(".emoji-picker-field");
+                    if (!$wrapper.length) {
+                        $textarea.wrap('<div class="emoji-picker-field"></div>');
+                        $wrapper = $textarea.parent();
+                    }
+
+                    if ($wrapper.find(".emoji-picker-button").length) {
+                        return;
+                    }
+
+                    var $button = $('<button type="button" class="emoji-picker-button" aria-label="Emoji picker">😊</button>');
+                    var $panel = $('<div class="emoji-picker-panel" role="dialog" aria-label="Emoji picker"></div>');
+
+                    emojis.forEach(function (emoji) {
+                        var $emojiButton = $('<button type="button" class="emoji-picker-emoji" aria-label="' + emoji + '"></button>');
+                        $emojiButton.text(emoji);
+                        $emojiButton.on("click", function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            insertEmoji($textarea[0], emoji);
+                            $panel.removeClass("is-open");
+                        });
+                        $panel.append($emojiButton);
+                    });
+
+                    $panel.on("click", function (event) {
+                        event.stopPropagation();
+                    });
+
+                    $button.on("click", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        $(".emoji-picker-panel").not($panel).removeClass("is-open");
+                        $panel.toggleClass("is-open");
+                    });
+
+                    $wrapper.append($button);
+                    $wrapper.append($panel);
                 });
 
-
+                if (!Main._emojiPickerBound) {
+                    $(document).on("click", function () {
+                        $(".emoji-picker-panel").removeClass("is-open");
+                    });
+                    $(document).on("keydown", function (event) {
+                        if (event.key === "Escape") {
+                            $(".emoji-picker-panel").removeClass("is-open");
+                        }
+                    });
+                    Main._emojiPickerBound = true;
+                }
             }
         },
 

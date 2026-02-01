@@ -5,7 +5,6 @@
 */
 @import url(../plugins/fontawesome/css/all.min.css);
 @import url(../plugins/jquery-ui/jquery-ui.min.css);
-@import url(../plugins/emojionearea/emojionearea.min.css);
 @import url(../plugins/datetimepicker/timepicker-addon.min.css);
 @import url(../plugins/select2/css/select2.min.css);
 @import url(../plugins/select2/css/select2-bootstrap-5-theme.css);
@@ -12902,7 +12901,7 @@ button, input, optgroup, select, textarea {
 }
 
 .input-emoji {
-  display: none !important;
+  display: block;
 }
 
 .emojionearea.input-emoji {
@@ -12911,6 +12910,66 @@ button, input, optgroup, select, textarea {
 
 .emojionearea-editor {
   border: 1px solid #f1f1f4;
+}
+
+.emoji-picker-field {
+  position: relative;
+}
+
+.emoji-picker-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 2px;
+}
+
+.emoji-picker-button:focus {
+  outline: 2px solid rgba(103, 93, 255, 0.35);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.emoji-picker-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  border: 1px solid #f1f1f4;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  display: none;
+  width: 240px;
+  max-height: 200px;
+  overflow: auto;
+  z-index: 10;
+}
+
+.emoji-picker-panel.is-open {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+
+.emoji-picker-emoji {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.emoji-picker-emoji:hover {
+  background: #f1f1f4;
 }
 
 *, :after, :before {

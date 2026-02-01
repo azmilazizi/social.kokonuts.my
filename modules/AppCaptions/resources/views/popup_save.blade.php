@@ -29,7 +29,7 @@
 
 <script type="text/javascript">
 	if ($(".post-caption").length > 0){
-        var text = $(".post-caption")[0].emojioneArea.getText();
+        var text = $(".post-caption").val();
         $(".caption-content").val(text);
     }
 </script>
