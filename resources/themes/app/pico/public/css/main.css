@@ -110294,3 +110294,20 @@ html, body {
   font-optical-sizing: auto;
   font-size: 1rem;
 }
+
+.emojionearea .emojionearea-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.emojionearea .emojionearea-button::before {
+  content: "😊";
+  line-height: 1;
+}
+
+.emojionearea .emojionearea-button > div {
+  background-image: none !important;
+  opacity: 0;
+}
