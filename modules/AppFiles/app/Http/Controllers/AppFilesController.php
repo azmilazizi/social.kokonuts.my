@@ -77,7 +77,28 @@ class AppFilesController extends Controller
         $allowedFileTypes = is_array($this->allowedFileTypes)
             ? $this->allowedFileTypes
             : explode(',', $this->allowedFileTypes);
+        $allowedFileTypes = array_values(array_filter(array_map('strtolower', array_map('trim', $allowedFileTypes))));
         $maxFileSizeKB = $this->maxFileSize > 0 ? $this->maxFileSize * 1024 : null;
+
+        $mimeTypeOverrides = [
+            'mp4' => [
+                'video/mp4',
+                'video/quicktime',
+                'video/x-m4v',
+                'application/octet-stream',
+            ],
+            'wmv' => [
+                'video/x-ms-wmv',
+                'video/wmv',
+                'application/octet-stream',
+            ],
+            'mp3' => [
+                'audio/mpeg',
+                'audio/mp3',
+                'audio/x-mp3',
+                'application/octet-stream',
+            ],
+        ];
 
         $errors = [];
         $validFiles = [];
@@ -97,8 +118,15 @@ class AppFilesController extends Controller
             $fileRules = [
                 'required',
                 'file',
-                $isCsv ? 'mimetypes:' . implode(',', $allowedCsvTypes) : ('mimes:' . implode(',', $allowedFileTypes)),
             ];
+
+            if ($isCsv) {
+                $fileRules[] = 'mimetypes:' . implode(',', $allowedCsvTypes);
+            } elseif (isset($mimeTypeOverrides[$ext])) {
+                $fileRules[] = 'mimetypes:' . implode(',', $mimeTypeOverrides[$ext]);
+            } else {
+                $fileRules[] = 'mimes:' . implode(',', $allowedFileTypes);
+            }
 
             if ($maxFileSizeKB) {
                 $fileRules[] = 'max:' . $maxFileSizeKB;
