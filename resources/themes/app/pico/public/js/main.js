@@ -1314,111 +1314,21 @@ var Main = new (function ()
     /*
     * Emoji
      */
-    Main.bindEmojiPickerEvents = function () {
-        if (Main._emojiPickerBound) {
-            return;
-        }
-        Main._emojiPickerBound = true;
-
-        $(document).on("click", ".emoji-picker-toggle", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            var $button = $(this);
-            var pickerId = $button.data("emoji-picker-id");
-            var $popover = $('[data-emoji-picker-popover="' + pickerId + '"]');
-            if (!$popover.length) {
-                return;
-            }
-
-            var isOpen = $popover.hasClass("is-open");
-            $(".emoji-picker-popover").removeClass("is-open");
-            if (!isOpen) {
-                $popover.addClass("is-open");
-            }
-        });
-
-        $(document).on("click", function (event) {
-            if ($(event.target).closest(".emoji-picker-popover, .emoji-picker-toggle").length) {
-                return;
-            }
-            $(".emoji-picker-popover").removeClass("is-open");
-        });
-
-        $(document).on("keydown", function (event) {
-            if (event.key === "Escape") {
-                $(".emoji-picker-popover").removeClass("is-open");
-            }
-        });
-    },
-
-    Main.insertEmojiAtCursor = function (textarea, emoji) {
-        if (!textarea || !emoji) {
-            return;
-        }
-        var start = typeof textarea.selectionStart === "number" ? textarea.selectionStart : textarea.value.length;
-        var end = typeof textarea.selectionEnd === "number" ? textarea.selectionEnd : textarea.value.length;
-        var text = textarea.value || "";
-        textarea.value = text.slice(0, start) + emoji + text.slice(end);
-        var cursor = start + emoji.length;
-        textarea.selectionStart = cursor;
-        textarea.selectionEnd = cursor;
-        textarea.dispatchEvent(new Event("input", { bubbles: true }));
-    },
-
-    Main.initEmojiPicker = function ($textarea) {
-        if (!$textarea || !$textarea.length || $textarea.data("emoji-picker-init")) {
-            return;
-        }
-
-        $textarea.data("emoji-picker-init", true);
-        Main.bindEmojiPickerEvents();
-
-        var $fieldWrapper = $textarea.closest(".emoji-picker-field");
-        var $wrapper = $textarea.closest(".wrap-input-emoji");
-        var $container = $fieldWrapper.length ? $fieldWrapper : ($wrapper.length ? $wrapper : $textarea.parent());
-        $container.addClass("emoji-picker-container");
-
-        var pickerId = $textarea.attr("id") || ("emoji-picker-" + Math.random().toString(36).slice(2, 9));
-
-        if (!$textarea.next(".emoji-picker-toggle").length) {
-            var $button = $(
-                '<button type="button" class="emoji-picker-toggle" aria-label="Insert emoji">' +
-                    '<i class="fa-regular fa-face-smile"></i>' +
-                '</button>'
-            );
-            $button.attr("data-emoji-picker-id", pickerId);
-            $textarea.after($button);
-        }
-
-        if (!$container.find('[data-emoji-picker-popover="' + pickerId + '"]').length) {
-            var $popover = $('<div class="emoji-picker-popover"></div>');
-            $popover.attr("data-emoji-picker-popover", pickerId);
-            var picker = document.createElement("emoji-picker");
-            picker.addEventListener("emoji-click", function (event) {
-                var emoji = null;
-                if (event && event.detail) {
-                    emoji = event.detail.unicode || (event.detail.emoji && event.detail.emoji.unicode);
-                }
-                if (!emoji) {
-                    return;
-                }
-                Main.insertEmojiAtCursor($textarea[0], emoji);
-                $popover.removeClass("is-open");
-            });
-            $popover.append(picker);
-            $container.append($popover);
-        }
-    },
-
     Main.Emoji = function (element) {
+        //Emoji texterea
         if (element == undefined) {
             element = "input-emoji";
         }
 
         if ($('.' + element).length > 0) {
-            $('.' + element).each(function () {
-                Main.initEmojiPicker($(this));
+            if (!$.fn.emojioneArea) {
+                return;
+            }
+            $('.' + element).emojioneArea({
+                hideSource: true,
+                useSprite: false,
+                pickerPosition: "bottom",
+                filtersPosition: "top"
             });
         }
     },

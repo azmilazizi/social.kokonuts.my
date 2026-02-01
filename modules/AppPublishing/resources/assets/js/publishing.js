@@ -432,18 +432,32 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return;
             }
-            if ($textarea.data("emoji-picker-init")) {
+            if ($textarea.data("emojioneArea")) {
                 return;
             }
-            if (typeof Main !== "undefined" && typeof Main.initEmojiPicker === "function") {
-                Main.initEmojiPicker($textarea);
+            if (typeof Main !== "undefined" && typeof Main.Emoji === "function") {
+                Main.Emoji();
+                AppPubishing.bindCaptionEvents($textarea);
                 return;
             }
-            $textarea.data("emoji-picker-init", true);
+            if ($textarea.emojioneArea) {
+                $textarea.emojioneArea({
+                    hideSource: true,
+                    useSprite: false,
+                    pickerPosition: "bottom",
+                    filtersPosition: "top"
+                });
+                AppPubishing.bindCaptionEvents($textarea);
+            }
         },
 
         AppPubishing.disableCaptionField = function ($textarea) {
             if (!$textarea || !$textarea.length) {
+                return;
+            }
+            var emojiArea = $textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea);
+            if (emojiArea && typeof emojiArea.disable === "function") {
+                emojiArea.disable();
                 return;
             }
             $textarea.prop("disabled", true);
@@ -454,6 +468,11 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return;
             }
+            var emojiArea = $textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea);
+            if (emojiArea && typeof emojiArea.enable === "function") {
+                emojiArea.enable();
+                return;
+            }
             $textarea.prop("disabled", false);
             $textarea.closest(".emoji-picker-container").find(".emoji-picker-toggle").prop("disabled", false);
         },
@@ -462,6 +481,10 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return "";
             }
+            var emojiArea = $textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea);
+            if (emojiArea && typeof emojiArea.getText === "function") {
+                return emojiArea.getText() || "";
+            }
             return $textarea.val() || "";
         },
 
@@ -469,13 +492,21 @@ var AppPubishing = new (function () {
             if (!$textarea || !$textarea.length) {
                 return;
             }
-            $textarea.val(text || "");
-            $textarea.trigger("input");
+            var emojiArea = $textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea);
+            if (emojiArea && typeof emojiArea.setText === "function") {
+                emojiArea.setText(text || "");
+                return;
+            }
+            $textarea.val(text || "").trigger("input");
         },
 
         AppPubishing.getCaptionContent = function ($textarea, editor) {
             if (editor && editor.html) {
                 return editor.html();
+            }
+            var emojiArea = $textarea && ($textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea));
+            if (emojiArea && emojiArea.editor && typeof emojiArea.editor.html === "function") {
+                return emojiArea.editor.html();
             }
             var text = $textarea.val() || "";
             if (typeof Main !== "undefined" && typeof Main.nl2br === "function") {
@@ -570,6 +601,16 @@ var AppPubishing = new (function () {
                 return;
             }
             $textarea.data("caption-events", true);
+            var emojiArea = $textarea.data("emojioneArea") || ($textarea[0] && $textarea[0].emojioneArea);
+            if (emojiArea && typeof emojiArea.on === "function") {
+                emojiArea.on("keyup change emojibtn.click", function () {
+                    if (!AppPubishing.isCaptionPanelActive($textarea)) {
+                        return;
+                    }
+                    AppPubishing.refreshCaptionPreview();
+                });
+                return;
+            }
             $textarea.on("input", function () {
                 if (!AppPubishing.isCaptionPanelActive($textarea)) {
                     return;
