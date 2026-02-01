@@ -31,7 +31,7 @@ class UploadFileService
         $storageType = get_option('file_storage_server', 'local');
         $this->disk = $this->disks[$storageType] ?? 'public';
         $this->maxFileSize = (int)\Access::permission('appfiles.max_size');
-        $this->allowedFileTypes = explode(',', get_option("file_allowed_file_types", "jpeg,gif,png,jpg,webp,mp4,csv,pdf,mp3,wmv,json") );
+        $this->allowedFileTypes = array_values(array_filter(array_map('strtolower', array_map('trim', explode(',', get_option("file_allowed_file_types", "jpeg,gif,png,jpg,webp,mp4,csv,pdf,mp3,wmv,json"))))));
 
         switch ($storageType) {
             case 'aws':
