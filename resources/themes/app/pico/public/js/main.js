@@ -1338,7 +1338,39 @@ var Main = new (function ()
                 filtersPosition   : "top"
             });
 
-            
+            $('.' + element).each(function () {
+                const $textarea = $(this);
+                const emojiArea = $textarea.data("emojioneArea");
+                if (!emojiArea || !emojiArea.editor) {
+                    return;
+                }
+
+                const $editor = emojiArea.editor;
+                if ($editor.data("newline-paste-handler")) {
+                    return;
+                }
+
+                $editor.data("newline-paste-handler", true);
+                $editor.on("paste", function (event) {
+                    const originalEvent = event.originalEvent || event;
+                    const clipboardData = originalEvent.clipboardData;
+                    if (!clipboardData) {
+                        return;
+                    }
+                    const text = clipboardData.getData("text/plain");
+                    if (!text) {
+                        return;
+                    }
+                    if (text.indexOf("\n") === -1 && text.indexOf("\r") === -1) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    const html = text.replace(/\r\n|\n|\r/g, "<br>");
+                    document.execCommand("insertHTML", false, html);
+                });
+            });
         }
     },
 
