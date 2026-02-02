@@ -1346,14 +1346,14 @@ var Main = new (function ()
                 }
 
                 const $editor = emojiArea.editor;
-                if ($editor.data("newline-paste-handler")) {
+                const editorEl = $editor[0];
+                if (!editorEl || $editor.data("newline-paste-handler")) {
                     return;
                 }
 
                 $editor.data("newline-paste-handler", true);
-                $editor.on("paste", function (event) {
-                    const originalEvent = event.originalEvent || event;
-                    const clipboardData = originalEvent.clipboardData;
+                editorEl.addEventListener("paste", function (event) {
+                    const clipboardData = event.clipboardData;
                     if (!clipboardData) {
                         return;
                     }
@@ -1362,11 +1362,12 @@ var Main = new (function ()
                         return;
                     }
                     event.preventDefault();
+                    event.stopPropagation();
                     event.stopImmediatePropagation();
                     const html = text.replace(/\r\n|\n|\r/g, "<br>");
                     document.execCommand("insertHTML", false, html);
                     return false;
-                });
+                }, true);
             });
         }
     },
