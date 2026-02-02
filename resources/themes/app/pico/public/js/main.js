@@ -1361,14 +1361,11 @@ var Main = new (function ()
                     if (!text) {
                         return;
                     }
-                    if (text.indexOf("\n") === -1 && text.indexOf("\r") === -1) {
-                        return;
-                    }
-
                     event.preventDefault();
                     event.stopImmediatePropagation();
                     const html = text.replace(/\r\n|\n|\r/g, "<br>");
                     document.execCommand("insertHTML", false, html);
+                    return false;
                 });
             });
         }
